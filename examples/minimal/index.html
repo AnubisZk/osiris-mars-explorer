@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZSK uçuş çekirdeği · en küçük örnek</title>
+  <style>
+    html,body{margin:0;height:100%;background:#0e1512;color:#e8f0e2;font:13px/1.5 system-ui,sans-serif;overflow:hidden}
+    canvas{display:block;width:100%;height:100%;outline:none}
+    #hud{position:fixed;left:12px;top:12px;padding:10px 12px;background:#0e1512cc;border:1px solid #2c3a30;font:12px/1.6 Consolas,monospace;white-space:pre;pointer-events:none}
+    #panel{position:fixed;right:12px;top:12px;padding:10px 12px;background:#0e1512cc;border:1px solid #2c3a30;display:grid;gap:6px;max-width:260px}
+    select{font:inherit;padding:4px;width:100%;box-sizing:border-box}
+    small{color:#9fb093}
+  </style>
+</head>
+<body>
+  <canvas id="scene" tabindex="0"></canvas>
+  <div id="hud"></div>
+  <div id="panel">
+    <label for="drone">Drone türü (motorlar kapalıyken)</label>
+    <select id="drone"></select>
+    <small>Space: motorlar · W/S: gaz · H: hover · oklar: eğim · A/D: dönüş · M: mod · C: kamera · R: sıfırla · Q: motorları kes</small>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

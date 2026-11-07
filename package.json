@@ -1,0 +1,23 @@
+{
+  "name": "zsk-flight-core",
+  "version": "1.0.0",
+  "description": "ZSK FPV uçuş çekirdeği: Rapier 240 Hz fizik, uçuş kontrolcüsü, altı drone türü, kumanda ve rüzgâr. Çizimden bağımsız.",
+  "type": "module",
+  "private": true,
+  "main": "src/index.js",
+  "exports": { ".": "./src/index.js", "./*": "./src/*" },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "trace": "node tools/flighttrace.mjs",
+    "check": "npm test && npm run trace",
+    "dev": "vite examples/minimal --open"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.4"
+  },
+  "engines": { "node": ">=22" }
+}
