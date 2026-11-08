@@ -1,128 +1,135 @@
 # OsirisZk · Mars Aerial Explorer
 
-A physics-based simulator for designing and testing **Mars exploration drones**, built for the
-NASA Space Apps Challenge 2026 (Ankara) by team **OsirisZk**. It runs on the team's own FPV flight
-core (Rapier rigid-body physics at a 240 Hz fixed step) and adds switchable **Earth / Mars**
-physics: planet gravity in the physics engine and aerodynamic forces computed from the local
-atmosphere.
-
-> **Status: Phase 1 of 9 (Mars physics) is complete and tested.** Rotor aerodynamics with
-> Reynolds/Mach effects, the Ingenuity-style coaxial helicopter, the Mars surface and the
-> mission-design game follow. See `MARS-ILERLEME.md` (Turkish) for the plan and the log.
-
-## What Phase 1 shows
-
-The same airframe, the same motors, the same Rapier world, only the planet changes:
-
-| 5" FPV quad (650 g) | Earth (ISA sea level) | Mars (brief: ρ 0.020 kg/m³) | Mars (NASA mean: ρ 0.016) |
-|---|---|---|---|
-| Max thrust / weight | 9.54 | **0.41 (cannot take off)** | **0.33** |
-| Full throttle, 2 s, from the ground | climbs 70 m | stays on the ground | stays on the ground |
-| rpm needed to hover | 8 000 | 38 700 (tip Mach 1.10) | 43 400 (tip Mach 1.23) |
-| Blade Reynolds number (75 % radius) | 108 000 | **2 900** | 2 300 |
-| Ideal hover power (momentum theory) | 46 W | 83 W | 94 W |
-| Terminal fall speed, motors off | 16 m/s | 74 m/s | 82 m/s |
-
-None of the six core airframes (65 mm whoop to a 2.4 kg hexacopter) can take off on Mars.
-Spinning faster does not help either: hovering would need supersonic blade tips, and at
-Reynolds numbers of a few thousand ordinary propeller airfoils lose most of their lift-to-drag.
-That is why NASA's Ingenuity uses large (1.21 m), slowly turning coaxial rotors. Phase 2 turns this
-into an experiment.
-
-Mars thrust in Phase 1 is an **upper bound**: the thrust coefficient is still held at its Earth
-value (see *Assumptions*). Full numbers for every airframe and four environments:
-`reports/planet-compare.csv` / `.json` (`npm run planet:compare`).
-
-## Quick start
+A real-time, physics-based simulator for designing Mars exploration rotorcraft, planning their
+missions and comparing designs in reproducible experiments. Built for the NASA Space Apps
+Challenge 2026 (Ankara) by team **OsirisZk** on the team's own FPV flight core (Rapier rigid-body
+physics, fixed 240 Hz step).
 
 ```bash
 npm install
-npm run check          # 76 tests + the 5" reference flight trace (must print "AYNI")
-npm run dev:planet     # Earth / Mars flight demo in the browser
-npm run planet:compare # Earth–Mars comparison → reports/planet-compare.{json,csv}
-npm run bench          # physics step cost per scenario → reports/physics-bench.json
+npm run check        # 94 tests + the 5" core reference trace (must print "AYNI")
+npm run dev:app      # mission control app (English / Türkçe)
+npm run experiments  # all 7 experiments → reports/experiments/*.json|csv
+npm run build        # static site in dist/ (any static host)
 ```
 
-Demo keys: Space arm · W/S throttle · H hover · arrows tilt · A/D yaw · M mode · C camera · R reset ·
-Q cut motors. Planet and airframe change while the motors are off. The demo scene uses placeholder
-boxes and colours; it is **not** Mars terrain data (that is Phase 4).
+## What it does
+
+| Phase | In this repository |
+|---|---|
+| 1 Mars physics | Earth/Mars environments with sourced parameters, hydrostatic atmosphere, CO₂ gas properties; Rapier gravity per planet; aerodynamic forces and torques on rigid bodies |
+| 2 Rotors and flight | Blade-element rotor model with Reynolds- and Mach-dependent airfoil polars, momentum and dynamic inflow, tip loss, ground effect, coaxial interference; BLDC motors with speed governor; Li-ion battery; four vehicles flying only by forces and torques |
+| 3 Frames | Conventional carbon, C60 (truncated icosahedron) lattice, hexagonal honeycomb shell. Exact mass, centre of mass and inertia tensor, drag areas, effect on flight and energy (no stress analysis: FEA is still required) |
+| 4 Mars surface | Mars24 Sun position, dust optical depth, procedural crater terrain with the Golombek–Rapp rock model (always labelled *not NASA data*), importer for real HiRISE/USGS DTMs |
+| 5 Mission game | Vehicle/frame/payload design, waypoint map, pre-flight energy budget, autonomous flight, FPV from Earth with the real light-time delay (fails; the vehicle lands on failsafe), telemetry, results |
+| 6 Experiments | Full-factorial runner with fixed seeds (frame, mass, rotor system, density, wind, route, planet); summary statistics, charts, CSV/JSON |
+| 7 Interface | Mission control panels: environment, design lab, mission, flight, telemetry, experiments, report (EN/TR) |
+| 8 Performance | Physics decoupled from rendering (interpolated), instancing, quality presets, in-app FPS/CPU/physics/GPU-timer HUD and a 10 s benchmark export; optional WebGPU path (`?renderer=webgpu`) |
+| 9 Validation | 94 automated tests (46 core + 48 new; below) |
+
+### Key results (default settings, `reports/`)
+
+- A standard 5" FPV quad cannot take off on Mars at any motor speed. The Ingenuity-like coaxial
+  helicopter hovers at ≈ 350 W, matching the published figure.
+- The same Ingenuity-like vehicle cannot lift off on Earth: its motors reach their current limit
+  before Earth hover torque. Its rotors were built for Mars air.
+- The C60 lattice frame adds 113 g and costs 3 % more energy on the same mission. The hexagonal
+  shell adds 144 g and costs 4 % more.
+- At a fixed rotor speed, energy is lowest at 0.0145–0.0165 kg/m³ and rises in both thinner and
+  denser air.
+- From Earth the one-way light time is 3–22 min (11 min on 14 Nov 2026), so real-time FPV is
+  impossible. Commands arrive after the vehicle's failsafe has landed it.
+
+## Validation (tests/)
+
+- Atmosphere:
+  - ISA table values.
+  - Mars scale height and molar mass (NASA Fact Sheet).
+  - Mars speed of sound (SuperCam).
+  - Hydrostatic balance and the ideal-gas law.
+  - NASA Glenn fit.
+- Mechanics:
+  - Free fall on Earth and Mars, and the fall-time ratio.
+  - Mass–weight consistency (contact force = m·g).
+  - Terminal velocity (tanh solution).
+  - Energy balance with drag work.
+  - Angular momentum (Dzhanibekov flip).
+- Physics step:
+  - 30/60/144/240 Hz rendering gives an identical state.
+  - The same wind seed gives the same flight.
+- Rotor:
+  - The published airfoil point is reproduced exactly.
+  - CT falls with Reynolds number; drag rises past the critical Mach number.
+  - FM < 1; induced power ≥ the ideal value.
+  - Static and dynamic inflow agree.
+  - NASA Ingenuity geometry: blade area, solidity, tip Mach 0.70, CT/σ 0.10 design point.
+  - End-to-end hover power in Rapier is 350 W ± 8 %.
+- Frames: closed-form inertias; C60 topology (60 / 90 / 32, Euler); published masses (1.8 kg, 20.8 kg, 0.65 kg).
+- Vehicles: every Mars-capable vehicle holds 5 m in Rapier; the 5" quad stays on the ground.
+- Mars time: Mars24 reference values (Ls, MTC, MSD); solar noon; morning Sun in the east; light time 3–22.5 min.
+- Terrain: deterministic; the Rapier heightfield agrees with the height function; the rock model holds; DTM import keeps the slopes.
+- Missions: autonomous mission and budget; identical telemetry on repeat; FPV through the light-time link fails; FPV with no delay succeeds.
+- Experiments: deterministic runs, summary and CSV.
+
+## Calibration and assumptions
+
+- Mars rotor airfoil:
+  - Anchored at the published clf5605 point (Re 2·10⁴, M 0.6: cl/cd 19.9 at cl 0.91).
+  - The shape around it is assumed.
+  - A lumped profile-loss factor of 3.0 is calibrated so the Ingenuity-like vehicle needs the published ≈ 350 W in hover. The uncalibrated model gives ≈ 200 W; the in-app switch shows both.
+- Ingenuity rotor: radius, blades, spacing, twist endpoints, peak and tip chord are from the NASA geometry report; the inner chord shape is assumed.
+- Vehicles: component masses, motors and batteries are assumed unless stated. A calibration mass makes published totals (1.8 kg, 20.8 kg, 0.65 kg) exact.
+- Not modelled:
+  - Rotor flapping blow-back in edgewise flow.
+  - Dust effects on sensors.
+  - Battery temperature.
+  - Structural strength.
+- Every value is labelled *sourced / brief / derived / assumed / scenario* in code, the app and reports.
+
+## Real NASA terrain
+
+The app ships with labelled procedural terrain. To fly over real terrain:
+
+1. Download a Jezero DTM GeoTIFF, from the [HiRISE DTM](https://www.uahirise.org/dtm/) page or the USGS Mars 2020 TRN HiRISE mosaic.
+2. Convert it:
+   `node tools/import-dtm.mjs jezero.tif --name jezero --size 1200 --cells 512 --title "Jezero HiRISE DTM" --credit "NASA/JPL/UArizona/USGS"`.
+3. Open the app with `?terrain=jezero`.
 
 ## Architecture
 
 ```
-src/physics, src/drone, src/controllers, …   ZSK flight core — unchanged (see docs/flight-core.md)
-src/planet/
-  atmosphere.js           ISA / hydrostatic layered model, NASA Glenn Mars fit, uniform; CO₂ gas data
-  profiles.js             Earth and Mars profiles: every parameter with unit, status and source
-  PlanetEnvironment.js    MarsEnvironment / EarthEnvironment: scenario overrides, validation, tables
-  PlanetPhysics.js        MarsPhysics: Rapier world with planet gravity + aerodynamic forces/torques
-  PlanetFlightPhysics.js  the flight core on a planet (gravity, density-scaled thrust and drag)
-  rotorDiagnostics.js     CT conventions, tip Mach, blade Reynolds number, hover rpm and power
-examples/planet/          browser demo with planet / airframe / language selection
-tools/                    planet-compare, physics-bench, flighttrace (core invariance)
-reports/                  generated comparison and benchmark results
+src/physics, drone, controllers, flight   ZSK flight core (unchanged; docs/flight-core.md)
+src/planet/      environments, atmosphere, MarsPhysics (Rapier world), core-on-a-planet adapter
+src/aero/        airfoil polars, blade-element rotor, rotor definitions
+src/power/       motor + governor, battery
+src/frames/      mass properties, carbon / C60 / hex-cell frames
+src/vehicles/    vehicle presets, assembly, RotorcraftVehicle (forces and torques in Rapier)
+src/control/     cascaded flight control and allocation (coaxial, multirotor)
+src/mars/        Mars24 time and Sun, Earth–Mars light time
+src/terrain/     procedural and DTM terrain, Rapier heightfield
+src/mission/     mission spec, energy budget, executive, delayed link
+src/sim/         Simulation, telemetry, planet wind
+src/experiment/  experiment runner and presets
+app/             mission control UI, rendering, worker, report
+tools/           experiments, comparison, benchmarks, DTM import, core trace
 ```
-
-Rules kept from the brief: the core is not rewritten or edited; physics never writes positions or
-velocities (only forces and torques); rendering is decoupled from the fixed 240 Hz physics step.
-On Earth at the core's reference density and gravity the planet layer reproduces the core's
-reference flight trace **bit for bit** (SHA-256 of the full state at every step).
-
-### Planet profiles
-
-| Profile | g (m/s²) | Surface ρ (kg/m³) | T (K) | Status |
-|---|---|---|---|---|
-| `mars-brief` (default) | 3.71 | 0.020 | 213.15 | team brief values, cross-checked with NASA |
-| `mars-nasa` | 3.73 | 0.016 | 214 | NASA Mars Fact Sheet |
-| `mars-glenn` | 3.73 | 0.0150 | 242.1 | NASA Glenn MGS curve fit, as published |
-| `mars-ingenuity-design-min` / `-max` | 3.73 | 0.0145 / 0.0185 | 214* | Ingenuity design range (JPL) |
-| `mars-ingenuity-low-season` | 3.73 | 0.012 | 214* | lowest Jezero density expected (JPL, 2021) |
-| `earth-isa` | 9.80665 | 1.225 | 288.15 | U.S. Standard Atmosphere 1976 / ISA |
-
-\* assumed. Any value can be overridden for an experiment
-(`MarsEnvironment({surfaceDensity: 0.012})`); overridden values are labelled *scenario*, and a
-`uniform` model holds density constant with altitude as an experimental control.
-
-### Validation (tests/planet-*.test.js)
-
-- ISA table values at 0, 1, 5, 11 and 20 km; Mars scale height 11.0 km and mean molar mass 43.49 g/mol (Fact Sheet)
-- Mars speed of sound inside the 235–255 m/s band of SuperCam measurements; CO₂ viscosity (Sutherland)
-- hydrostatic balance dp/dh = −ρg and the ideal-gas law for every profile; agreement with the NASA Glenn fit
-- free fall ½gt² on both planets, fall-time ratio √(g_E/g_M), mass independence in vacuum
-- mass–weight: ground contact force = m·g on Earth and Mars
-- terminal velocity and the analytic tanh solution; air-relative drag in wind
-- energy: first-order convergence in vacuum, drag work closes the balance, energy never rises
-- numerical stability: torque-free tumbling keeps angular momentum (Dzhanibekov flip reproduced)
-- fixed step: identical state at 30/60/144/240 Hz rendering; same wind seed gives the same flight
-- bit-for-bit core equivalence on Earth; Mars hover balance; Earth↔Mars switching
-
-### Assumptions (marked *assumed* in code, reports and the demo)
-
-1. Core airframe thrust and drag values are sea-level ISA calibrations (1.225 kg/m³).
-2. CT and CQ are held at their Earth values. No Reynolds or Mach correction yet, so Mars thrust is an upper bound (Phase 2).
-3. Maximum motor speed does not depend on density. There is no motor or ESC model yet (Phase 2).
-4. Body drag coefficients scale linearly with density.
-5. The core controller's feed-forward still uses 9.81 m/s². Its loops stay stable but respond more slowly on Mars.
-6. Battery drain is the core's load model, not an electrical power model (Phase 2).
-7. Aerodynamic forces act at the centre of mass. Blade chord for the Reynolds estimate is 0.1 D.
-
-Rapier computes in 32-bit floats; tests use tolerances that reflect this (≈1e-5 relative).
 
 ## Sources
 
-Data: [NASA Mars Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html) ·
-[NASA Glenn Mars atmosphere model](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mars-atmosphere-equation-metric/) ·
-[U.S. Standard Atmosphere 1976](https://ntrs.nasa.gov/citations/19770009539) ·
-[NIST-JANAF CO₂ table](https://janaf.nist.gov/tables/C-095.html) ·
-[Sutherland constants (White, via COMSOL)](https://doc.comsol.com/6.4/doc/com.comsol.help.cfd/cfd_ug_fluidflow_high_mach.08.46.html) ·
-[H. Grip, JPL: Ingenuity density range](https://science.nasa.gov/missions/mars-2020-perseverance/ingenuity-helicopter/flying-on-mars-is-getting-harder-and-harder/) ·
-[DLR: speed of sound on Mars](https://www.dlr.de/en/latest/news/2022/02/20220401_the-sound-of-mars).
-Full list with what each source is used for: `docs/SOURCES.md`.
+Full list with what each is used for: [`docs/SOURCES.md`](docs/SOURCES.md). The main ones:
 
-Software: ZSK flight core (team's own code), [Rapier](https://rapier.rs) (Apache-2.0),
-[three.js](https://threejs.org) (MIT), [Vite](https://vite.dev) (MIT, development only).
+- [NASA Mars Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html)
+- [NASA Glenn Mars atmosphere model](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mars-atmosphere-equation-metric/)
+- [NASA Ames: Mars helicopter capabilities](https://rotorcraft.arc.nasa.gov/Publications/files/MarsHeliCapabilities_Final_Update.pdf)
+- [NASA TM 2024: Ingenuity rotor geometry](https://ntrs.nasa.gov/api/citations/20240001510/downloads/1699_Koning_TM_082124.pdf)
+- [JPL Ingenuity press kit](https://www.jpl.nasa.gov/news/press_kits/ingenuity/landing/mission/spacecraft)
+- [JPL approximate planetary positions](https://ssd.jpl.nasa.gov/planets/approx_pos.html)
+- Mars24 (Allison & McEwen 2000)
+- Golombek & Rapp (1997)
+
+Software: Rapier (Apache-2.0), three.js (MIT), Vite (MIT), geotiff.js (MIT, import tool only).
 
 ## License
 
-To be decided by the team before submission. Space Apps requires materials to be openly
-available; the challenge's default is Apache-2.0.
+To be decided by the team before submission. Space Apps requires openly available materials; the
+challenge default is Apache-2.0.

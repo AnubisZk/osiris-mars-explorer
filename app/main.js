@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {initializeRapier} from '../src/physics/FlightPhysics.js';
 import {Simulation} from '../src/sim/Simulation.js';
-import {ProceduralTerrain} from '../src/terrain/terrain.js';
+import {ProceduralTerrain,HeightmapTerrain} from '../src/terrain/terrain.js';
 import {PROFILES,PROFILE_ORDER} from '../src/planet/index.js';
 import {VEHICLES,VEHICLE_ORDER} from '../src/vehicles/presets.js';
 import {FRAME_TYPES,FRAME_LABELS,FEA_NOTE} from '../src/frames/frames.js';
@@ -21,7 +21,14 @@ await initializeRapier();
 setLang(getLang());
 const $=s=>document.querySelector(s);
 const params=new URLSearchParams(location.search);
-const terrain=new ProceduralTerrain({seed:2026});
+// Terrain: a real DTM imported with tools/import-dtm.mjs (?terrain=<name>) or the labelled procedural one
+async function loadTerrain(name){
+  if(!name)return new ProceduralTerrain({seed:2026});
+  try{const meta=await (await fetch(`terrain/${name}.json`)).json(),buf=await (await fetch(`terrain/${name}.bin`)).arrayBuffer();
+    return new HeightmapTerrain(meta.nx,meta.nz,meta.size,new Float32Array(buf),meta);}
+  catch(e){console.warn('DTM not found, using procedural terrain',e);return new ProceduralTerrain({seed:2026});}
+}
+const terrain=await loadTerrain(params.get('terrain'));
 let spec=JSON.parse(JSON.stringify(DEFAULT_MISSION));spec.dust=.5;spec.calibrated=true;
 let sim=null,model=null,running=false,lastExperiment=null,worker=null,cameraMode='chase';
 

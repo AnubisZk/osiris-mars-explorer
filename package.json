@@ -27,6 +27,7 @@
     "three": "0.186.1"
   },
   "devDependencies": {
+    "geotiff": "^3.0.5",
     "vite": "8.3.4"
   },
   "engines": {

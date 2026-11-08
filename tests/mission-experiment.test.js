@@ -77,3 +77,15 @@ test('experiment: full-factorial plan, deterministic results, summary and CSV',(
   assert.ok(a.rows[1].mass>a.rows[0].mass&&a.rows[1].energyWh>a.rows[0].energyWh,'heavier C60 frame costs energy');
   const csv=toCSV(a.rows);assert.match(csv.split('\n')[0],/run,seed,frame,liftOff/);
 });
+
+test('real DTM import: GeoTIFF → height grid with provenance; HeightmapTerrain carries the source',async()=>{
+  const {writeArrayBuffer}=await import('geotiff');const {importDtm}=await import('../tools/import-dtm.mjs');
+  const W=200,H=200,values=new Float32Array(W*H);for(let j=0;j<H;j++)for(let i=0;i<W;i++)values[i+j*W]=-2600+.5*i-.25*j; // tilted plane
+  const buf=writeArrayBuffer(values,{width:W,height:H,ModelPixelScale:[2,2,0],ModelTiepoint:[0,0,0,0,0,0]});
+  const {meta,heights}=await importDtm(buf,{name:'test',size:300,cells:30,title:'synthetic plane',credit:'test'});
+  assert.equal(meta.source,'dtm');assert.equal(meta.pixelSize[0],2);rel(meta.referenceElevation,-2600+.5*99.5-.25*99.5,.001);
+  // slope preserved: +0.5 m per pixel east = 0.25 m/m, −0.25 m per pixel south = −0.125 m/m
+  const T=new HeightmapTerrain(30,30,meta.size,heights,meta);
+  rel(T.heightAt(50,0)-T.heightAt(-50,0),25,1e-3,'east slope');rel(T.heightAt(0,50)-T.heightAt(0,-50),-12.5,1e-3,'south slope');
+  assert.equal(T.meta.procedural,false);assert.match(T.meta.label.en,/Real terrain/);
+});

@@ -3,7 +3,16 @@
 NASA Space Apps Challenge 2026 Ankara (14–15 Kasım 2026). Takım: OsirisZk.
 Talimat: "OSIRISZK – MARS AERIAL EXPLORER – Claude Code Ana Geliştirme Talimatı".
 
-## Kısa durum (8 Kasım 2026)
+## Kısa durum (8 Kasım 2026, akşam)
+
+- **9 aşamanın hepsinde çalışan bir sürüm var.** 94 test geçiyor, çekirdeğin 5" uçuş izi hâlâ birebir aynı.
+- Gerçek zamanlı uygulama `npm run dev:app` ile açılıyor; arayüz İngilizce ve Türkçe. Deneyler `npm run experiments` ile çalışıyor.
+- Sıradaki iş yüksek çözünürlük:
+  - gerçek Jezero DTM'si (`tools/import-dtm.mjs`)
+  - daha ayrıntılı dokular ve LOD
+  - GPU'lu bilgisayarda 120 FPS ölçümü
+
+## İlk durum (8 Kasım 2026, öğle)
 
 - **Aşama 1 (Mars fizik motoru) tamam ve testli.** 76 test geçiyor: çekirdeğin 46 testi ve 30 yeni test. 5" referans uçuş izi birebir aynı.
 - Çekirdek dosyalarına dokunulmadı. Mars katmanı `src/planet/` altında ayrı modül olarak duruyor.
@@ -149,6 +158,45 @@ Aşama 2'de eklenecekler: `src/planet/rotor/` (pal elemanı ve momentum teorisi,
 - **Örnekteki hata:** çekirdeğin `examples/minimal` örneğinde R tuşundan ya da drone değişiminden sonra klavye gaz kilidi açılmıyor (`releaseThrottleLock` çağrılmıyor). Mars demosunda düzeltildi; çekirdek örneğine dokunulmadı.
 - **Depo:** `KOMUT.md` başka bir projenin talimatıydı; bu depodan çıkarıldı, özgün zip'te duruyor. Çekirdek README'si `docs/flight-core.md` dosyasına taşındı.
 - **Performans** (`npm run bench`): gezegen katmanı adım başına 20–24 µs, çekirdekle aynı düzeyde. 8 aerodinamik gövdeli dünya 50 µs.
+
+### 8 Kasım 2026 · Aşama 2–9
+
+- **Rotor (aero/):**
+  - Kanat profili Reynolds ve Mach sayısına bağlı; clf5605'in NASA'da yayımlanmış noktasına bağlandı.
+  - Pal elemanı rotor modeli: momentum ve dinamik akış, Prandtl uç kaybı, yer etkisi, eş eksenli girişim.
+  - Durağan çözücü ikiye bölme yöntemiyle çalışıyor, her durumda yakınsıyor.
+  - Gerçek zamanlı adım tek geçişte bitiyor (~3 µs).
+- **Ingenuity rotoru:** NASA geometri raporundan (yarıçap, pal sayısı, rotor aralığı, burulma uçları, kiriş tepe ve uç değerleri); iç kiriş şekli varsayımsal.
+- **Kalibrasyon:** Profil kaybı katsayısı 3,0'a kalibre edildi; Ingenuity'nin askı gücü Rapier'de 350 W ± %8 çıkıyor (JPL ≈ 350 W). Kalibrasyonsuz model ≈ 200 W veriyor; uygulamada iki mod arasında geçiş var.
+- **Güç (power/):**
+  - BLDC motor ve devir regülatörü, yarı örtük entegrasyonla.
+  - Li-ion batarya: voltaj düşümü, 1 sn gecikmeli düşük voltaj kesmesi.
+  - Rotorlar dakikada 400 devirlik yumuşak kalkışla hızlanıyor.
+- **Gövdeler (frames/):** kesin kütle özellikleri ve asal eksenler. Karbon, C60 kafes (60 düğüm, 90 çubuk) ve altıgen bal peteği kabuk. Her gövdede FEA notu var.
+- **Araçlar:**
+  - Ingenuity benzeri (1,8 kg).
+  - OsirisZk Mars dörtlüsü (kavram, 3 kg).
+  - NASA MSH altılısı (20,8 kg).
+  - 5" FPV (0,65 kg).
+
+  Araçlar Rapier'de yalnız kuvvet ve torkla uçuyor: rotor itkisi ve H-kuvveti, motor tepki torku, göbek momenti, jiroskop, Reynolds sayısına bağlı gövde sürüklemesi.
+- **Kontrol:** kademeli yapı (konum → hız → tutum → açısal hız). Yerçekimi ve yoğunluk ortamdan geliyor. Eş eksenli araçta toplam açı stall sınırına göre kısıtlı. Uçuş öncesi rotor devri trim bulunan bir değere ayarlanıyor.
+- **Mars zamanı:** Mars24 (pyMarsTime ile aynı sonuç), güneş yüksekliği ve azimutu, JPL efemerisiyle 3,1–21,9 dk ışık süresi.
+- **Arazi:**
+  - Prosedürel arazi, her zaman "NASA verisi değil" etiketiyle.
+  - Kraterler ve Golombek–Rapp kaya modeli; Rapier yükseklik alanıyla sapma ≤ 0,25 m.
+  - GeoTIFF DTM içe aktarma aracı.
+- **Görev:**
+  - Enerji bütçesi tahmini; simülasyonla farkı ±%35 içinde.
+  - Otonom yürütücü.
+  - Dünya'dan FPV'de gerçek ışık gecikmesi ve failsafe: görev başarısız oluyor. Gecikmesiz FPV'de başarılı.
+- **Deneyler:** 7 hazır deney (45 uçuş, ~76 sn); çıktılar `reports/experiments/` klasöründe.
+- **Arayüz:**
+  - 7 panel, Web Worker'da deney, Markdown/JSON rapor.
+  - Performans paneli: FPS, CPU, fizik ve GPU süresi, 10 sn ölçüm JSON'u.
+  - `?renderer=webgpu` ile WebGPU denenebiliyor.
+- **Bu ortamda (GPU yok):** yazılım çizimiyle 3 FPS; fizik adım başına ~35 µs. Gerçek GPU ölçümü takımın RTX 5060 Ti'sinde B tuşuyla yapılacak.
+- **Bulgular:** Ingenuity benzeri araç Dünya'da motor akım sınırı nedeniyle kalkamıyor. Toz fırtınası rüzgârının etkisi küçük, çünkü 23 m/sn'de dinamik basınç yalnız 5,5 Pa. Pal çırpması (geri yatma) ve tozun sensörlere etkisi modelde yok.
 
 ## Açık kararlar (takımdan)
 
