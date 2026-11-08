@@ -1,0 +1,9 @@
+run,seed,vehicle,liftOff,canHover,success,reason,flightTime,energyWh,energyPerKm,distance,observations,maxTilt,tiltRms,hoverRateRms,positionErrorRms,budgetEnergyWh,budgetError,mass
+1,1,ingenuity-like,true,true,true,complete,80.67083,7.71053,52.56178,146.6946,2,11.95549,7.207263,7.270267,0.2353342,6.599382,-0.1441078,1.8
+2,2,ingenuity-like,true,true,true,complete,80.54167,7.673458,52.46773,146.251,2,11.95604,7.188282,7.258344,0.2344576,6.598878,-0.1400385,1.8
+3,1,osiris-mars-quad,true,true,true,complete,75.925,9.826069,62.83802,156.3714,2,20.04386,9.387385,10.86853,0.9235732,8.811521,-0.1032506,2.983259
+4,2,osiris-mars-quad,true,true,true,complete,75.78333,9.787641,62.66081,156.2004,2,17.86831,9.279095,10.9271,0.9202031,8.809033,-0.09998405,2.983259
+5,1,msh-hexa,true,true,true,complete,75.775,79.23951,541.1317,146.433,2,13.94074,7.279222,7.618384,0.2467811,73.81403,-0.06846945,20.8
+6,2,msh-hexa,true,true,true,complete,74.575,78.20888,533.9732,146.4659,2,13.06198,7.288946,7.690729,0.2540428,73.79226,-0.05647217,20.8
+7,1,fpv5,false,false,false,cannot take off: maximum thrust below weight,6.008333,0.3245971,,0.01256416,0,6.971378,,,,,,0.65
+8,2,fpv5,false,false,false,cannot take off: maximum thrust below weight,6.008333,0.3189751,,0.005831777,0,3.316552,,,,,,0.65

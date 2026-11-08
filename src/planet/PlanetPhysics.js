@@ -42,35 +42,59 @@ export class PlanetPhysics {
   /** Static ground slab whose top surface is at y. */
   addGround({y=0,half=[500,.5,500],friction=.7,restitution=0}={}){
     return this.world.createCollider(RAPIER.ColliderDesc.cuboid(...half).setTranslation(0,y-half[1],0)
-      .setFriction(friction).setRestitution(restitution));
+      .setFriction(friction).setRestitution(restitution).setCollisionGroups(0x00010002));
   }
   addBox(position,halfSize,rotation={x:0,y:0,z:0,w:1}){
-    return this.world.createCollider(RAPIER.ColliderDesc.cuboid(...halfSize).setTranslation(...position).setRotation(rotation).setFriction(.7));
+    return this.world.createCollider(RAPIER.ColliderDesc.cuboid(...halfSize).setTranslation(...position).setRotation(rotation).setFriction(.7).setCollisionGroups(0x00010002));
+  }
+  addBall(position,radius){
+    return this.world.createCollider(RAPIER.ColliderDesc.ball(radius).setTranslation(...position).setFriction(.8).setCollisionGroups(0x00010002));
+  }
+  /**
+   * Terrain as a Rapier heightfield: `heights` (Float32Array, (nx+1)·(nz+1), row-major in x then z…
+   * Rapier expects column-major: index = i·(nz+1)+j for x-index i and z-index j), cell spacing in m.
+   */
+  addHeightfield(nx,nz,heights,size,center=[0,0,0]){
+    const desc=RAPIER.ColliderDesc.heightfield(nz,nx,heights,{x:size[0],y:1,z:size[1]}).setTranslation(...center).setFriction(.8).setCollisionGroups(0x00010002);
+    return this.world.createCollider(desc);
+  }
+  /** Distance straight down from a point to the first static surface (null if none within maxDist). */
+  groundDistance(p,maxDist=50){
+    const ray=new RAPIER.Ray({x:p.x,y:p.y,z:p.z},{x:0,y:-1,z:0});
+    const hit=this.world.castRay(ray,maxDist,true,RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC|RAPIER.QueryFilterFlags.EXCLUDE_SENSORS);
+    return hit?hit.timeOfImpact:null;
   }
   /**
    * Dynamic body. `mass` (kg) and principal `inertia` {x,y,z} (kg·m²) are given explicitly;
    * the collider only provides shape. `aero` {cdA, rotationalDrag} or null for vacuum behaviour.
    */
   addBody({position=[0,0,0],rotation={x:0,y:0,z:0,w:1},velocity=[0,0,0],angularVelocity=[0,0,0],
-    mass,inertia,shape={type:'cuboid',half:[.1,.1,.1]},aero=null,friction=.6,restitution=.1,ccd=true,name='body'}){
+    mass,inertia,inertiaFrame={x:0,y:0,z:0,w:1},shape={type:'cuboid',half:[.1,.1,.1]},colliders=null,
+    aero=null,friction=.6,restitution=.1,ccd=true,name='body'}){
     if(!(mass>0))throw new RangeError('mass must be > 0 kg');
     const I=inertia??{x:mass*.01,y:mass*.01,z:mass*.01};
     const body=this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setCanSleep(false).setCcdEnabled(ccd)
       .setTranslation(...position).setRotation(rotation).setLinvel(...velocity).setAngvel({x:angularVelocity[0],y:angularVelocity[1],z:angularVelocity[2]})
-      .setAdditionalMassProperties(mass,{x:0,y:0,z:0},I,{x:0,y:0,z:0,w:1}));
-    const desc=shape.type==='ball'?RAPIER.ColliderDesc.ball(shape.radius):RAPIER.ColliderDesc.cuboid(...shape.half);
-    const collider=this.world.createCollider(desc.setDensity(0).setFriction(friction).setRestitution(restitution)
-      .setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS).setContactForceEventThreshold(0),body);
+      .setAdditionalMassProperties(mass,{x:0,y:0,z:0},I,inertiaFrame));
+    // One or more mass-less collider shapes (e.g. landing feet + fuselage); mass comes from `mass`/`inertia`
+    const shapes=colliders??[{...shape,offset:[0,0,0]}],list=[];
+    for(const sh of shapes){
+      const desc=sh.type==='ball'?RAPIER.ColliderDesc.ball(sh.radius):RAPIER.ColliderDesc.cuboid(...sh.half);
+      const o=sh.offset??[0,0,0];
+      list.push(this.world.createCollider(desc.setDensity(0).setTranslation(o[0],o[1],o[2]).setFriction(sh.friction??friction).setRestitution(sh.restitution??restitution)
+        .setCollisionGroups(0x00020001).setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS).setContactForceEventThreshold(0),body));
+    }
+    const collider=list[0];
     body.recomputeMassPropertiesFromColliders();
-    const handle={name,body,collider,mass,inertia:I,
+    const handle={name,body,collider,colliders:list,mass,inertia:I,
       aero:aero?{cdA:triple(aero.cdA??0),rotationalDrag:triple(aero.rotationalDrag??0)}:null,
       aeroForce:new THREE.Vector3(),aeroTorque:new THREE.Vector3(),aeroWork:0,
       density:0,airspeed:0,dynamicPressure:0,contactForce:0,
       _x0:new THREE.Vector3(),_w0:new THREE.Vector3()};
-    this.bodies.push(handle);this.byCollider.set(collider.handle,handle);return handle;
+    this.bodies.push(handle);for(const c of list)this.byCollider.set(c.handle,handle);return handle;
   }
   /** Extra per-step forces (e.g. rotors in later phases): fn(physics, dt) after aero, before the Rapier step. */
-  addForceHook(fn){this.hooks.push(fn);return()=>{this.hooks=this.hooks.filter(h=>h!==fn);};}
+  addForceHook(fn,{first=false}={}){first?this.hooks.unshift(fn):this.hooks.push(fn);return()=>{this.hooks=this.hooks.filter(h=>h!==fn);};}
   applyAerodynamics(h){
     const b=h.body,t=b.translation();
     const s=this.environment.atmosphere(this.altitude(t.y),this.atm),rho=s.density;
