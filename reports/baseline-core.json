@@ -1,0 +1,53 @@
+{
+  "tool": "physics-bench",
+  "date": "2026-11-08T11:09:55.231Z",
+  "node": "v22.23.4",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+  "cores": 2,
+  "fixedDt": 0.004166666666666667,
+  "seconds": 20,
+  "rows": [
+    {
+      "scenario": "core:freestyle5",
+      "steps": 4800,
+      "meanMicroseconds": 57.96,
+      "p95Microseconds": 32.38,
+      "budgetShareAt240Hz": 0.01391
+    },
+    {
+      "scenario": "core:race5",
+      "steps": 4800,
+      "meanMicroseconds": 38.32,
+      "p95Microseconds": 32.42,
+      "budgetShareAt240Hz": 0.0092
+    },
+    {
+      "scenario": "core:whoop3",
+      "steps": 4800,
+      "meanMicroseconds": 17.17,
+      "p95Microseconds": 18.33,
+      "budgetShareAt240Hz": 0.00412
+    },
+    {
+      "scenario": "core:tiny65",
+      "steps": 4800,
+      "meanMicroseconds": 34.58,
+      "p95Microseconds": 35.28,
+      "budgetShareAt240Hz": 0.0083
+    },
+    {
+      "scenario": "core:longrange7",
+      "steps": 4800,
+      "meanMicroseconds": 15.91,
+      "p95Microseconds": 15.6,
+      "budgetShareAt240Hz": 0.00382
+    },
+    {
+      "scenario": "core:hex",
+      "steps": 4800,
+      "meanMicroseconds": 26.3,
+      "p95Microseconds": 25.12,
+      "budgetShareAt240Hz": 0.00631
+    }
+  ]
+}
