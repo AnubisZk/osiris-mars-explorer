@@ -1,0 +1,81 @@
+{
+  "tool": "physics-bench",
+  "date": "2026-11-08T11:22:10.375Z",
+  "node": "v22.23.4",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+  "cores": 2,
+  "fixedDt": 0.004166666666666667,
+  "seconds": 20,
+  "rows": [
+    {
+      "scenario": "core:freestyle5",
+      "steps": 4800,
+      "meanMicroseconds": 49.56,
+      "p95Microseconds": 32.98,
+      "budgetShareAt240Hz": 0.0119
+    },
+    {
+      "scenario": "core:race5",
+      "steps": 4800,
+      "meanMicroseconds": 34.22,
+      "p95Microseconds": 24.77,
+      "budgetShareAt240Hz": 0.00821
+    },
+    {
+      "scenario": "core:whoop3",
+      "steps": 4800,
+      "meanMicroseconds": 18.94,
+      "p95Microseconds": 21.93,
+      "budgetShareAt240Hz": 0.00455
+    },
+    {
+      "scenario": "core:tiny65",
+      "steps": 4800,
+      "meanMicroseconds": 40.42,
+      "p95Microseconds": 55.18,
+      "budgetShareAt240Hz": 0.0097
+    },
+    {
+      "scenario": "core:longrange7",
+      "steps": 4800,
+      "meanMicroseconds": 14.81,
+      "p95Microseconds": 14.96,
+      "budgetShareAt240Hz": 0.00356
+    },
+    {
+      "scenario": "core:hex",
+      "steps": 4800,
+      "meanMicroseconds": 23.8,
+      "p95Microseconds": 23.91,
+      "budgetShareAt240Hz": 0.00571
+    },
+    {
+      "scenario": "planet:freestyle5@earth",
+      "steps": 4800,
+      "meanMicroseconds": 20.09,
+      "p95Microseconds": 19.05,
+      "budgetShareAt240Hz": 0.00482
+    },
+    {
+      "scenario": "planet:freestyle5@mars",
+      "steps": 4800,
+      "meanMicroseconds": 23.57,
+      "p95Microseconds": 24.32,
+      "budgetShareAt240Hz": 0.00566
+    },
+    {
+      "scenario": "planet:hex@mars",
+      "steps": 4800,
+      "meanMicroseconds": 20.46,
+      "p95Microseconds": 23.59,
+      "budgetShareAt240Hz": 0.00491
+    },
+    {
+      "scenario": "planet:world-8-aero-bodies@mars",
+      "steps": 4800,
+      "meanMicroseconds": 50.2,
+      "p95Microseconds": 70.07,
+      "budgetShareAt240Hz": 0.01205
+    }
+  ]
+}

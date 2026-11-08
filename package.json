@@ -1,16 +1,19 @@
 {
-  "name": "zsk-flight-core",
-  "version": "1.0.0",
-  "description": "ZSK FPV uçuş çekirdeği: Rapier 240 Hz fizik, uçuş kontrolcüsü, altı drone türü, kumanda ve rüzgâr. Çizimden bağımsız.",
+  "name": "osiriszk-mars-explorer",
+  "version": "0.1.0",
+  "description": "OsirisZk Mars Aerial Explorer: Mars and Earth flight physics for exploration drones on the ZSK flight core (Rapier, 240 Hz fixed step). NASA Space Apps Challenge 2026.",
   "type": "module",
   "private": true,
   "main": "src/index.js",
-  "exports": { ".": "./src/index.js", "./*": "./src/*" },
+  "exports": { ".": "./src/index.js", "./planet": "./src/planet/index.js", "./*": "./src/*" },
   "scripts": {
     "test": "node --test tests/*.test.js",
     "trace": "node tools/flighttrace.mjs",
     "check": "npm test && npm run trace",
-    "dev": "vite examples/minimal --open"
+    "dev": "vite examples/minimal --open",
+    "dev:planet": "vite examples/planet --open",
+    "planet:compare": "node tools/planet-compare.mjs --out reports/planet-compare",
+    "bench": "node tools/physics-bench.mjs --with tools/planet-bench-scenarios.mjs --out reports/physics-bench.json"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",

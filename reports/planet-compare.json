@@ -1,0 +1,876 @@
+{
+  "tool": "planet-compare",
+  "generated": "2026-11-08T11:27:44.148Z",
+  "commit": "5adf023",
+  "method": {
+    "thrust": "T = CT ρ n² D⁴ with CT implied by the core calibration at ρ_ref = 1.225 kg/m³ (held constant: Phase 1)",
+    "idealHoverPower": "Momentum theory, P = T^1.5 / √(2ρA) per rotor (ideal lower bound)",
+    "reynolds75": "ρ (0.75 ΩR) c / μ at maximum rpm, chord c = 0.1 D (assumed) unless the airframe defines it",
+    "takeoff": "Rapier, 240 Hz, ANGLE mode, full throttle for 2 s from the ground",
+    "fall": "Rapier, motors off, 60 s fall from 3000 m with the planetized core drag"
+  },
+  "assumptions": [
+    {
+      "id": "core-calibration",
+      "status": "assumed",
+      "en": "Core airframe thrust and drag values are treated as sea-level ISA (1.225 kg/m³) calibrations."
+    },
+    {
+      "id": "constant-ct",
+      "status": "assumed",
+      "en": "CT and CQ are held at their Earth values: no Reynolds-number or Mach correction yet (Phase 2). At Mars Reynolds numbers real CT is lower, so Mars thrust here is an upper bound."
+    },
+    {
+      "id": "motor-speed-limit",
+      "status": "assumed",
+      "en": "Maximum motor speed does not depend on density (no motor/ESC model yet; Phase 2)."
+    },
+    {
+      "id": "drag-scaling",
+      "status": "assumed",
+      "en": "All body drag coefficients scale linearly with density (quadratic drag exactly; the core's linear term empirically)."
+    },
+    {
+      "id": "controller-gravity",
+      "status": "assumed",
+      "en": "Training-throttle and position-hold feed-forward still use 9.81 m/s² inside the core controller; closed loops stay stable but respond more slowly on Mars."
+    },
+    {
+      "id": "battery",
+      "status": "assumed",
+      "en": "Battery drain is the core's load model, not an electrical power model (Phase 2)."
+    }
+  ],
+  "environments": [
+    {
+      "id": "earth-isa",
+      "planet": "earth",
+      "label": {
+        "en": "Earth · ISA sea level",
+        "tr": "Dünya · ISA deniz seviyesi"
+      },
+      "parameters": [
+        {
+          "key": "gravity",
+          "value": 9.80665,
+          "unit": "m/s²",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "surfaceDensity",
+          "value": 1.225,
+          "unit": "kg/m³",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "surfacePressure",
+          "value": 101325,
+          "unit": "Pa",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "surfaceTemperature",
+          "value": 288.15,
+          "unit": "K",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "lapseRate",
+          "value": -0.0065,
+          "unit": "K/m",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "model",
+          "value": "layers",
+          "unit": "",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "gasConstant",
+          "value": 287.053,
+          "unit": "J/(kg·K)",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "gamma",
+          "value": 1.4,
+          "unit": "",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "speedOfSound",
+          "value": 340.294,
+          "unit": "m/s",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "dynamicViscosity",
+          "value": 0.000017893,
+          "unit": "Pa·s",
+          "status": "derived",
+          "source": "Sutherland (1893), constants for air – CFD-Online reference"
+        },
+        {
+          "key": "scaleHeight",
+          "value": 8434.51,
+          "unit": "m",
+          "status": "derived",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "mars-brief",
+      "planet": "mars",
+      "label": {
+        "en": "Mars · brief defaults",
+        "tr": "Mars · talimat varsayılanı"
+      },
+      "parameters": [
+        {
+          "key": "gravity",
+          "value": 3.71,
+          "unit": "m/s²",
+          "status": "brief",
+          "source": "OsirisZk – Mars Aerial Explorer development brief, Phase 1 starting values"
+        },
+        {
+          "key": "surfaceDensity",
+          "value": 0.02,
+          "unit": "kg/m³",
+          "status": "brief",
+          "source": "OsirisZk – Mars Aerial Explorer development brief, Phase 1 starting values"
+        },
+        {
+          "key": "surfacePressure",
+          "value": 815.065,
+          "unit": "Pa",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "surfaceTemperature",
+          "value": 213.15,
+          "unit": "K",
+          "status": "brief",
+          "source": "OsirisZk – Mars Aerial Explorer development brief, Phase 1 starting values"
+        },
+        {
+          "key": "lapseRate",
+          "value": -0.000998,
+          "unit": "K/m",
+          "status": "sourced",
+          "source": "NASA Glenn Research Center – Mars Atmosphere Model, metric units (MGS data fit)"
+        },
+        {
+          "key": "model",
+          "value": "layers",
+          "unit": "",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "gasConstant",
+          "value": 191.195,
+          "unit": "J/(kg·K)",
+          "status": "derived",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "gamma",
+          "value": 1.34163,
+          "unit": "",
+          "status": "derived",
+          "source": "NIST-JANAF Thermochemical Tables – Carbon dioxide, C-095"
+        },
+        {
+          "key": "speedOfSound",
+          "value": 233.828,
+          "unit": "m/s",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "dynamicViscosity",
+          "value": 0.0000107515,
+          "unit": "Pa·s",
+          "status": "derived",
+          "source": "Sutherland constants for CO₂ (White, Viscous Fluid Flow) as tabulated in COMSOL CFD Module Table 5-2"
+        },
+        {
+          "key": "scaleHeight",
+          "value": 10984.7,
+          "unit": "m",
+          "status": "derived",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "mars-nasa",
+      "planet": "mars",
+      "label": {
+        "en": "Mars · NASA Fact Sheet mean",
+        "tr": "Mars · NASA bilgi sayfası ortalaması"
+      },
+      "parameters": [
+        {
+          "key": "gravity",
+          "value": 3.73,
+          "unit": "m/s²",
+          "status": "sourced",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "surfaceDensity",
+          "value": 0.016,
+          "unit": "kg/m³",
+          "status": "sourced",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "surfacePressure",
+          "value": 654.652,
+          "unit": "Pa",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "surfaceTemperature",
+          "value": 214,
+          "unit": "K",
+          "status": "sourced",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "lapseRate",
+          "value": -0.000998,
+          "unit": "K/m",
+          "status": "sourced",
+          "source": "NASA Glenn Research Center – Mars Atmosphere Model, metric units (MGS data fit)"
+        },
+        {
+          "key": "model",
+          "value": "layers",
+          "unit": "",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "gasConstant",
+          "value": 191.195,
+          "unit": "J/(kg·K)",
+          "status": "derived",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "gamma",
+          "value": 1.34108,
+          "unit": "",
+          "status": "derived",
+          "source": "NIST-JANAF Thermochemical Tables – Carbon dioxide, C-095"
+        },
+        {
+          "key": "speedOfSound",
+          "value": 234.246,
+          "unit": "m/s",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "dynamicViscosity",
+          "value": 0.0000107948,
+          "unit": "Pa·s",
+          "status": "derived",
+          "source": "Sutherland constants for CO₂ (White, Viscous Fluid Flow) as tabulated in COMSOL CFD Module Table 5-2"
+        },
+        {
+          "key": "scaleHeight",
+          "value": 10969.4,
+          "unit": "m",
+          "status": "derived",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "label": {
+        "en": "Mars · Jezero low-density season",
+        "tr": "Mars · Jezero düşük yoğunluk mevsimi"
+      },
+      "parameters": [
+        {
+          "key": "gravity",
+          "value": 3.73,
+          "unit": "m/s²",
+          "status": "sourced",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "surfaceDensity",
+          "value": 0.012,
+          "unit": "kg/m³",
+          "status": "sourced",
+          "source": "H. Grip (JPL), “Flying on Mars Is Getting Harder and Harder”, NASA, 2021"
+        },
+        {
+          "key": "surfacePressure",
+          "value": 490.989,
+          "unit": "Pa",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "surfaceTemperature",
+          "value": 214,
+          "unit": "K",
+          "status": "assumed",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "lapseRate",
+          "value": -0.000998,
+          "unit": "K/m",
+          "status": "sourced",
+          "source": "NASA Glenn Research Center – Mars Atmosphere Model, metric units (MGS data fit)"
+        },
+        {
+          "key": "model",
+          "value": "layers",
+          "unit": "",
+          "status": "sourced",
+          "source": "U.S. Standard Atmosphere, 1976 (NASA-TM-X-74335); identical to ISA below 32 km"
+        },
+        {
+          "key": "gasConstant",
+          "value": 191.195,
+          "unit": "J/(kg·K)",
+          "status": "derived",
+          "source": "NASA NSSDCA – Mars Fact Sheet"
+        },
+        {
+          "key": "gamma",
+          "value": 1.34108,
+          "unit": "",
+          "status": "derived",
+          "source": "NIST-JANAF Thermochemical Tables – Carbon dioxide, C-095"
+        },
+        {
+          "key": "speedOfSound",
+          "value": 234.246,
+          "unit": "m/s",
+          "status": "derived",
+          "source": null
+        },
+        {
+          "key": "dynamicViscosity",
+          "value": 0.0000107948,
+          "unit": "Pa·s",
+          "status": "derived",
+          "source": "Sutherland constants for CO₂ (White, Viscous Fluid Flow) as tabulated in COMSOL CFD Module Table 5-2"
+        },
+        {
+          "key": "scaleHeight",
+          "value": 10969.4,
+          "unit": "m",
+          "status": "derived",
+          "source": null
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "drone": "freestyle5",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 0.65,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 9.54172,
+      "hoverThrottle": 0.104803,
+      "ctProp": 0.278652,
+      "ctRotor": 0.0359479,
+      "tipMach": 0.485169,
+      "reynolds75": 107663,
+      "hoverRpm": 8038,
+      "hoverTipMach": 0.157065,
+      "idealHoverPowerW": 45.6761,
+      "takeoffClimb2sM": 70.247,
+      "fallSpeed60sMs": 16.0256,
+      "warnings": "high-ct"
+    },
+    {
+      "drone": "freestyle5",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 0.65,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.411782,
+      "hoverThrottle": 2.42847,
+      "ctProp": 0.278652,
+      "ctRotor": 0.0359479,
+      "tipMach": 0.706074,
+      "reynolds75": 2925,
+      "hoverRpm": 38691,
+      "hoverTipMach": 1.10031,
+      "idealHoverPowerW": 83.1806,
+      "takeoffClimb2sM": -0.0020327,
+      "fallSpeed60sMs": 74.1078,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach high-ct"
+    },
+    {
+      "drone": "freestyle5",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 0.65,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.327659,
+      "hoverThrottle": 3.05195,
+      "ctProp": 0.278652,
+      "ctRotor": 0.0359479,
+      "tipMach": 0.704815,
+      "reynolds75": 2331,
+      "hoverRpm": 43374,
+      "hoverTipMach": 1.2313,
+      "idealHoverPowerW": 93.7518,
+      "takeoffClimb2sM": -0.00203761,
+      "fallSpeed60sMs": 82.3207,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach high-ct"
+    },
+    {
+      "drone": "freestyle5",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 0.65,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.245744,
+      "hoverThrottle": 4.06927,
+      "ctProp": 0.278652,
+      "ctRotor": 0.0359479,
+      "tipMach": 0.704815,
+      "reynolds75": 1748,
+      "hoverRpm": 50084,
+      "hoverTipMach": 1.42178,
+      "idealHoverPowerW": 108.255,
+      "takeoffClimb2sM": -0.00204223,
+      "fallSpeed60sMs": 93.6487,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach high-ct"
+    },
+    {
+      "drone": "race5",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 0.46,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 12.1781,
+      "hoverThrottle": 0.0821148,
+      "ctProp": 0.142305,
+      "ctRotor": 0.0183582,
+      "tipMach": 0.630337,
+      "reynolds75": 143181,
+      "hoverRpm": 9030,
+      "hoverTipMach": 0.180627,
+      "idealHoverPowerW": 26.5654,
+      "takeoffClimb2sM": 88.7202,
+      "fallSpeed60sMs": 17.1599,
+      "warnings": ""
+    },
+    {
+      "drone": "race5",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 0.46,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.525556,
+      "hoverThrottle": 1.90275,
+      "ctProp": 0.142305,
+      "ctRotor": 0.0183582,
+      "tipMach": 0.91734,
+      "reynolds75": 3890,
+      "hoverRpm": 43469,
+      "hoverTipMach": 1.26538,
+      "idealHoverPowerW": 48.3782,
+      "takeoffClimb2sM": -0.00202483,
+      "fallSpeed60sMs": 79.002,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "race5",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 0.46,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.418191,
+      "hoverThrottle": 2.39125,
+      "ctProp": 0.142305,
+      "ctRotor": 0.0183582,
+      "tipMach": 0.915704,
+      "reynolds75": 3100,
+      "hoverRpm": 48730,
+      "hoverTipMach": 1.41602,
+      "idealHoverPowerW": 54.5264,
+      "takeoffClimb2sM": -0.00203064,
+      "fallSpeed60sMs": 87.6435,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "race5",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 0.46,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.313643,
+      "hoverThrottle": 3.18834,
+      "ctProp": 0.142305,
+      "ctRotor": 0.0183582,
+      "tipMach": 0.915704,
+      "reynolds75": 2325,
+      "hoverRpm": 56269,
+      "hoverTipMach": 1.63507,
+      "idealHoverPowerW": 62.9616,
+      "takeoffClimb2sM": -0.00203621,
+      "fallSpeed60sMs": 99.4558,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "whoop3",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 0.32,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 5.62692,
+      "hoverThrottle": 0.177717,
+      "ctProp": 0.311492,
+      "ctRotor": 0.0401844,
+      "tipMach": 0.413172,
+      "reynolds75": 54867,
+      "hoverRpm": 14895,
+      "hoverTipMach": 0.174179,
+      "idealHoverPowerW": 26.3654,
+      "takeoffClimb2sM": 41.3562,
+      "fallSpeed60sMs": 13.2774,
+      "warnings": "high-ct"
+    },
+    {
+      "drone": "whoop3",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 0.32,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.242835,
+      "hoverThrottle": 4.11802,
+      "ctProp": 0.311492,
+      "ctRotor": 0.0401844,
+      "tipMach": 0.601296,
+      "reynolds75": 1491,
+      "hoverRpm": 71700,
+      "hoverTipMach": 1.2202,
+      "idealHoverPowerW": 48.0139,
+      "takeoffClimb2sM": -0.002035,
+      "fallSpeed60sMs": 62.9891,
+      "warnings": "cannot-hover low-reynolds hover-tip-mach high-ct"
+    },
+    {
+      "drone": "whoop3",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 0.32,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.193226,
+      "hoverThrottle": 5.17527,
+      "ctProp": 0.311492,
+      "ctRotor": 0.0401844,
+      "tipMach": 0.600224,
+      "reynolds75": 1188,
+      "hoverRpm": 80378,
+      "hoverTipMach": 1.36546,
+      "idealHoverPowerW": 54.1159,
+      "takeoffClimb2sM": -0.00203752,
+      "fallSpeed60sMs": 70.1511,
+      "warnings": "cannot-hover low-reynolds hover-tip-mach high-ct"
+    },
+    {
+      "drone": "whoop3",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 0.32,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.14492,
+      "hoverThrottle": 6.90037,
+      "ctProp": 0.311492,
+      "ctRotor": 0.0401844,
+      "tipMach": 0.600224,
+      "reynolds75": 891,
+      "hoverRpm": 92813,
+      "hoverTipMach": 1.5767,
+      "idealHoverPowerW": 62.4876,
+      "takeoffClimb2sM": -0.00203978,
+      "fallSpeed60sMs": 80.1827,
+      "warnings": "cannot-hover low-reynolds hover-tip-mach high-ct"
+    },
+    {
+      "drone": "tiny65",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 0.027,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 3.70497,
+      "hoverThrottle": 0.269908,
+      "ctProp": 0.316504,
+      "ctRotor": 0.040831,
+      "tipMach": 0.236854,
+      "reynolds75": 12830,
+      "hoverRpm": 25798,
+      "hoverTipMach": 0.123052,
+      "idealHoverPowerW": 1.58419,
+      "takeoffClimb2sM": 22.9189,
+      "fallSpeed60sMs": 9.63708,
+      "warnings": "high-ct"
+    },
+    {
+      "drone": "tiny65",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 0.027,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.159891,
+      "hoverThrottle": 6.25424,
+      "ctProp": 0.316504,
+      "ctRotor": 0.040831,
+      "tipMach": 0.344697,
+      "reynolds75": 349,
+      "hoverRpm": 124183,
+      "hoverTipMach": 0.862036,
+      "idealHoverPowerW": 2.88496,
+      "takeoffClimb2sM": -0.00203804,
+      "fallSpeed60sMs": 45.9195,
+      "warnings": "cannot-hover low-reynolds high-ct"
+    },
+    {
+      "drone": "tiny65",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 0.027,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.127227,
+      "hoverThrottle": 7.85995,
+      "ctProp": 0.316504,
+      "ctRotor": 0.040831,
+      "tipMach": 0.344083,
+      "reynolds75": 278,
+      "hoverRpm": 139215,
+      "hoverTipMach": 0.964657,
+      "idealHoverPowerW": 3.2516,
+      "takeoffClimb2sM": -0.00203973,
+      "fallSpeed60sMs": 51.209,
+      "warnings": "cannot-hover low-reynolds hover-tip-mach high-ct"
+    },
+    {
+      "drone": "tiny65",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 0.027,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.0954205,
+      "hoverThrottle": 10.4799,
+      "ctProp": 0.316504,
+      "ctRotor": 0.040831,
+      "tipMach": 0.344083,
+      "reynolds75": 208,
+      "hoverRpm": 160751,
+      "hoverTipMach": 1.11389,
+      "idealHoverPowerW": 3.75463,
+      "takeoffClimb2sM": -0.00204118,
+      "fallSpeed60sMs": 58.7039,
+      "warnings": "cannot-hover low-reynolds hover-tip-mach high-ct"
+    },
+    {
+      "drone": "longrange7",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 0.95,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 5.89675,
+      "hoverThrottle": 0.169585,
+      "ctProp": 0.122133,
+      "ctRotor": 0.0157559,
+      "tipMach": 0.496923,
+      "reynolds75": 154553,
+      "hoverRpm": 7472,
+      "hoverTipMach": 0.204636,
+      "idealHoverPowerW": 57.5822,
+      "takeoffClimb2sM": 46.916,
+      "fallSpeed60sMs": 15.6921,
+      "warnings": ""
+    },
+    {
+      "drone": "longrange7",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 0.95,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.25448,
+      "hoverThrottle": 3.92958,
+      "ctProp": 0.122133,
+      "ctRotor": 0.0157559,
+      "tipMach": 0.72318,
+      "reynolds75": 4199,
+      "hoverRpm": 35967,
+      "hoverTipMach": 1.43357,
+      "idealHoverPowerW": 104.863,
+      "takeoffClimb2sM": -0.00204588,
+      "fallSpeed60sMs": 72.445,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "longrange7",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 0.95,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.202492,
+      "hoverThrottle": 4.93846,
+      "ctProp": 0.122133,
+      "ctRotor": 0.0157559,
+      "tipMach": 0.721891,
+      "reynolds75": 3346,
+      "hoverRpm": 40320,
+      "hoverTipMach": 1.60423,
+      "idealHoverPowerW": 118.189,
+      "takeoffClimb2sM": -0.00204938,
+      "fallSpeed60sMs": 80.4976,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "longrange7",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 0.95,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.151869,
+      "hoverThrottle": 6.58461,
+      "ctProp": 0.122133,
+      "ctRotor": 0.0157559,
+      "tipMach": 0.721891,
+      "reynolds75": 2510,
+      "hoverRpm": 46558,
+      "hoverTipMach": 1.85241,
+      "idealHoverPowerW": 136.473,
+      "takeoffClimb2sM": -0.00205253,
+      "fallSpeed60sMs": 91.6355,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "hex",
+      "environment": "earth-isa",
+      "planet": "earth",
+      "massKg": 2.4,
+      "gravity": 9.80665,
+      "density": 1.225,
+      "thrustToWeight": 4.00137,
+      "hoverThrottle": 0.249915,
+      "ctProp": 0.051611,
+      "ctRotor": 0.00665814,
+      "tipMach": 0.484875,
+      "reynolds75": 254167,
+      "hoverRpm": 5251,
+      "hoverTipMach": 0.242396,
+      "idealHoverPowerW": 112.014,
+      "takeoffClimb2sM": 32.3656,
+      "fallSpeed60sMs": 15.7778,
+      "warnings": ""
+    },
+    {
+      "drone": "hex",
+      "environment": "mars-brief",
+      "planet": "mars",
+      "massKg": 2.4,
+      "gravity": 3.71,
+      "density": 0.02,
+      "thrustToWeight": 0.172683,
+      "hoverThrottle": 5.79097,
+      "ctProp": 0.051611,
+      "ctRotor": 0.00665814,
+      "tipMach": 0.705646,
+      "reynolds75": 6906,
+      "hoverRpm": 25278,
+      "hoverTipMach": 1.6981,
+      "idealHoverPowerW": 203.989,
+      "takeoffClimb2sM": -0.00207106,
+      "fallSpeed60sMs": 72.7975,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "hex",
+      "environment": "mars-nasa",
+      "planet": "mars",
+      "massKg": 2.4,
+      "gravity": 3.73,
+      "density": 0.016,
+      "thrustToWeight": 0.137405,
+      "hoverThrottle": 7.27773,
+      "ctProp": 0.051611,
+      "ctRotor": 0.00665814,
+      "tipMach": 0.704388,
+      "reynolds75": 5503,
+      "hoverRpm": 28338,
+      "hoverTipMach": 1.90025,
+      "idealHoverPowerW": 229.913,
+      "takeoffClimb2sM": -0.0020745,
+      "fallSpeed60sMs": 80.8862,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    },
+    {
+      "drone": "hex",
+      "environment": "mars-ingenuity-low-season",
+      "planet": "mars",
+      "massKg": 2.4,
+      "gravity": 3.73,
+      "density": 0.012,
+      "thrustToWeight": 0.103054,
+      "hoverThrottle": 9.70364,
+      "ctProp": 0.051611,
+      "ctRotor": 0.00665814,
+      "tipMach": 0.704388,
+      "reynolds75": 4127,
+      "hoverRpm": 32721,
+      "hoverTipMach": 2.19422,
+      "idealHoverPowerW": 265.481,
+      "takeoffClimb2sM": -0.00207748,
+      "fallSpeed60sMs": 92.0619,
+      "warnings": "cannot-hover low-reynolds tip-mach hover-tip-mach"
+    }
+  ]
+}

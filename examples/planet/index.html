@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OsirisZk · Earth / Mars flight</title>
+  <style>
+    html,body{margin:0;height:100%;background:#120d0b;color:#f1e7dc;font:13px/1.5 system-ui,sans-serif;overflow:hidden}
+    canvas{display:block;width:100%;height:100%;outline:none}
+    #hud{position:fixed;left:12px;top:12px;padding:10px 12px;background:#120d0bcc;border:1px solid #4a3328;font:12px/1.6 Consolas,monospace;white-space:pre;pointer-events:none}
+    #panel{position:fixed;right:12px;top:12px;padding:10px 12px;background:#120d0bdd;border:1px solid #4a3328;display:grid;gap:6px;width:280px;max-height:calc(100% - 48px);overflow:auto}
+    label{color:#c9b3a1;font-size:12px}
+    select{font:inherit;padding:4px;width:100%;box-sizing:border-box}
+    #report div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #2e211b;padding:2px 0}
+    #report span{color:#c9b3a1}
+    .warn{margin:6px 0 0;color:#ffb38a}
+    .note{margin:6px 0 0;color:#9d8a7c;font-size:12px}
+    small{color:#9d8a7c}
+  </style>
+</head>
+<body>
+  <canvas id="scene" tabindex="0"></canvas>
+  <div id="hud"></div>
+  <div id="panel">
+    <label for="planet" id="l-planet">Planet profile (motors off)</label>
+    <select id="planet"></select>
+    <label for="drone" id="l-drone">Airframe (motors off)</label>
+    <select id="drone"></select>
+    <label for="lang">Language / Dil</label>
+    <select id="lang"><option value="en">English</option><option value="tr">Türkçe</option></select>
+    <div id="report"></div>
+    <small id="help">Space: arm · W/S: throttle · H: hover · arrows: tilt · A/D: yaw · M: mode · C: camera · R: reset · Q: cut motors</small>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

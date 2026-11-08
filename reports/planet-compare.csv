@@ -1,0 +1,25 @@
+drone,environment,planet,massKg,gravity,density,thrustToWeight,hoverThrottle,ctProp,ctRotor,tipMach,reynolds75,hoverRpm,hoverTipMach,idealHoverPowerW,takeoffClimb2sM,fallSpeed60sMs,warnings
+freestyle5,earth-isa,earth,0.65,9.80665,1.225,9.54172,0.104803,0.278652,0.0359479,0.485169,107663,8038,0.157065,45.6761,70.247,16.0256,high-ct
+freestyle5,mars-brief,mars,0.65,3.71,0.02,0.411782,2.42847,0.278652,0.0359479,0.706074,2925,38691,1.10031,83.1806,-0.0020327,74.1078,cannot-hover low-reynolds tip-mach hover-tip-mach high-ct
+freestyle5,mars-nasa,mars,0.65,3.73,0.016,0.327659,3.05195,0.278652,0.0359479,0.704815,2331,43374,1.2313,93.7518,-0.00203761,82.3207,cannot-hover low-reynolds tip-mach hover-tip-mach high-ct
+freestyle5,mars-ingenuity-low-season,mars,0.65,3.73,0.012,0.245744,4.06927,0.278652,0.0359479,0.704815,1748,50084,1.42178,108.255,-0.00204223,93.6487,cannot-hover low-reynolds tip-mach hover-tip-mach high-ct
+race5,earth-isa,earth,0.46,9.80665,1.225,12.1781,0.0821148,0.142305,0.0183582,0.630337,143181,9030,0.180627,26.5654,88.7202,17.1599,
+race5,mars-brief,mars,0.46,3.71,0.02,0.525556,1.90275,0.142305,0.0183582,0.91734,3890,43469,1.26538,48.3782,-0.00202483,79.002,cannot-hover low-reynolds tip-mach hover-tip-mach
+race5,mars-nasa,mars,0.46,3.73,0.016,0.418191,2.39125,0.142305,0.0183582,0.915704,3100,48730,1.41602,54.5264,-0.00203064,87.6435,cannot-hover low-reynolds tip-mach hover-tip-mach
+race5,mars-ingenuity-low-season,mars,0.46,3.73,0.012,0.313643,3.18834,0.142305,0.0183582,0.915704,2325,56269,1.63507,62.9616,-0.00203621,99.4558,cannot-hover low-reynolds tip-mach hover-tip-mach
+whoop3,earth-isa,earth,0.32,9.80665,1.225,5.62692,0.177717,0.311492,0.0401844,0.413172,54867,14895,0.174179,26.3654,41.3562,13.2774,high-ct
+whoop3,mars-brief,mars,0.32,3.71,0.02,0.242835,4.11802,0.311492,0.0401844,0.601296,1491,71700,1.2202,48.0139,-0.002035,62.9891,cannot-hover low-reynolds hover-tip-mach high-ct
+whoop3,mars-nasa,mars,0.32,3.73,0.016,0.193226,5.17527,0.311492,0.0401844,0.600224,1188,80378,1.36546,54.1159,-0.00203752,70.1511,cannot-hover low-reynolds hover-tip-mach high-ct
+whoop3,mars-ingenuity-low-season,mars,0.32,3.73,0.012,0.14492,6.90037,0.311492,0.0401844,0.600224,891,92813,1.5767,62.4876,-0.00203978,80.1827,cannot-hover low-reynolds hover-tip-mach high-ct
+tiny65,earth-isa,earth,0.027,9.80665,1.225,3.70497,0.269908,0.316504,0.040831,0.236854,12830,25798,0.123052,1.58419,22.9189,9.63708,high-ct
+tiny65,mars-brief,mars,0.027,3.71,0.02,0.159891,6.25424,0.316504,0.040831,0.344697,349,124183,0.862036,2.88496,-0.00203804,45.9195,cannot-hover low-reynolds high-ct
+tiny65,mars-nasa,mars,0.027,3.73,0.016,0.127227,7.85995,0.316504,0.040831,0.344083,278,139215,0.964657,3.2516,-0.00203973,51.209,cannot-hover low-reynolds hover-tip-mach high-ct
+tiny65,mars-ingenuity-low-season,mars,0.027,3.73,0.012,0.0954205,10.4799,0.316504,0.040831,0.344083,208,160751,1.11389,3.75463,-0.00204118,58.7039,cannot-hover low-reynolds hover-tip-mach high-ct
+longrange7,earth-isa,earth,0.95,9.80665,1.225,5.89675,0.169585,0.122133,0.0157559,0.496923,154553,7472,0.204636,57.5822,46.916,15.6921,
+longrange7,mars-brief,mars,0.95,3.71,0.02,0.25448,3.92958,0.122133,0.0157559,0.72318,4199,35967,1.43357,104.863,-0.00204588,72.445,cannot-hover low-reynolds tip-mach hover-tip-mach
+longrange7,mars-nasa,mars,0.95,3.73,0.016,0.202492,4.93846,0.122133,0.0157559,0.721891,3346,40320,1.60423,118.189,-0.00204938,80.4976,cannot-hover low-reynolds tip-mach hover-tip-mach
+longrange7,mars-ingenuity-low-season,mars,0.95,3.73,0.012,0.151869,6.58461,0.122133,0.0157559,0.721891,2510,46558,1.85241,136.473,-0.00205253,91.6355,cannot-hover low-reynolds tip-mach hover-tip-mach
+hex,earth-isa,earth,2.4,9.80665,1.225,4.00137,0.249915,0.051611,0.00665814,0.484875,254167,5251,0.242396,112.014,32.3656,15.7778,
+hex,mars-brief,mars,2.4,3.71,0.02,0.172683,5.79097,0.051611,0.00665814,0.705646,6906,25278,1.6981,203.989,-0.00207106,72.7975,cannot-hover low-reynolds tip-mach hover-tip-mach
+hex,mars-nasa,mars,2.4,3.73,0.016,0.137405,7.27773,0.051611,0.00665814,0.704388,5503,28338,1.90025,229.913,-0.0020745,80.8862,cannot-hover low-reynolds tip-mach hover-tip-mach
+hex,mars-ingenuity-low-season,mars,2.4,3.73,0.012,0.103054,9.70364,0.051611,0.00665814,0.704388,4127,32721,2.19422,265.481,-0.00207748,92.0619,cannot-hover low-reynolds tip-mach hover-tip-mach
