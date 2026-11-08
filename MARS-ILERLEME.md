@@ -5,7 +5,7 @@ Talimat: "OSIRISZK – MARS AERIAL EXPLORER – Claude Code Ana Geliştirme Tali
 
 ## Kısa durum (8 Kasım 2026, akşam)
 
-- **9 aşamanın hepsinde çalışan bir sürüm var.** 94 test geçiyor, çekirdeğin 5" uçuş izi hâlâ birebir aynı.
+- **9 aşamanın hepsinde çalışan bir sürüm var.** 99 test geçiyor, çekirdeğin 5" uçuş izi hâlâ birebir aynı.
 - Gerçek zamanlı uygulama `npm run dev:app` ile açılıyor; arayüz İngilizce ve Türkçe. Deneyler `npm run experiments` ile çalışıyor.
 - Sıradaki iş yüksek çözünürlük:
   - gerçek Jezero DTM'si (`tools/import-dtm.mjs`)
@@ -197,6 +197,29 @@ Aşama 2'de eklenecekler: `src/planet/rotor/` (pal elemanı ve momentum teorisi,
   - `?renderer=webgpu` ile WebGPU denenebiliyor.
 - **Bu ortamda (GPU yok):** yazılım çizimiyle 3 FPS; fizik adım başına ~35 µs. Gerçek GPU ölçümü takımın RTX 5060 Ti'sinde B tuşuyla yapılacak.
 - **Bulgular:** Ingenuity benzeri araç Dünya'da motor akım sınırı nedeniyle kalkamıyor. Toz fırtınası rüzgârının etkisi küçük, çünkü 23 m/sn'de dinamik basınç yalnız 5,5 Pa. Pal çırpması (geri yatma) ve tozun sensörlere etkisi modelde yok.
+
+### 8 Kasım 2026 akşam · Sol sol enerji ve grafik
+
+- **Enerji modeli** (`src/power/solar.js`):
+  - Panel gücü Mars24 güneşi ve toz optik derinliğinden (τ) hesaplanıyor. Doğrudan ışık Beer–Lambert yasasıyla; dağınık ışığın şekli varsayımsal, Appelbaum & Flood eğilimine göre seçildi.
+  - Günlük sıcaklık Viking 1 aralığında (184–242 K).
+  - Gece ısıtıcısı (G·ΔT), uyku gücü ve panel toz kaybı modelleniyor.
+  - "Bugün uçabilir miyiz?" kararı ileriye bakarak veriliyor: uçuştan sonra batarya ertesi sabaha kadar hayatta kalmıyorsa uçulmuyor.
+- **Ingenuity paneli:** 425 × 165 mm (JPL). Hücre verimi 0,28; ısıl iletkenlik 0,016 W/K; uyku gücü 0,25 W, hepsi varsayımsal.
+- **Ingenuity sonuçları:**
+  - τ 0,5'te günde ≈ 52 Wh toplanıyor, gece ≈ 25 Wh harcanıyor; her sol uçulabiliyor.
+  - τ 2'de 10 solda 9 uçuş, ama batarya en düşük %14'e iniyor.
+  - τ 4'te 10 solda yalnız 2 uçuş ve batarya tükeniyor.
+- **OsirisZk dörtlüsü:** τ 1'de sürekli çalışmak için ≈ 0,25 m² panel gerekiyor.
+- **Görev paneli:** panel alanı, toz kaybı, toplanan ve harcanan enerji, uçuş sayısı, sol sol SoC ve güç grafikleri. Rapora da işleniyor.
+- **Deneyler:** `opticalDepth` ve `panelArea` bağımsız değişken oldu; bağımlı değişkenler 10 solda uçuş, toplanan enerji, gece tüketimi ve en düşük SoC. İki yeni hazır deney eklendi: `solar` ve `panel`.
+- **Grafik:**
+  - Arazi 512 × 512 hücre (2,3 m), aynı ızgara fizikte de kullanılıyor; ayrıntı kabartma haritası; tozlu düzlükler ve kayalık yamaçlar ayrı renkte.
+  - Güneşe göre renklenen gökyüzü kubbesi (alçak güneşte mavimsi hale) ve güneş diski.
+  - Kayalarda renk ve biçim çeşitliliği.
+  - Rotor rüzgârının kaldırdığı toz, yalnız görsel.
+  - Gölge sapma ayarı.
+  - Orta kalitede 1,09 milyon üçgen ve 42 çizim çağrısı.
 
 ## Açık kararlar (takımdan)
 

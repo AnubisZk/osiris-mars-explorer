@@ -47,7 +47,11 @@
    "positionErrorRms": 0.20714091138914906,
    "budgetEnergyWh": 6.599382252964517,
    "budgetError": -0.14320023342158011,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 2,
@@ -68,7 +72,11 @@
    "positionErrorRms": 0.24164685949896322,
    "budgetEnergyWh": 6.598878429596789,
    "budgetError": -0.14110047636773862,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 3,
@@ -89,7 +97,11 @@
    "positionErrorRms": 0.21306478192454203,
    "budgetEnergyWh": 6.598257110372948,
    "budgetError": -0.14003946599312594,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 4,
@@ -110,7 +122,11 @@
    "positionErrorRms": 0.20725997772750457,
    "budgetEnergyWh": 6.790001193293871,
    "budgetError": -0.14880799060013108,
-   "mass": 1.9131571866529398
+   "mass": 1.9131571866529398,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 5,
@@ -131,7 +147,11 @@
    "positionErrorRms": 0.24237438473311138,
    "budgetEnergyWh": 6.789618969496204,
    "budgetError": -0.143093947319802,
-   "mass": 1.9131571866529398
+   "mass": 1.9131571866529398,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 6,
@@ -152,7 +172,11 @@
    "positionErrorRms": 0.21335654363835183,
    "budgetEnergyWh": 6.789151110070812,
    "budgetError": -0.14195527571505742,
-   "mass": 1.9131571866529398
+   "mass": 1.9131571866529398,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 7,
@@ -173,7 +197,11 @@
    "positionErrorRms": 0.20749964843261132,
    "budgetEnergyWh": 6.844908091631424,
    "budgetError": -0.14586793629681363,
-   "mass": 1.9437871903133486
+   "mass": 1.9437871903133486,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 8,
@@ -194,7 +222,11 @@
    "positionErrorRms": 0.24392995694190706,
    "budgetEnergyWh": 6.844561236667231,
    "budgetError": -0.14357073631805592,
-   "mass": 1.9437871903133486
+   "mass": 1.9437871903133486,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 9,
@@ -215,7 +247,11 @@
    "positionErrorRms": 0.2141242036188191,
    "budgetEnergyWh": 6.844132570146455,
    "budgetError": -0.14246491379848816,
-   "mass": 1.9437871903133486
+   "mass": 1.9437871903133486,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   }
  ],
  "summary": [
@@ -251,7 +287,15 @@
    "budgetError": -0.1414467252608149,
    "budgetErrorSd": 0.0016085797792343422,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   },
   {
    "frame": "fullerene",
@@ -285,7 +329,15 @@
    "budgetError": -0.1446190712116635,
    "budgetErrorSd": 0.003672114852257842,
    "mass": 1.9131571866529395,
-   "massSd": 2.7194799110210365e-16
+   "massSd": 2.7194799110210365e-16,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   },
   {
    "frame": "hexcell",
@@ -319,8 +371,16 @@
    "budgetError": -0.1439678621377859,
    "budgetErrorSd": 0.0017359211441046192,
    "mass": 1.9437871903133486,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   }
  ],
- "generated": "2026-11-08T12:20:56.008Z"
+ "generated": "2026-11-08T12:43:56.593Z"
 }

@@ -1,4 +1,5 @@
 import {DelayedLink} from './DelayedLink.js';
+import {simulateSols} from '../power/solar.js';
 
 /**
  * Mission definition, pre-flight energy budget and the on-board mission executive.
@@ -12,6 +13,7 @@ export const DEFAULT_MISSION=Object.freeze({
   vehicle:'ingenuity-like',frame:'carbon',payload:0,profile:'mars-brief',overrides:{},siteElevation:0,
   date:Date.UTC(2026,10,14,17,0,0)/* ≈ 10:30 local solar time at Jezero */,site:{lat:18.4447,lonEast:77.4508},seed:2026,wind:{level:'calm',direction:225},
   cruiseAltitude:5,speed:3,reserve:.15,returnHome:true,control:'autonomous',timeLimit:240,
+  opticalDepth:.5,panelArea:null,dustPerSol:.002,solarSols:10,
   waypoints:[{x:0,z:-40,action:'observe',dwell:4,name:'Rock outcrop A'},{x:30,z:-60,action:'observe',dwell:4,name:'Crater rim B'}],
 });
 
@@ -43,8 +45,21 @@ export function energyBudget(sim,spec){
   const hoverTime=climbTime+dwell+4,hoverP=power(0),cruiseP=power(spec.speed);
   const energy=(hoverTime*hoverP+cruise*cruiseP+spinup*.5*hoverP)/3600;
   const usable=v.battery.remainingWh(),available=usable*(1-spec.reserve);
+  const solar=solarPlan(sim,energy,spec);
   return {routeLength:dist,cruiseTime:cruise,hoverTime,spinupTime:spinup,flightTime:hoverTime+cruise+spinup,hoverPower:hoverP,cruisePower:cruiseP,
-    energyWh:energy,usableWh:usable,availableWh:available,margin:available-energy,feasible:ctl.canHover&&energy<=available,canHover:ctl.canHover};
+    energyWh:energy,usableWh:usable,availableWh:available,margin:available-energy,feasible:ctl.canHover&&energy<=available,canHover:ctl.canHover,
+    solar:solar&&{flights:solar.flights,sols:solar.days.length,flyToday:solar.days[0].flew,harvestWh:solar.meanHarvestWh,nightWh:solar.meanNightWh,minSoC:solar.minSoC,survived:solar.survived}};
+}
+
+/**
+ * Energy over sols for this vehicle at this site and season: solar charging, night heating and one
+ * flight of `energyWh` per sol at the mission's local solar time when the battery allows it.
+ */
+export function solarPlan(sim,energyWh,spec=sim.spec){
+  if(!Number.isFinite(energyWh))return null;
+  const day=spec.date-((sim.sun.localSolarTime/24)*88775244); // local midnight before the mission
+  return simulateSols({vehicle:sim.built.spec,site:spec.site,start:day,sols:spec.solarSols??10,tau:spec.opticalDepth??.5,
+    dustPerSol:spec.dustPerSol??.002,panelArea:spec.panelArea??null,flight:{energyWh,lst:sim.sun.localSolarTime}});
 }
 
 /** On-board mission executive: phases, waypoint logic, observations, failure detection. */

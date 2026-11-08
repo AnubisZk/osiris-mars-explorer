@@ -10,9 +10,10 @@ import {VEHICLES,VEHICLE_ORDER} from '../src/vehicles/presets.js';
 import {FRAME_TYPES,FRAME_LABELS,FEA_NOTE} from '../src/frames/frames.js';
 import {VARIABLES,toCSV} from '../src/experiment/Experiment.js';
 import {EXPERIMENTS} from '../src/experiment/presets.js';
-import {DEFAULT_MISSION} from '../src/mission/Mission.js';
+import {DEFAULT_MISSION,solarPlan} from '../src/mission/Mission.js';
 import {t,L,setLang,getLang} from './i18n.js';
-import {MarsScene} from './render/scene.js';
+import {MarsScene,followCamera} from './render/scene.js';
+import {DustPlume} from './render/dust.js';
 import {createVehicleModel} from './render/vehicleModel.js';
 import {lineChart,barChart} from './ui/charts.js';
 import {buildReport,markdownToHtml} from './report.js';
@@ -23,13 +24,13 @@ const $=s=>document.querySelector(s);
 const params=new URLSearchParams(location.search);
 // Terrain: a real DTM imported with tools/import-dtm.mjs (?terrain=<name>) or the labelled procedural one
 async function loadTerrain(name){
-  if(!name)return new ProceduralTerrain({seed:2026});
+  if(!name)return new ProceduralTerrain({seed:2026,cells:[512,512]}); // 2.3 m cells (physics and drawing)
   try{const meta=await (await fetch(`terrain/${name}.json`)).json(),buf=await (await fetch(`terrain/${name}.bin`)).arrayBuffer();
     return new HeightmapTerrain(meta.nx,meta.nz,meta.size,new Float32Array(buf),meta);}
-  catch(e){console.warn('DTM not found, using procedural terrain',e);return new ProceduralTerrain({seed:2026});}
+  catch(e){console.warn('DTM not found, using procedural terrain',e);return new ProceduralTerrain({seed:2026,cells:[512,512]});}
 }
 const terrain=await loadTerrain(params.get('terrain'));
-let spec=JSON.parse(JSON.stringify(DEFAULT_MISSION));spec.dust=.5;spec.calibrated=true;
+let spec=JSON.parse(JSON.stringify(DEFAULT_MISSION));spec.calibrated=true;
 let sim=null,model=null,running=false,lastExperiment=null,worker=null,cameraMode='chase';
 
 // ---------- renderer (WebGL by default, WebGPU on ?renderer=webgpu when available) ----------
@@ -41,7 +42,7 @@ if(params.get('renderer')==='webgpu'&&navigator.gpu){
 renderer??=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 const world=new MarsScene(renderer,terrain,$('#quality').value);
-const camera=new THREE.PerspectiveCamera(60,1,.05,2500);camera.position.set(6,5,8);
+const camera=new THREE.PerspectiveCamera(60,1,.05,4000);const dust=new DustPlume(world.scene),dustColor=new THREE.Color('#c08a62');camera.position.set(6,5,8);
 const orbit=new OrbitControls(camera,canvas);orbit.enabled=false;orbit.enableDamping=true;
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 addEventListener('resize',resize);resize();
@@ -50,7 +51,7 @@ addEventListener('resize',resize);resize();
 const prevPos=new THREE.Vector3(),curPos=new THREE.Vector3(),prevQ=new THREE.Quaternion(),curQ=new THREE.Quaternion();
 function capture(){const b=sim.vehicle.body,p=b.translation();curPos.set(p.x,p.y,p.z);curQ.copy(b.rotation());}
 function onStep(){prevPos.copy(curPos);prevQ.copy(curQ);capture();sim.telemetry.sample(sim);}
-function missionSpec(){const m={...spec,waypoints:spec.waypoints.map(w=>({...w}))};m.rotorLossFactor=spec.calibrated?null:1;delete m.dust;delete m.calibrated;return m;}
+function missionSpec(){const m={...spec,waypoints:spec.waypoints.map(w=>({...w}))};m.rotorLossFactor=spec.calibrated?null:1;delete m.calibrated;return m;}
 function rebuild(){
   if(running)return;
   sim?.dispose();if(model){world.scene.remove(model.group);model.dispose();}
@@ -58,7 +59,7 @@ function rebuild(){
   catch(e){banner(String(e.message));return;}
   model=createVehicleModel(sim.built);world.scene.add(model.group);
   capture();prevPos.copy(curPos);prevQ.copy(curQ);
-  world.setSky(sim.sun,spec.dust);world.setWaypoints(spec.waypoints,terrain);
+  world.setSky(sim.sun,spec.opticalDepth);world.setWaypoints(spec.waypoints,terrain);
   refreshPanels();
 }
 function launch(){if(running||!sim)return;if(sim.mission.result||sim.time>.1)rebuild();sim.start();running=true;refreshPanels();canvas.focus();}
@@ -91,7 +92,7 @@ function buildTabs(){
   document.querySelectorAll('[data-t]').forEach(e=>{e.textContent=e.dataset.t==='title2'?t('title').split('·')[1].trim():t(e.dataset.t);});
 }
 function refreshPanels(){
-  const pane=h('div',{class:'pane on'});
+  const pane=h('div',{class:'pane on'}),append=pane.append.bind(pane);pane.append=(...k)=>append(...k.flat().filter(x=>x!=null&&x!==false));
   ({env:paneEnv,design:paneDesign,mission:paneMission,flight:paneFlight,telemetry:paneTelemetry,experiments:paneExperiments,report:paneReport})[activeTab](pane);
   $('#panes').replaceChildren(pane);banner(L(terrain.meta.label));
 }
@@ -109,7 +110,9 @@ function paneEnv(p){
     row(`${t('gravity')} (m/s²)`,num(ov.gravity,v=>setOv('gravity',v),{step:.01,min:.5,placeholder:env.gravity})),
     row(t('wind'),select(winds.map(w=>[w.id,L(w.label)]),spec.wind.level,v=>{spec.wind={...spec.wind,level:v};rebuild();})),
     row(t('windDir'),num(spec.wind.direction,v=>{spec.wind={...spec.wind,direction:v??225};rebuild();},{step:15})),
-    row(`${t('dust')}: ${fmt(spec.dust,2)}`,h('input',{type:'range',min:0,max:3,step:.05,value:spec.dust,oninput:e=>{spec.dust=+e.target.value;world.setSky(sim.sun,spec.dust);e.target.parentElement.firstChild.textContent=`${t('dust')}: ${fmt(spec.dust,2)}`;}})),
+    row(`${t('dust')}: ${fmt(spec.opticalDepth,2)}`,h('input',{type:'range',min:0,max:5,step:.05,value:spec.opticalDepth,
+      oninput:e=>{spec.opticalDepth=+e.target.value;world.setSky(sim.sun,spec.opticalDepth);e.target.parentElement.firstChild.textContent=`${t('dust')}: ${fmt(spec.opticalDepth,2)}`;},
+      onchange:()=>rebuild()})),
     row(t('date'),h('input',{type:'datetime-local',value:date,onchange:e=>{const ms=Date.parse(e.target.value+':00Z');if(Number.isFinite(ms))set('date',ms);}})),
     h('div',{class:'kv'},
       h('span',{},`${t('site')}`),h('b',{},'Jezero 18.44°N 77.45°E'),
@@ -148,6 +151,7 @@ function paneDesign(p){
     h('p',{class:'note'},Object.entries(v.notes??{}).map(([k,n])=>`${k}: ${n}`).join(' · ')),
   );
 }
+function currentPlan(){const e=sim.mission.result?.success?sim.mission.result.energyWh:sim.budget.energyWh;return solarPlan(sim,e,missionSpec());}
 function drawMap(cv){
   const g=cv.getContext('2d'),N=cv.width=cv.height=360,R=150,img=g.createImageData(N,N);
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i/N-.5)*2*R,z=(j/N-.5)*2*R,hh=terrain.heightAt(x,z),n=terrain.normalAt(x,z,1.5),sh=.55+.45*Math.max(0,n[0]*.5+n[1]*.7-n[2]*.5);
@@ -182,7 +186,20 @@ function paneMission(p){
       h('button',{class:'sec',onclick:()=>{running=false;rebuild();}},t('reset'))),
     r?h('p',{class:r.success?'ok':'bad'},`${t('result')}: ${r.success?t('success'):t('failed')} — ${r.reason} · ${t('observations')} ${r.observations}/${r.requiredObservations} · ${fmt(r.energyWh,2)} Wh · ${fmt(r.flightTime,1)} s`):null,
   );
-  requestAnimationFrame(()=>drawMap(cv));
+  // energy over sols: solar charging, night heating, one flight per sol when the battery allows
+  const plan=currentPlan(),soc=h('canvas',{class:'chart'}),pw=h('canvas',{class:'chart'}),sp=sim.built.spec;
+  p.append(h('h3',{},t('solarTitle')),
+    row(`${t('panelArea')} (m²)`,num(spec.panelArea,v=>set('panelArea',v),{step:.01,min:0,placeholder:`${sp.solar?.area??0}`})),
+    row(`${t('dustRate')} (%/sol)`,num(+(100*spec.dustPerSol).toFixed(2),v=>set('dustPerSol',Math.max(0,(v??.2)/100)),{step:.05,min:0,max:2})),
+    plan?h('div',{class:'kv'},
+      h('span',{},t('harvest')),h('b',{},`${fmt(plan.meanHarvestWh,1)} Wh/sol`),h('span',{},t('night')),h('b',{},`${fmt(plan.meanNightWh,1)} Wh/sol`),
+      h('span',{},t('flyToday')),h('b',{class:plan.days[0].flew?'ok':'bad'},plan.days[0].flew?t('yes'):t('no')),
+      h('span',{},`${t('flightsSols')} (${plan.days.length})`),h('b',{},String(plan.flights)),
+      h('span',{},t('survives')),h('b',{class:plan.survived&&plan.minSoC>.1?'ok':'bad'},`${plan.survived?t('yes'):t('no')} · min ${fmt(100*plan.minSoC,0)} %`)):h('p',{class:'note'},'—'),
+    soc,pw,h('p',{class:'note'},t('solarNote')));
+  requestAnimationFrame(()=>{drawMap(cv);if(plan){const x=plan.timeline.map(q=>q.sol);
+    lineChart(soc,{x,xLabel:'sol',title:`${t('soc')} (%)`,series:[{label:'SoC',data:plan.timeline.map(q=>100*q.soc),color:'#7bd88f'}]});
+    lineChart(pw,{x,xLabel:'sol',title:`${t('power')} (W)`,series:[{label:t('panel'),data:plan.timeline.map(q=>q.pv),color:'#ffd166'},{label:t('heater'),data:plan.timeline.map(q=>q.heat),color:'#ff6b6b'}]});}});
 }
 function paneFlight(p){
   p.append(row(t('camera'),select([['chase',t('chase')],['fpv',t('fpv')],['orbit',t('orbit')]],cameraMode,v=>{cameraMode=v;orbit.enabled=v==='orbit';canvas.focus();})),
@@ -207,7 +224,7 @@ function drawTelemetry(){
 }
 function paneExperiments(p){
   const ids=Object.keys(EXPERIMENTS);let choice=p.dataset.choice??ids[0];
-  const prog=h('p',{class:'note'}),chart=h('canvas',{class:'chart'}),chart2=h('canvas',{class:'chart'}),table=h('div');
+  const prog=h('p',{class:'note'}),chart=h('canvas',{class:'chart'}),chart2=h('canvas',{class:'chart'}),chart3=h('canvas',{class:'chart'}),table=h('div');
   const run=()=>{
     if(worker)return;const def=JSON.parse(JSON.stringify(EXPERIMENTS[choice]));
     worker=new Worker(new URL('./experiment-worker.js',import.meta.url),{type:'module'});
@@ -222,8 +239,9 @@ function paneExperiments(p){
     const labels=S.map(s=>keys.map(k=>s[k]).join(' / '));
     barChart(chart,{labels,values:S.map(s=>s.success?s.energyWh:NaN),errors:S.map(s=>s.energyWhSd),title:t('energy'),unit:'Wh'});
     barChart(chart2,{labels,values:S.map(s=>100*s.success),title:`${t('success')}`,unit:'%',color:'#7bd88f'});
-    table.replaceChildren(h('table',{},h('tr',{},...keys.map(k=>h('th',{},L(VARIABLES[k].label))),h('th',{},'✓'),h('th',{},'Wh'),h('th',{},'s'),h('th',{},'tilt°')),
-      ...S.map(s=>h('tr',{},...keys.map(k=>h('td',{},String(s[k]))),h('td',{},`${fmt(100*s.success,0)}%`),h('td',{},`${fmt(s.energyWh,2)}±${fmt(s.energyWhSd,2)}`),h('td',{},fmt(s.flightTime,1)),h('td',{},fmt(s.maxTilt,1))))),
+    barChart(chart3,{labels,values:S.map(s=>s.flightsPer10Sols),title:`${t('flightsSols')} (10)`,color:'#ffd166'});
+    table.replaceChildren(h('table',{},h('tr',{},...keys.map(k=>h('th',{},L(VARIABLES[k].label))),h('th',{},'✓'),h('th',{},'Wh'),h('th',{},'s'),h('th',{},'tilt°'),h('th',{},'✈/10 sol')),
+      ...S.map(s=>h('tr',{},...keys.map(k=>h('td',{},String(s[k]))),h('td',{},`${fmt(100*s.success,0)}%`),h('td',{},`${fmt(s.energyWh,2)}±${fmt(s.energyWhSd,2)}`),h('td',{},fmt(s.flightTime,1)),h('td',{},fmt(s.maxTilt,1)),h('td',{},fmt(s.flightsPer10Sols,1))))),
       h('div',{style:'display:flex;gap:6px;margin-top:6px'},
         h('button',{class:'sec',onclick:()=>download(`${d.name}.csv`,toCSV(lastExperiment.rows),'text/csv')},`${t('export')} CSV`),
         h('button',{class:'sec',onclick:()=>download(`${d.name}.json`,JSON.stringify(lastExperiment,null,1),'application/json')},`${t('export')} JSON`)));
@@ -231,11 +249,11 @@ function paneExperiments(p){
   const def=EXPERIMENTS[choice];
   p.append(row(t('expPreset'),select(ids.map(id=>[id,L(EXPERIMENTS[id].label)]),choice,v=>{p.dataset.choice=v;refreshPanels();})),
     h('p',{class:'note'},`${t('expVar')}: ${def.variables.map(v=>`${L(VARIABLES[v.key].label)} = ${v.values.join(', ')}`).join(' × ')} · ${t('expSeeds')}: ${def.seeds.length}`),
-    h('button',{class:'act',onclick:run,disabled:!!worker},t('expRun')),prog,chart,chart2,table);
+    h('button',{class:'act',onclick:run,disabled:!!worker},t('expRun')),prog,chart,chart2,chart3,table);
   showResults();
 }
 function paneReport(p){
-  const md=buildReport({sim,experiment:lastExperiment,dust:spec.dust});
+  const md=buildReport({sim,experiment:lastExperiment,dust:spec.opticalDepth,solar:currentPlan()});
   p.append(h('div',{style:'display:flex;gap:6px'},
     h('button',{class:'sec',onclick:()=>download('osiriszk-report.md',md,'text/markdown')},`${t('download')} .md`),
     h('button',{class:'sec',onclick:()=>download('osiriszk-report.json',JSON.stringify({spec:missionSpec(),result:sim.mission.result,budget:sim.budget,experiment:lastExperiment,environment:sim.environment.toJSON()},null,1),'application/json')},`${t('download')} .json`)),
@@ -272,7 +290,12 @@ function frame(now){
   if(cameraMode==='chase'){const s=Math.max(1,Math.cbrt(sim.built.mass));camera.position.lerp(tmp.copy(rp).addScaledVector(fwd,-4.5*s).add(new THREE.Vector3(0,2.2*s,0)),1-Math.exp(-dt*4));camera.lookAt(rp);}
   else if(cameraMode==='fpv'){camera.position.copy(rp).add(tmp.set(0,-.05,-.08).applyQuaternion(rq));camera.quaternion.copy(rq).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-.35));}
   else{orbit.target.copy(rp);orbit.update();}
-  const sd=world.sun.position.clone().sub(world.sun.target.position).normalize();world.sun.target.position.copy(rp);world.sun.position.copy(rp).addScaledVector(sd,200);
+  world.sun.target.position.copy(rp);world.sun.position.copy(rp).addScaledVector(world.sunDir,200);followCamera(world,camera);
+  // rotor-downwash dust within ~2 rotor radii of the ground (visual only)
+  {const R=sim.vehicle.rotors[0].rotor.radius*(sim.vehicle.rotors.length>2?2.2:1),agl=(sim.vehicle.out.groundHeight??99)-sim.vehicle.footClearance,
+    spin=Math.min(1,sim.vehicle.rotors[0].motor.omega/Math.max(1,sim.control.rpmSetpoint?sim.control.rpmSetpoint*Math.PI/30:sim.vehicle.rotors[0].motor.omega||1));
+    const strength=running?Math.max(0,Math.min(1,(2*R-agl)/(2*R)))*spin*Math.min(1,sim.vehicle.out.thrust/Math.max(1e-6,sim.control.W)):0;
+    dust.update(dt,rp,(x,z)=>terrain.heightAt(x,z),R,strength,dustColor);}
   const q=gpuBegin();renderer.render(world.scene,camera);gpuEnd(q);if(timer)gpuPoll();
   perf.cpu+=performance.now()-t0;perf.frames++;
   if(perf.bench){perf.bench.frames.push(dt*1000);perf.bench.phys.push(perf.phys);if(now-perf.bench.start>1e4){finishBench();}}

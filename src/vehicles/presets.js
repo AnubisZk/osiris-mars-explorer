@@ -35,6 +35,11 @@ export const VEHICLES=Object.freeze({
     rotorMass:.10,motor:defineMotor({id:'ing-motor',kv:200,resistance:.15,noLoadCurrent:.3,maxCurrent:20,escEfficiency:.95}),
     battery:defineBattery({id:'ing-battery',series:6,parallel:1,cellCapacityAh:2.0,cellResistance:.02,cellMass:.045,reserve:.55}),
     batteryCenter:[0,-.03,0],avionicsPower:20,
+    // panel 425 × 165 mm (JPL); cell efficiency, packing and charge efficiency assumed
+    solar:{area:.0701,efficiency:.28,packing:.9,chargeEfficiency:.9},
+    // night survival: battery kept at −15 °C (setpoints −15…−25 °C reported); conductance and sleep power
+    // assumed so a spring night costs ≈ 20 Wh (most electronics off at night)
+    thermal:{conductance:.016,setpoint:258.15,sleepPower:.25},
     flapping:{tau:.03,hubStiffness:2,maxTiltDeg:8},
     control:{maxTiltDeg:12,maxClimb:2,maxDescent:1.5,maxSpeed:6,yawRateDeg:60},
     notes:{
@@ -57,6 +62,7 @@ export const VEHICLES=Object.freeze({
     rotorMass:.005,motor:defineMotor({id:'fpv-motor',kv:1950,resistance:.07,noLoadCurrent:1.2,maxCurrent:45,escEfficiency:.95,speedGain:6,speedIntegral:40}),
     battery:defineBattery({id:'fpv-battery',series:6,parallel:1,cellCapacityAh:1.3,cellResistance:.006,cellMass:.035,reserve:.2}),
     batteryCenter:[0,.03,0],avionicsPower:5,
+    solar:{area:0,efficiency:0,packing:1,chargeEfficiency:1},thermal:{conductance:.02,setpoint:258.15,sleepPower:.5},
     control:{maxTiltDeg:30,maxClimb:5,maxDescent:3,maxSpeed:15,yawRateDeg:180},
     notes:{mass:'0.65 kg and 225 mm diagonal from the ZSK core freestyle5',all:'motor, battery and component values assumed typical'},
     sources:['zskCore'],
@@ -74,6 +80,7 @@ export const VEHICLES=Object.freeze({
     rotorMass:.12,motor:defineMotor({id:'osiris-motor',kv:200,resistance:.15,noLoadCurrent:.4,maxCurrent:30,escEfficiency:.95}),
     battery:defineBattery({id:'osiris-battery',series:6,parallel:2,cellCapacityAh:3.0,cellResistance:.03,cellMass:.047,reserve:.25}),
     batteryCenter:[0,-.02,0],avionicsPower:25,
+    solar:{area:.25,efficiency:.28,packing:.9,chargeEfficiency:.9},thermal:{conductance:.05,setpoint:258.15,sleepPower:1.5},
     control:{maxTiltDeg:15,maxClimb:2,maxDescent:1.5,maxSpeed:8,yawRateDeg:45},
     notes:{all:'team concept: every value is a design assumption to be tested in the simulator'},
     sources:[],
@@ -91,6 +98,7 @@ export const VEHICLES=Object.freeze({
     rotorMass:.4,motor:defineMotor({id:'msh-motor',kv:110,resistance:.1,noLoadCurrent:.8,maxCurrent:60,escEfficiency:.95}),
     battery:defineBattery({id:'msh-battery',series:12,parallel:4,cellCapacityAh:3.0,cellResistance:.03,cellMass:.045,reserve:.25}),
     batteryCenter:[0,-.05,0],avionicsPower:60,
+    solar:{area:1.2,efficiency:.28,packing:.9,chargeEfficiency:.9},thermal:{conductance:.25,setpoint:258.15,sleepPower:5},
     control:{maxTiltDeg:12,maxClimb:2,maxDescent:1.5,maxSpeed:10,yawRateDeg:30},
     notes:{mass:'20.8 kg with Ingenuity-type rotors (NASA Ames Table 2)',rotor:'R 0.64 m, 6 rotors × 6 blades, σ 0.25, 2435 rpm (NASA Ames)',
       arms:'arm radius 1.33 m assumed so the rotors do not overlap (the source quotes ≈ 2.5 m overall size; rotor overlap is not modelled)',

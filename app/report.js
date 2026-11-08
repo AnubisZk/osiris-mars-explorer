@@ -8,7 +8,7 @@ import {getLang,L} from './i18n.js';
 
 /** Scientific report (Markdown) from the current environment, design, mission and experiment. */
 const f=(v,d=2)=>Number.isFinite(v)?(+v).toFixed(d):'—';
-export function buildReport({sim,experiment=null,dust}){
+export function buildReport({sim,experiment=null,dust,solar=null}){
   const lang=getLang(),tr=lang==='tr',env=sim.environment,b=sim.built,r=sim.mission.result,bud=sim.budget,T=sim.telemetry;
   const H=(en,t)=>tr?t:en,lines=[];
   lines.push(`# ${H('OsirisZk Mars Aerial Explorer — mission report','OsirisZk Mars Hava Kaşifi — görev raporu')}`,'',
@@ -31,6 +31,7 @@ export function buildReport({sim,experiment=null,dust}){
     `| ${H('Energy','Enerji')} (Wh) | ${f(bud.energyWh,2)} | ${f(r?.energyWh,2)} |`,
     `| ${H('Route','Güzergâh')} (m) | ${f(bud.routeLength,0)} | ${f(r?.distance,0)} |`,'',
     r?`${H('Result','Sonuç')}: **${r.success?H('success','başarılı'):H('failed','başarısız')}** — ${r.reason}. ${H('Observations','Gözlemler')} ${r.observations}/${r.requiredObservations}, ${H('max tilt','en büyük eğim')} ${f(r.maxTilt,1)}°, ${H('hover position error RMS','askıda konum hatası RMS')} ${f(r.positionErrorRms,2)} m, ${H('battery left','kalan batarya')} ${f(100*r.socEnd,1)} %.`:H('Mission not flown yet.','Görev henüz uçulmadı.'),'');
+  if(solar)lines.push(`${H('Energy over','Sol sol enerji')} ${solar.days.length} sol (τ ${f(solar.tau,2)}, ${H('panel','panel')} ${f(solar.panelArea,3)} m²): ${H('harvest','toplanan')} ${f(solar.meanHarvestWh,1)} Wh/sol, ${H('night heating + sleep','gece ısıtma + uyku')} ${f(solar.meanNightWh,1)} Wh/sol, ${H('flights','uçuş')} ${solar.flights}/${solar.days.length}, ${H('minimum battery','en düşük batarya')} ${f(100*solar.minSoC,0)} % (${H('panel efficiency, diffuse light, thermal conductance assumed','panel verimi, dağınık ışık, ısıl iletkenlik varsayımsal')}).`,'');
   if(T.length){const p=T.stats('power'),a=T.stats('agl');lines.push(`${H('Telemetry','Telemetri')}: ${T.length} ${H('samples','örnek')}, ${H('mean power','ortalama güç')} ${f(p.mean,0)} W (${H('max','en çok')} ${f(p.max,0)} W), ${H('max altitude','en yüksek irtifa')} ${f(a.max,1)} m.`,'');}
   if(experiment){
     const d=experiment.definition,keys=d.variables.map(v=>v.key);

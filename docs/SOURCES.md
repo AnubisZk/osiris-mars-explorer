@@ -36,6 +36,8 @@ Helicopter Aerodynamics*), propeller and rotorcraft thrust-coefficient conventio
 | `jplApproxPos` | JPL SSD, *Approximate positions of the planets*, Table 1 (1800–2050) — https://ssd.jpl.nasa.gov/planets/approx_pos.html | Earth–Moon barycentre and Mars elements → Earth–Mars distance and light time |
 | `mars24` | Allison & McEwen (2000), *Planet. Space Sci.* 48, 215–235; NASA GISS Mars24 (https://www.giss.nasa.gov/tools/mars24/); coefficients checked against pyMarsTime (https://github.com/ashima/pyMarsTime) | Ls, MSD, MTC, equation of time, declination, local solar time, Sun elevation/azimuth |
 | `golombek1997` | Golombek & Rapp (1997), *JGR* 102(E2) — https://doi.org/10.1029/96JE03319 | rock size–frequency model F(D) = k e^(−qD), q = 1.79 + 0.152/k |
+| `jplSolarArray` | NASA/JPL, *Mars Helicopter's Solar Array (PIA24545)* — https://www.jpl.nasa.gov/images/pia24545-mars-helicopters-solar-array-as-seen-by-perseverances-mastcam-z/ | panel 425 × 165 mm; energy used for night heaters and flight; ≈ 350 W in flight |
+| `appelbaum1989` | Appelbaum & Flood, *Solar radiation on Mars*, NASA-TM-102299 (1989) — https://ntrs.nasa.gov/citations/19890018252 | trend of global irradiance with optical depth (shape of the assumed diffuse-light term) |
 | `hirise` | HiRISE DTMs — https://www.uahirise.org/dtm/ | real terrain import (tools/import-dtm.mjs) |
 | textbooks | Leishman, *Principles of Helicopter Aerodynamics*; Cheeseman & Bennett (1955) ground effect; Pitt & Peters dynamic inflow; Lock's drag-rise law; Prandtl tip loss; White, *Fluid Mechanics* (cylinder Cd ≈ 1 + 10/Re^(2/3)); Hoerner (flat plate Cd 1.17) | standard rotorcraft and fluid relations |
 

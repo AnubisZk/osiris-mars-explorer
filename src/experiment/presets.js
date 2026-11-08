@@ -12,6 +12,10 @@ export const EXPERIMENTS=Object.freeze({
     base:{vehicle:'ingenuity-like'},variables:[{key:'wind',values:['calm','summer','fall','dust-storm']}],seeds:[1,2,3]},
   route:{name:'route',label:{en:'Route length vs energy',tr:'Güzergâh uzunluğu ve enerji'},
     base:{vehicle:'ingenuity-like'},variables:[{key:'route',values:['short','standard','survey']}],seeds:[1]},
+  solar:{name:'solar',label:{en:'Dust optical depth vs flights per 10 sols',tr:'Toz optik derinliği ve 10 solda uçuş sayısı'},
+    base:{route:'short',waypoints:[{x:0,z:-40,action:'observe',dwell:4,name:'Outcrop A'}]},variables:[{key:'vehicle',values:['ingenuity-like','osiris-mars-quad']},{key:'opticalDepth',values:[.3,.5,1,2,4]}],seeds:[1]},
+  panel:{name:'panel',label:{en:'Solar panel area on the OsirisZk quad (τ = 1)',tr:'OsirisZk dörtlüsünde panel alanı (τ = 1)'},
+    base:{vehicle:'osiris-mars-quad',opticalDepth:1},variables:[{key:'panelArea',values:[.05,.1,.15,.25,.4]}],seeds:[1]},
   'earth-mars':{name:'earth-mars',label:{en:'Earth vs Mars: same vehicles',tr:'Dünya ve Mars: aynı araçlar'},
     base:{},variables:[{key:'profile',values:['earth-isa','mars-brief']},{key:'vehicle',values:['fpv5','ingenuity-like']}],seeds:[1]},
 });

@@ -47,7 +47,11 @@
    "positionErrorRms": 0.17589253672003186,
    "budgetEnergyWh": 1.6475597134850168,
    "budgetError": -0.2293287809035531,
-   "mass": 0.65
+   "mass": 0.65,
+   "flightsPer10Sols": 1,
+   "harvestWhPerSol": 0,
+   "nightWhPerSol": 35.50932328199552,
+   "minSoC10Sols": 0
   },
   {
    "run": 2,
@@ -69,7 +73,11 @@
    "positionErrorRms": null,
    "budgetEnergyWh": 15.546233150729497,
    "budgetError": null,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 0,
+   "harvestWhPerSol": null,
+   "nightWhPerSol": null,
+   "minSoC10Sols": null
   },
   {
    "run": 3,
@@ -91,7 +99,11 @@
    "positionErrorRms": null,
    "budgetEnergyWh": null,
    "budgetError": null,
-   "mass": 0.65
+   "mass": 0.65,
+   "flightsPer10Sols": 0,
+   "harvestWhPerSol": null,
+   "nightWhPerSol": null,
+   "minSoC10Sols": null
   },
   {
    "run": 4,
@@ -113,7 +125,11 @@
    "positionErrorRms": 0.2353342284852259,
    "budgetEnergyWh": 6.599382252964517,
    "budgetError": -0.14410781163339056,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   }
  ],
  "summary": [
@@ -150,7 +166,15 @@
    "budgetError": -0.2293287809035531,
    "budgetErrorSd": 0,
    "mass": 0.65,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 1,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 0,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 35.50932328199552,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0,
+   "minSoC10SolsSd": 0
   },
   {
    "profile": "earth-isa",
@@ -185,7 +209,15 @@
    "budgetError": null,
    "budgetErrorSd": 0,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 0,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": null,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": null,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": null,
+   "minSoC10SolsSd": 0
   },
   {
    "profile": "mars-brief",
@@ -220,7 +252,15 @@
    "budgetError": null,
    "budgetErrorSd": 0,
    "mass": 0.65,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 0,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": null,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": null,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": null,
+   "minSoC10SolsSd": 0
   },
   {
    "profile": "mars-brief",
@@ -255,8 +295,16 @@
    "budgetError": -0.14410781163339056,
    "budgetErrorSd": 0,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   }
  ],
- "generated": "2026-11-08T12:21:56.645Z"
+ "generated": "2026-11-08T12:45:22.940Z"
 }

@@ -42,7 +42,11 @@
    "positionErrorRms": 0.21192922907159234,
    "budgetEnergyWh": 4.281920402822482,
    "budgetError": -0.15508996159772015,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 2,
@@ -63,7 +67,11 @@
    "positionErrorRms": 0.2353342284852259,
    "budgetEnergyWh": 6.599382252964517,
    "budgetError": -0.14410781163339056,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 3,
@@ -84,7 +92,11 @@
    "positionErrorRms": 0.08844694715860109,
    "budgetEnergyWh": 12.033979087703916,
    "budgetError": -0.10401919971094736,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6028928094482963
   }
  ],
  "summary": [
@@ -120,7 +132,15 @@
    "budgetError": -0.15508996159772015,
    "budgetErrorSd": 0,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   },
   {
    "route": "standard",
@@ -154,7 +174,15 @@
    "budgetError": -0.14410781163339056,
    "budgetErrorSd": 0,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   },
   {
    "route": "survey",
@@ -188,8 +216,16 @@
    "budgetError": -0.10401919971094736,
    "budgetErrorSd": 0,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6028928094482963,
+   "minSoC10SolsSd": 0
   }
  ],
- "generated": "2026-11-08T12:21:51.267Z"
+ "generated": "2026-11-08T12:44:55.920Z"
 }

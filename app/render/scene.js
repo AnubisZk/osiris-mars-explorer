@@ -19,12 +19,34 @@ function detailTexture(){
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;
 }
 
+function detailNormal(){
+  // tiled normal map from a two-octave value-noise height field (visual micro-relief only)
+  const N=256,h=new Float32Array(N*N);let s=97531;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  for(const [cell,amp] of [[32,1],[8,.45],[4,.2]]){const n=N/cell,g=new Float32Array((n+1)*(n+1)).map(()=>r());
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){const fx=x/cell,fy=y/cell,i=Math.floor(fx),j=Math.floor(fy);let u=fx-i,v=fy-j;u=u*u*(3-2*u);v=v*v*(3-2*v);
+      const a=g[(i%n)+(j%n)*(n+1)],b=g[((i+1)%n)+(j%n)*(n+1)],c=g[(i%n)+((j+1)%n)*(n+1)],d=g[((i+1)%n)+((j+1)%n)*(n+1)];
+      h[x+y*N]+=amp*((1-u)*(1-v)*a+u*(1-v)*b+(1-u)*v*c+u*v*d);}}
+  const c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d'),img=g.createImageData(N,N);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const dx=(h[((x+1)%N)+y*N]-h[((x+N-1)%N)+y*N])*3,dy=(h[x+((y+1)%N)*N]-h[x+((y+N-1)%N)*N])*3,l=Math.hypot(dx,dy,1),k=(x+y*N)*4;
+    img.data[k]=(-dx/l*.5+.5)*255;img.data[k+1]=(-dy/l*.5+.5)*255;img.data[k+2]=(1/l*.5+.5)*255;img.data[k+3]=255;}
+  g.putImageData(img,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t;
+}
+function sunTexture(){
+  const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),gr=g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,250,240,1)');gr.addColorStop(.12,'rgba(255,244,225,1)');gr.addColorStop(.22,'rgba(220,225,255,.35)');gr.addColorStop(1,'rgba(200,210,255,0)');
+  g.fillStyle=gr;g.fillRect(0,0,128,128);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+
 export class MarsScene {
   constructor(renderer,terrain,quality='medium'){
     this.renderer=renderer;this.scene=new THREE.Scene();this.terrain=terrain;
     this.sun=new THREE.DirectionalLight('#fff1dd',2.4);this.sun.castShadow=true;this.scene.add(this.sun,this.sun.target);
     this.sky=new THREE.HemisphereLight('#d9b38c','#6b3c22',.55);this.scene.add(this.sky);
     this.scene.fog=new THREE.FogExp2('#c9a37f',.0016);
+    const dome=new THREE.SphereGeometry(1800,48,24);dome.setAttribute('color',new THREE.BufferAttribute(new Float32Array(dome.attributes.position.count*3),3));
+    this.dome=new THREE.Mesh(dome,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));this.dome.renderOrder=-1;this.scene.add(this.dome);
+    this.sunSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:sunTexture(),fog:false,depthWrite:false,transparent:true}));this.sunSprite.scale.setScalar(140);this.scene.add(this.sunSprite);
+    this.sunDir=new THREE.Vector3(0,1,0);
     this.buildTerrain();this.setQuality(quality);this.markers=new THREE.Group();this.scene.add(this.markers);
   }
   buildTerrain(){
@@ -37,13 +59,16 @@ export class MarsScene {
     geo.computeVertexNormals();
     const nrm=geo.attributes.normal;
     for(let k=0;k<pos.count;k++){
-      const slope=1-nrm.getY(k),h=pos.getY(k),n=.5+.5*Math.sin(pos.getX(k)*.05)*Math.cos(pos.getZ(k)*.043);
-      const r=.62+.08*n-.18*slope+.004*h,g=.36+.05*n-.12*slope+.002*h,b=.22+.03*n-.06*slope;
+      const slope=1-nrm.getY(k),h=pos.getY(k),x=pos.getX(k),z=pos.getZ(k);
+      const n=.5+.5*Math.sin(x*.05+Math.cos(z*.021)*2)*Math.cos(z*.043+Math.sin(x*.017)*2),m=.5+.5*Math.sin(x*.31)*Math.sin(z*.27);
+      const dust=Math.max(0,Math.min(1,1-slope*6))*(.6+.4*n),rock=Math.min(1,slope*5);
+      const r=.50+.16*dust-.10*rock+.03*m+.003*h,g=.30+.09*dust-.07*rock+.02*m+.0015*h,b=.19+.04*dust-.04*rock+.01*m;
       col[k*3]=r;col[k*3+1]=g;col[k*3+2]=b;
     }
     geo.setAttribute('color',new THREE.BufferAttribute(col,3));
     const tex=detailTexture();tex.repeat.set(T.size[0]/6,T.size[1]/6);
-    this.ground=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,map:tex,roughness:.95,metalness:0}));
+    const detail=detailNormal();detail.repeat.set(T.size[0]/9,T.size[1]/9);
+    this.ground=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,map:tex,normalMap:detail,normalScale:new THREE.Vector2(.9,.9),roughness:.95,metalness:0}));
     this.ground.receiveShadow=true;this.scene.add(this.ground);
   }
   buildRocks(count){
@@ -51,10 +76,12 @@ export class MarsScene {
     const rocks=this.terrain.rocks.slice(0,count),shapes=[0,1,2,3].map(s=>{
       const g=new THREE.IcosahedronGeometry(.5,1),p=g.attributes.position;let seed=s*97+13;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
       for(let k=0;k<p.count;k++){const f=.75+.4*r();p.setXYZ(k,p.getX(k)*f,p.getY(k)*f*.7,p.getZ(k)*f);}g.computeVertexNormals();return g;});
-    const mat=new THREE.MeshStandardMaterial({color:'#6e4a35',roughness:.9,flatShading:true}),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler();
+    const mat=new THREE.MeshStandardMaterial({color:'#8a5d42',roughness:.88,flatShading:true}),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler();
     this.rockMeshes=shapes.map((g,s)=>{
       const list=rocks.filter(r=>r.shape===s),mesh=new THREE.InstancedMesh(g,mat,list.length);
-      list.forEach((r,i)=>{e.set(0,r.rot,0);q.setFromEuler(e);m4.compose(new THREE.Vector3(r.x,r.y+r.d*.12,r.z),q,new THREE.Vector3(r.d,r.d,r.d));mesh.setMatrixAt(i,m4);});
+      const col=new THREE.Color();
+      list.forEach((r,i)=>{e.set(0,r.rot,0);q.setFromEuler(e);m4.compose(new THREE.Vector3(r.x,r.y+r.d*.12,r.z),q,new THREE.Vector3(r.d,r.d*(.7+.3*((i*7)%10)/10),r.d));mesh.setMatrixAt(i,m4);
+        const k=((i*2654435761)>>>0)/4294967296;col.setRGB(.55+.35*k,.42+.2*k,.36+.12*k);mesh.setColorAt(i,col);});
       mesh.castShadow=this.quality.shadows;mesh.receiveShadow=true;this.scene.add(mesh);return mesh;
     });
   }
@@ -63,7 +90,7 @@ export class MarsScene {
     this.renderer.setPixelRatio(this.quality.pixelRatio);this.renderer.shadowMap.enabled=this.quality.shadows;
     this.sun.castShadow=this.quality.shadows;this.sun.shadow.mapSize.set(this.quality.shadowSize,this.quality.shadowSize);
     this.sun.shadow.map?.dispose();this.sun.shadow.map=null;
-    const cam=this.sun.shadow.camera;cam.left=cam.bottom=-30;cam.right=cam.top=30;cam.near=1;cam.far=400;cam.updateProjectionMatrix();
+    this.sun.shadow.bias=-.0004;this.sun.shadow.normalBias=.03;const cam=this.sun.shadow.camera;cam.left=cam.bottom=-30;cam.right=cam.top=30;cam.near=1;cam.far=400;cam.updateProjectionMatrix();
     this.buildRocks(this.quality.rocks);
   }
   /**
@@ -76,7 +103,15 @@ export class MarsScene {
     this.sun.intensity=2.6*beam/590;this.sun.position.set(Math.sin(az)*Math.cos(el)*200,Math.sin(el)*200,-Math.cos(az)*Math.cos(el)*200);
     const day=Math.max(0,Math.min(1,el/(10*Math.PI/180)+.15)),dusty=Math.min(1,tau/2);
     const sky=new THREE.Color().setRGB(.78*day+.06,.6*day+.05,.45*day+.09).lerp(new THREE.Color('#b0896a'),dusty*.4*day);
-    this.scene.background=sky;this.scene.fog.color.copy(sky);this.scene.fog.density=.0008+.0022*tau;
+    this.sunDir.set(Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)).normalize();
+    // Sky dome (illustrative colours): butterscotch dusty sky, darker toward the zenith, a cool halo
+    // around the Sun from forward scattering by dust (the blue Mars sunset when the Sun is low)
+    const P=this.dome.geometry.attributes.position,C=this.dome.geometry.attributes.color,v=new THREE.Vector3(),zen=sky.clone().multiplyScalar(.62),hor=sky.clone().lerp(new THREE.Color('#e8c39c'),.25*day),halo=new THREE.Color('#9fb6d8'),c=new THREE.Color();
+    for(let k=0;k<P.count;k++){v.fromBufferAttribute(P,k).normalize();const up=Math.max(0,v.y),cs=v.dot(this.sunDir),near=Math.max(0,cs)**12*(.25+.75*(1-Math.min(1,el*3)))*day;
+      c.copy(hor).lerp(zen,Math.pow(up,.6)).lerp(halo,Math.min(.85,near*.9));if(v.y<0)c.copy(hor).multiplyScalar(.85);C.setXYZ(k,c.r,c.g,c.b);}
+    C.needsUpdate=true;this.scene.background=null;
+    this.sunSprite.visible=el>-.02;this.sunSprite.material.opacity=Math.max(.15,Math.exp(-tau/Math.max(.08,Math.sin(el))));
+    this.scene.fog.color.copy(hor);this.scene.fog.density=.0006+.0018*tau;
     this.sky.intensity=.3+.7*day*(.5+.5*Math.min(1,tau)); // night: faint ambient so the scene stays readablethis.sky.color.copy(sky);
     this.sunInfo={beam,tau};
   }
@@ -91,3 +126,6 @@ export class MarsScene {
     if(pts.length>1)this.markers.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:'#7ef0ff',transparent:true,opacity:.6})));
   }
 }
+
+/** Keep the sky dome and Sun sprite centred on the camera (they are at "infinity"). */
+export function followCamera(world,camera){world.dome.position.copy(camera.position);world.sunSprite.position.copy(camera.position).addScaledVector(world.sunDir,1600);}

@@ -22,6 +22,9 @@ const S={
     procedural:'Procedural terrain — illustrative, NOT NASA data',keys:'W/S climb · arrows tilt · A/D yaw · C camera · L land',
     camera:'Camera',chase:'chase',fpv:'navigation camera',orbit:'orbit',
     assumed:'assumed',sourced:'sourced',brief:'brief value',derived:'derived',scenario:'scenario',
+    solarTitle:'Energy over sols (solar + night heating)',panelArea:'Solar panel area',dustRate:'Panel dust loss',harvest:'Solar harvest',night:'Night heating + sleep',
+    flyToday:'Can we fly today?',flightsSols:'Flights in sols',survives:'Battery survives',panel:'panel',heater:'heater',
+    solarNote:'Panel cannot power flight directly (watts vs hundreds of watts): it recharges the battery. Diffuse-light shape, thermal conductance and sleep power are assumed.',
   },
   tr:{
     title:'OsirisZk · Mars Hava Kaşifi',subtitle:'Mars rotorlu araç tasarım ve görev simülatörü',
@@ -45,6 +48,9 @@ const S={
     procedural:'Prosedürel arazi — temsilî, NASA verisi DEĞİL',keys:'W/S tırman · oklar eğim · A/D dönüş · C kamera · L in',
     camera:'Kamera',chase:'takip',fpv:'seyrüsefer kamerası',orbit:'yörünge',
     assumed:'varsayımsal',sourced:'kaynaklı',brief:'talimat değeri',derived:'türetilmiş',scenario:'senaryo',
+    solarTitle:'Sol sol enerji (güneş + gece ısıtması)',panelArea:'Güneş paneli alanı',dustRate:'Panel toz kaybı',harvest:'Güneşten toplanan',night:'Gece ısıtma + uyku',
+    flyToday:'Bugün uçabilir miyiz?',flightsSols:'Sollardaki uçuş sayısı',survives:'Batarya hayatta kalır',panel:'panel',heater:'ısıtıcı',
+    solarNote:'Panel uçuşu doğrudan besleyemez (birkaç watt, uçuş yüzlerce watt): bataryayı doldurur. Dağınık ışık şekli, ısıl iletkenlik ve uyku gücü varsayımsaldır.',
   },
 };
 let lang='en';

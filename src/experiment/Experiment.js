@@ -1,5 +1,6 @@
 import {Simulation} from '../sim/Simulation.js';
 import {ProceduralTerrain} from '../terrain/terrain.js';
+import {solarPlan} from '../mission/Mission.js';
 
 /**
  * Scientific experiment runner: the same mission under controlled conditions, one or more
@@ -25,8 +26,10 @@ export const VARIABLES=Object.freeze({
   wind:{label:{en:'Wind',tr:'Rüzgâr'},apply:(m,v)=>({...m,wind:{...m.wind,level:v}})},
   route:{label:{en:'Route',tr:'Güzergâh'},apply:(m,v)=>({...m,...ROUTES[v]})},
   profile:{label:{en:'Planet profile',tr:'Gezegen profili'},apply:(m,v)=>({...m,profile:v})},
+  opticalDepth:{label:{en:'Dust optical depth τ',tr:'Toz optik derinliği τ'},apply:(m,v)=>({...m,opticalDepth:+v})},
+  panelArea:{label:{en:'Solar panel area (m²)',tr:'Güneş paneli alanı (m²)'},apply:(m,v)=>({...m,panelArea:+v})},
 });
-export const DEPENDENT=Object.freeze(['liftOff','canHover','success','flightTime','energyWh','energyPerKm','distance','observations','maxTilt','tiltRms','hoverRateRms','positionErrorRms','budgetEnergyWh','budgetError','mass']);
+export const DEPENDENT=Object.freeze(['liftOff','canHover','success','flightTime','energyWh','energyPerKm','distance','observations','maxTilt','tiltRms','hoverRateRms','positionErrorRms','budgetEnergyWh','budgetError','mass','flightsPer10Sols','harvestWhPerSol','nightWhPerSol','minSoC10Sols']);
 
 /** All combinations of the variable values × seeds. */
 export function plan(def){
@@ -52,6 +55,9 @@ export function runExperiment(def,{onProgress=null,terrainCache=new Map()}={}){
       flightTime:res.flightTime,energyWh:res.energyWh,energyPerKm:res.distance>1?res.energyWh/(res.distance/1000):NaN,distance:res.distance,
       observations:res.observations,maxTilt:res.maxTilt,tiltRms:res.tiltRms,hoverRateRms:res.hoverRateRms,positionErrorRms:res.positionErrorRms,
       budgetEnergyWh:sim.budget.energyWh,budgetError:Number.isFinite(sim.budget.energyWh)&&res.success?(sim.budget.energyWh-res.energyWh)/res.energyWh:NaN,mass:sim.built.mass};
+    // energy over 10 sols with the measured flight energy (only for missions that succeeded)
+    const plan=res.success?solarPlan(sim,res.energyWh):null;
+    Object.assign(row,{flightsPer10Sols:plan?plan.flights*10/plan.days.length:0,harvestWhPerSol:plan?.meanHarvestWh??NaN,nightWhPerSol:plan?.meanNightWh??NaN,minSoC10Sols:plan?.minSoC??NaN});
     rows.push(row);sim.dispose();onProgress?.(i+1,runs.length,row);
   });
   return {definition:def,rows,summary:summarize(def,rows)};

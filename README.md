@@ -7,9 +7,9 @@ physics, fixed 240 Hz step).
 
 ```bash
 npm install
-npm run check        # 94 tests + the 5" core reference trace (must print "AYNI")
+npm run check        # 99 tests + the 5" core reference trace (must print "AYNI")
 npm run dev:app      # mission control app (English / Türkçe)
-npm run experiments  # all 7 experiments → reports/experiments/*.json|csv
+npm run experiments  # all 9 experiments → reports/experiments/*.json|csv
 npm run build        # static site in dist/ (any static host)
 ```
 
@@ -21,11 +21,12 @@ npm run build        # static site in dist/ (any static host)
 | 2 Rotors and flight | Blade-element rotor model with Reynolds- and Mach-dependent airfoil polars, momentum and dynamic inflow, tip loss, ground effect, coaxial interference; BLDC motors with speed governor; Li-ion battery; four vehicles flying only by forces and torques |
 | 3 Frames | Conventional carbon, C60 (truncated icosahedron) lattice, hexagonal honeycomb shell. Exact mass, centre of mass and inertia tensor, drag areas, effect on flight and energy (no stress analysis: FEA is still required) |
 | 4 Mars surface | Mars24 Sun position, dust optical depth, procedural crater terrain with the Golombek–Rapp rock model (always labelled *not NASA data*), importer for real HiRISE/USGS DTMs |
+| Energy over sols | Solar panel (Mars24 Sun, dust optical depth τ, Beer–Lambert beam + assumed diffuse light), diurnal temperature (Viking 1 range), night heater, panel dust loss; "can we fly today?" look-ahead; flights per 10 sols |
 | 5 Mission game | Vehicle/frame/payload design, waypoint map, pre-flight energy budget, autonomous flight, FPV from Earth with the real light-time delay (fails; the vehicle lands on failsafe), telemetry, results |
 | 6 Experiments | Full-factorial runner with fixed seeds (frame, mass, rotor system, density, wind, route, planet); summary statistics, charts, CSV/JSON |
 | 7 Interface | Mission control panels: environment, design lab, mission, flight, telemetry, experiments, report (EN/TR) |
 | 8 Performance | Physics decoupled from rendering (interpolated), instancing, quality presets, in-app FPS/CPU/physics/GPU-timer HUD and a 10 s benchmark export; optional WebGPU path (`?renderer=webgpu`) |
-| 9 Validation | 94 automated tests (46 core + 48 new; below) |
+| 9 Validation | 99 automated tests (46 core + 53 new; below) |
 
 ### Key results (default settings, `reports/`)
 
@@ -37,6 +38,7 @@ npm run build        # static site in dist/ (any static host)
   shell adds 144 g and costs 4 % more.
 - At a fixed rotor speed, energy is lowest at 0.0145–0.0165 kg/m³ and rises in both thinner and
   denser air.
+- Energy: a solar panel cannot power flight directly. Ingenuity's 425 × 165 mm panel gives ≈ 5–8 W at noon against ≈ 350 W in flight. It recharges the battery instead: ≈ 52 Wh/sol at τ 0.5 against ≈ 25 Wh of night heating and sleep (both partly assumed). That allows a flight every clear sol. At τ 4 only 2 flights in 10 sols are possible and the battery is drained, which is the dust-storm risk. The OsirisZk quad needs ≈ 0.25 m² of panel at τ 1.
 - From Earth the one-way light time is 3–22 min (11 min on 14 Nov 2026), so real-time FPV is
   impossible. Commands arrive after the vehicle's failsafe has landed it.
 
@@ -69,6 +71,7 @@ npm run build        # static site in dist/ (any static host)
 - Mars time: Mars24 reference values (Ls, MTC, MSD); solar noon; morning Sun in the east; light time 3–22.5 min.
 - Terrain: deterministic; the Rapier heightfield agrees with the height function; the rock model holds; DTM import keeps the slopes.
 - Missions: autonomous mission and budget; identical telemetry on repeat; FPV through the light-time link fails; FPV with no delay succeeds.
+- Energy over sols: the irradiance model's limits; Viking 1 temperature extremes; the battery ledger closes; dust-storm and panel-area trends; the fly/no-fly policy.
 - Experiments: deterministic runs, summary and CSV.
 
 ## Calibration and assumptions
@@ -78,6 +81,7 @@ npm run build        # static site in dist/ (any static host)
   - The shape around it is assumed.
   - A lumped profile-loss factor of 3.0 is calibrated so the Ingenuity-like vehicle needs the published ≈ 350 W in hover. The uncalibrated model gives ≈ 200 W; the in-app switch shows both.
 - Ingenuity rotor: radius, blades, spacing, twist endpoints, peak and tip chord are from the NASA geometry report; the inner chord shape is assumed.
+- Solar and thermal: cell efficiency (0.28), packing, charge efficiency, diffuse-light shape, thermal conductance, sleep power and panel dust loss (0.2 %/sol) are assumed. The panel size is sourced (JPL) and the temperature range is sourced (Viking 1); every value is editable in the app.
 - Vehicles: component masses, motors and batteries are assumed unless stated. A calibration mass makes published totals (1.8 kg, 20.8 kg, 0.65 kg) exact.
 - Not modelled:
   - Rotor flapping blow-back in edgewise flow.

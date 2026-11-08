@@ -15,5 +15,5 @@ for(const id of list){
   writeFileSync(`${out}/${id}.json`,JSON.stringify({...res,generated:new Date().toISOString()},null,1)+'\n');
   writeFileSync(`${out}/${id}.csv`,toCSV(res.rows));writeFileSync(`${out}/${id}-summary.csv`,toCSV(res.summary));
   console.log(`\r${id}: ${res.rows.length} koşu, ${((Date.now()-t0)/1000).toFixed(1)} sn`);
-  console.table(res.summary.map(s=>({...Object.fromEntries((def.variables).map(v=>[v.key,s[v.key]])),success:s.success,lift:s.liftOff,E_Wh:+s.energyWh.toFixed(2),t_s:+s.flightTime.toFixed(1),maxTilt:+s.maxTilt.toFixed(1),posErr:+s.positionErrorRms.toFixed(2),mass:+s.mass.toFixed(3)})));
+  console.table(res.summary.map(s=>({...Object.fromEntries((def.variables).map(v=>[v.key,s[v.key]])),success:s.success,lift:s.liftOff,E_Wh:+s.energyWh.toFixed(2),t_s:+s.flightTime.toFixed(1),maxTilt:+s.maxTilt.toFixed(1),mass:+s.mass.toFixed(3),flights10:+s.flightsPer10Sols.toFixed(1),harvest:+s.harvestWhPerSol.toFixed(1),night:+s.nightWhPerSol.toFixed(1),minSoC:+s.minSoC10Sols.toFixed(2)})));
 }

@@ -1,4 +1,4 @@
-run,seed,route,liftOff,canHover,success,reason,flightTime,energyWh,energyPerKm,distance,observations,maxTilt,tiltRms,hoverRateRms,positionErrorRms,budgetEnergyWh,budgetError,mass
-1,1,short,true,true,true,complete,53.35417,5.067901,61.10154,82.94228,1,11.97631,7.757197,7.10707,0.2119292,4.28192,-0.15509,1.8
-2,1,standard,true,true,true,complete,80.67083,7.71053,52.56178,146.6946,2,11.95549,7.207263,7.270267,0.2353342,6.599382,-0.1441078,1.8
-3,1,survey,true,true,true,complete,140.0792,13.43107,42.1022,319.011,3,11.95886,5.78328,6.484516,0.08844695,12.03398,-0.1040192,1.8
+run,seed,route,liftOff,canHover,success,reason,flightTime,energyWh,energyPerKm,distance,observations,maxTilt,tiltRms,hoverRateRms,positionErrorRms,budgetEnergyWh,budgetError,mass,flightsPer10Sols,harvestWhPerSol,nightWhPerSol,minSoC10Sols
+1,1,short,true,true,true,complete,53.35417,5.067901,61.10154,82.94228,1,11.97631,7.757197,7.10707,0.2119292,4.28192,-0.15509,1.8,10,51.5948,24.70746,0.6400186
+2,1,standard,true,true,true,complete,80.67083,7.71053,52.56178,146.6946,2,11.95549,7.207263,7.270267,0.2353342,6.599382,-0.1441078,1.8,10,51.5948,24.70746,0.6400186
+3,1,survey,true,true,true,complete,140.0792,13.43107,42.1022,319.011,3,11.95886,5.78328,6.484516,0.08844695,12.03398,-0.1040192,1.8,10,51.5948,24.70746,0.6028928

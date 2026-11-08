@@ -44,7 +44,11 @@
    "positionErrorRms": 0.9235732238632182,
    "budgetEnergyWh": 8.811521492497036,
    "budgetError": -0.10325062934868585,
-   "mass": 2.983259076009783
+   "mass": 2.983259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 2,
@@ -65,7 +69,11 @@
    "positionErrorRms": 0.9176447516558723,
    "budgetEnergyWh": 9.6844083947483,
    "budgetError": -0.10894769219816915,
-   "mass": 3.233259076009783
+   "mass": 3.233259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 3,
@@ -86,7 +94,11 @@
    "positionErrorRms": 0.9151349433888833,
    "budgetEnergyWh": 10.621626792086971,
    "budgetError": -0.11463116137404847,
-   "mass": 3.483259076009783
+   "mass": 3.483259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 4,
@@ -107,7 +119,11 @@
    "positionErrorRms": 0.9370405582635175,
    "budgetEnergyWh": 12.70533507323917,
    "budgetError": -0.13036251318937878,
-   "mass": 3.983259076009783
+   "mass": 3.983259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 5,
@@ -128,7 +144,11 @@
    "positionErrorRms": 1.0186744219029313,
    "budgetEnergyWh": 13.866635448354153,
    "budgetError": -0.19915978347986832,
-   "mass": 4.483259076009783
+   "mass": 4.483259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   }
  ],
  "summary": [
@@ -164,7 +184,15 @@
    "budgetError": -0.10325062934868585,
    "budgetErrorSd": 0,
    "mass": 2.983259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   },
   {
    "payload": 0.25,
@@ -198,7 +226,15 @@
    "budgetError": -0.10894769219816915,
    "budgetErrorSd": 0,
    "mass": 3.233259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   },
   {
    "payload": 0.5,
@@ -232,7 +268,15 @@
    "budgetError": -0.11463116137404847,
    "budgetErrorSd": 0,
    "mass": 3.483259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   },
   {
    "payload": 1,
@@ -266,7 +310,15 @@
    "budgetError": -0.13036251318937878,
    "budgetErrorSd": 0,
    "mass": 3.983259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   },
   {
    "payload": 1.5,
@@ -300,8 +352,16 @@
    "budgetError": -0.19915978347986832,
    "budgetErrorSd": 0,
    "mass": 4.483259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   }
  ],
- "generated": "2026-11-08T12:21:25.527Z"
+ "generated": "2026-11-08T12:44:28.894Z"
 }

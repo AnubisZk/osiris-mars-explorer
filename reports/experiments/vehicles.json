@@ -42,7 +42,11 @@
    "positionErrorRms": 0.2353342284852259,
    "budgetEnergyWh": 6.599382252964517,
    "budgetError": -0.14410781163339056,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 2,
@@ -63,7 +67,11 @@
    "positionErrorRms": 0.23445762042130538,
    "budgetEnergyWh": 6.598878429596789,
    "budgetError": -0.14003852131423294,
-   "mass": 1.8
+   "mass": 1.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 51.59479718037672,
+   "nightWhPerSol": 24.70745862559643,
+   "minSoC10Sols": 0.6400185632345529
   },
   {
    "run": 3,
@@ -84,7 +92,11 @@
    "positionErrorRms": 0.9235732238632182,
    "budgetEnergyWh": 8.811521492497036,
    "budgetError": -0.10325062934868585,
-   "mass": 2.983259076009783
+   "mass": 2.983259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 4,
@@ -105,7 +117,11 @@
    "positionErrorRms": 0.9202031181187741,
    "budgetEnergyWh": 8.80903334399339,
    "budgetError": -0.09998404845525681,
-   "mass": 2.983259076009783
+   "mass": 2.983259076009783,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 184.0042695448529,
+   "nightWhPerSol": 94.93997487165556,
+   "minSoC10Sols": 0.5523157270608067
   },
   {
    "run": 5,
@@ -126,7 +142,11 @@
    "positionErrorRms": 0.24678107376720798,
    "budgetEnergyWh": 73.81402840041778,
    "budgetError": -0.06846944645855249,
-   "mass": 20.8
+   "mass": 20.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 883.2204938152934,
+   "nightWhPerSol": 413.0332076916117,
+   "minSoC10Sols": 0.5050751073321024
   },
   {
    "run": 6,
@@ -147,7 +167,11 @@
    "positionErrorRms": 0.2540428091448949,
    "budgetEnergyWh": 73.79225830675018,
    "budgetError": -0.05647217411545024,
-   "mass": 20.8
+   "mass": 20.8,
+   "flightsPer10Sols": 10,
+   "harvestWhPerSol": 883.2204938152934,
+   "nightWhPerSol": 413.0332076916117,
+   "minSoC10Sols": 0.5050751073321024
   },
   {
    "run": 7,
@@ -168,7 +192,11 @@
    "positionErrorRms": null,
    "budgetEnergyWh": null,
    "budgetError": null,
-   "mass": 0.65
+   "mass": 0.65,
+   "flightsPer10Sols": 0,
+   "harvestWhPerSol": null,
+   "nightWhPerSol": null,
+   "minSoC10Sols": null
   },
   {
    "run": 8,
@@ -189,7 +217,11 @@
    "positionErrorRms": null,
    "budgetEnergyWh": null,
    "budgetError": null,
-   "mass": 0.65
+   "mass": 0.65,
+   "flightsPer10Sols": 0,
+   "harvestWhPerSol": null,
+   "nightWhPerSol": null,
+   "minSoC10Sols": null
   }
  ],
  "summary": [
@@ -225,7 +257,15 @@
    "budgetError": -0.14207316647381174,
    "budgetErrorSd": 0.0028774227792931237,
    "mass": 1.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 51.59479718037672,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 24.70745862559643,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.6400185632345529,
+   "minSoC10SolsSd": 0
   },
   {
    "vehicle": "osiris-mars-quad",
@@ -259,7 +299,15 @@
    "budgetError": -0.10161733890197133,
    "budgetErrorSd": 0.002309821501038088,
    "mass": 2.983259076009783,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 184.0042695448529,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 94.93997487165556,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5523157270608067,
+   "minSoC10SolsSd": 0
   },
   {
    "vehicle": "msh-hexa",
@@ -293,7 +341,15 @@
    "budgetError": -0.06247081028700137,
    "budgetErrorSd": 0.008483352629549423,
    "mass": 20.8,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 10,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": 883.2204938152934,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": 413.0332076916117,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": 0.5050751073321024,
+   "minSoC10SolsSd": 0
   },
   {
    "vehicle": "fpv5",
@@ -327,8 +383,16 @@
    "budgetError": null,
    "budgetErrorSd": 0,
    "mass": 0.65,
-   "massSd": 0
+   "massSd": 0,
+   "flightsPer10Sols": 0,
+   "flightsPer10SolsSd": 0,
+   "harvestWhPerSol": null,
+   "harvestWhPerSolSd": 0,
+   "nightWhPerSol": null,
+   "nightWhPerSolSd": 0,
+   "minSoC10Sols": null,
+   "minSoC10SolsSd": 0
   }
  ],
- "generated": "2026-11-08T12:21:17.565Z"
+ "generated": "2026-11-08T12:44:19.999Z"
 }
