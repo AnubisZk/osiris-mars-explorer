@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OsirisZk · Mars Aerial Explorer</title>
+  <style>
+    :root{--bg:#0f0b09;--panel:#17110ecc;--panel2:#1f1713;--line:#3a2a22;--text:#f2e8de;--muted:#b9a493;--accent:#ff8a4c;--accent2:#7ef0ff;--ok:#7bd88f;--bad:#ff6b6b;--grid:#3a2a2280}
+    *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
+    canvas#view{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+    header{position:fixed;left:0;right:0;top:0;height:42px;display:flex;align-items:center;gap:14px;padding:0 14px;background:linear-gradient(#0f0b09ee,#0f0b0900);z-index:3}
+    header h1{font-size:15px;margin:0;letter-spacing:.3px;white-space:nowrap}header small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}header h1 span{color:var(--accent)}header small{color:var(--muted)}
+    header .sp{flex:1}header select,header button{width:auto;font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+    #side{position:fixed;left:10px;top:48px;bottom:10px;width:380px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(6px);z-index:2}
+    #tabs{display:flex;flex-wrap:wrap;gap:2px;padding:6px;border-bottom:1px solid var(--line)}
+    #tabs button{flex:1 1 auto;font:inherit;font-size:12px;background:none;color:var(--muted);border:0;border-radius:6px;padding:5px 6px;cursor:pointer}
+    #tabs button.on{background:var(--panel2);color:var(--text)}
+    .pane{display:none;overflow:auto;padding:10px 12px;flex:1}.pane.on{display:block}
+    .row{display:grid;grid-template-columns:1fr 1.1fr;gap:6px;align-items:center;margin:5px 0}
+    label{color:var(--muted)}select,input,button{font:inherit}
+    select,input[type=number],input[type=datetime-local]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+    input[type=range]{width:100%}
+    button.act{background:var(--accent);color:#1a0f08;border:0;border-radius:7px;padding:7px 12px;font-weight:600;cursor:pointer}
+    button.sec{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:6px 10px;cursor:pointer}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    h3{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin:14px 0 6px}
+    table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:3px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    .badge{display:inline-block;padding:0 5px;border-radius:4px;font-size:11px;background:#33251d;color:var(--muted)}
+    .badge.sourced{background:#173225;color:var(--ok)}.badge.assumed{background:#3a2516;color:#ffb36b}.badge.brief{background:#1b2a3a;color:#8ec5ff}.badge.scenario{background:#35203a;color:#e2a6ff}
+    .kv{display:grid;grid-template-columns:1fr auto;gap:2px 8px}.kv b{text-align:right;font-variant-numeric:tabular-nums}
+    .warn{color:#ffb38a}.ok{color:var(--ok)}.bad{color:var(--bad)}.note{color:var(--muted);font-size:12px}
+    canvas.chart{width:100%;height:150px;display:block;margin:6px 0;background:#0f0b0966;border-radius:6px}
+    canvas#map{width:100%;aspect-ratio:1;display:block;border-radius:8px;cursor:crosshair;background:#2a1a12}
+    #hud{position:fixed;right:10px;bottom:10px;min-width:240px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font:12px/1.55 ui-monospace,Consolas,monospace;z-index:2;white-space:pre}
+    #perf{position:fixed;right:10px;top:48px;padding:6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;font:11px/1.5 ui-monospace,Consolas,monospace;z-index:2;white-space:pre}
+    #banner{position:fixed;left:50%;top:48px;transform:translateX(-50%);padding:4px 10px;border-radius:6px;background:#3a2516cc;color:#ffcf9e;font-size:12px;z-index:2;pointer-events:none}
+    #report h2,#report h3{color:var(--accent)}#report a{color:var(--accent2)}
+    @media (max-width:760px){#side{top:auto;height:52vh;width:auto;right:10px}#hud{bottom:auto;top:48px;min-width:0}#perf{display:none}}
+  </style>
+</head>
+<body>
+  <canvas id="view" tabindex="0"></canvas>
+  <header><h1><span>OsirisZk</span> · <span data-t="title2">Mars Aerial Explorer</span></h1><small data-t="subtitle"></small><div class="sp"></div>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="tr">Türkçe</option></select>
+    <select id="quality" aria-label="Render quality"><option value="low">low</option><option value="medium" selected>medium</option><option value="high">high</option></select>
+  </header>
+  <div id="banner"></div>
+  <aside id="side"><nav id="tabs"></nav><div id="panes"></div></aside>
+  <div id="hud"></div><div id="perf"></div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

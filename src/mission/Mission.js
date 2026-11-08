@@ -10,7 +10,7 @@ import {DelayedLink} from './DelayedLink.js';
  */
 export const DEFAULT_MISSION=Object.freeze({
   vehicle:'ingenuity-like',frame:'carbon',payload:0,profile:'mars-brief',overrides:{},siteElevation:0,
-  date:Date.UTC(2026,10,14,12,0,0),site:{lat:18.4447,lonEast:77.4508},seed:2026,wind:{level:'calm',direction:225},
+  date:Date.UTC(2026,10,14,17,0,0)/* ≈ 10:30 local solar time at Jezero */,site:{lat:18.4447,lonEast:77.4508},seed:2026,wind:{level:'calm',direction:225},
   cruiseAltitude:5,speed:3,reserve:.15,returnHome:true,control:'autonomous',timeLimit:240,
   waypoints:[{x:0,z:-40,action:'observe',dwell:4,name:'Rock outcrop A'},{x:30,z:-60,action:'observe',dwell:4,name:'Crater rim B'}],
 });
