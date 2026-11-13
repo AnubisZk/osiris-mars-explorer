@@ -107,3 +107,29 @@ test('prompts: every stage has prompts, every placeholder resolves, KOMUTLAR.md 
   }
   assert.equal(readFileSync(new URL('../gorev-kiti/KOMUTLAR.md', import.meta.url), 'utf8'), komutlarMd());
 });
+
+test('hesap.js: the verification report uses the same numbers as the game engine, for every mission', async () => {
+  const { hesapla, hesapRaporu, rota } = await import('../gorev-kiti/hesap.js');
+  for (const g of Object.values(GOREVLER)) {
+    const h = hesapla(g), o = aracOzeti(g);
+    assert.equal(h.ozet.agirlik_N, o.agirlik_N);
+    assert.equal(h.ozet.askidaKalmaSuresi_s, o.askidaKalmaSuresi_s);
+    const r = rota(g);
+    assert.equal(r.ayaklar.length, g.hedefler.length + 1);
+    assert.ok(Math.abs(r.toplam - r.ayaklar.reduce((t, a) => t + Math.hypot(a.dx, a.dz), 0)) < 1e-9);
+    assert.ok(h.butceOrani > 0 && h.butceOrani < 1, `${g.kimlik}: every mission card fits its own budget (${h.butceOrani})`);
+    const md = hesapRaporu(g);
+    assert.doesNotMatch(md, /NaN|undefined|Infinity/, g.kimlik);
+    assert.match(md, g.arac.tip === 'roket' ? /Δv = / : /v_i = √/);
+  }
+  // Rotor indüced-velocity hover power written out step by step equals fizik.js's rotorGucu at T = W
+  const h = hesapla(GOREVLER.jezero), a = GOREVLER.jezero.arac;
+  assert.ok(Math.abs(h.ozet.agirlik_N * h.vi / a.rotorVerimi + a.avyonikGucu_W - h.ozet.askidaGuc_W) < 1e-9);
+});
+
+test('kit ships the agent rules, the calculation notebook and the stage-0 prompts', () => {
+  for (const f of ['AGENTS.md', 'CLAUDE.md', 'FIZIK-HESAPLARI.md', 'hesap.html', 'hesapla.mjs'])
+    assert.ok(readFileSync(new URL(`../gorev-kiti/${f}`, import.meta.url), 'utf8').length > 50, f);
+  assert.equal(ASAMALAR[0].no, 0);
+  assert.ok(KOMUTLAR.filter(k => k.asama === 0).length >= 2);
+});

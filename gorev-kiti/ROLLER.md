@@ -11,6 +11,9 @@ Herkesin bir ana rolü vardır ama **herkes her şeye yardım eder**. Roller, ki
 | 🔬 Bilim danışmanı | [ ... ] | Her sayının doğru ve kaynaklı olması |
 | 🎤 Sunucu ve kayıtçı | [ ... ] | YZ günlüğü, test raporları, sunum |
 
+**Takım kaptanı:** [ hangi rol? ] — İlk gün GitHub deposunu açar, kiti yükler ve yapay zekâyı
+yönlendirerek `FIZIK-HESAPLARI.md`'yi doldurtur (atölyede "Aşama 0"). Genelde Kodcu kaptan olur.
+
 ---
 
 ## 🎨 Tasarımcı

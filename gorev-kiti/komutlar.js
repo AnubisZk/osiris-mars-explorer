@@ -13,6 +13,7 @@
 // ============================================================================
 
 export const ASAMALAR = [
+  { no: 0, ad: 'Depoyu kur', sure: '30 dk' },
   { no: 1, ad: 'Görevi anla', sure: '30 dk' },
   { no: 2, ad: 'Tasarla', sure: '45 dk' },
   { no: 3, ad: 'Kur', sure: '20 dk' },
@@ -24,6 +25,47 @@ export const ASAMALAR = [
 const BEN = 'Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor.';
 
 export const KOMUTLAR = [
+  // ---------------------------------------------------------------- 0
+  { asama: 0, rol: 'Takım kaptanı', baslik: 'Ajanla depoyu doldur',
+    metin: `Bu depo bir öğrenci takımının "Görev Kiti" projesi. Önce AGENTS.md dosyasını oku ve oradaki kurallara uy.
+
+Görevimiz: "{baslik}" — {gezegen} üzerinde, araç: {arac}. Görevde {hedefSayisi} hedef var.
+ayarlar.js şu anda bu görevin hazır ayarlarını içeriyor: gezegen = '{gezegenKimlik}'.
+
+Senden istediklerimiz, sırayla:
+1. README.md, ayarlar.js, fizik.js ve gezegenler.js dosyalarını oku. fizik.js'teki denklemleri bize 5–6 maddede, bir lise öğrencisinin anlayacağı şekilde özetle.
+2. FIZIK-HESAPLARI.md dosyasını görevimiz için doldur: her satır "formül → sayıları yerine koyma → sonuç (birimiyle)" olsun. Aracımız {arac}; kullanılmayan bölümü (3A rotor ya da 3B roket) sil.
+3. "node hesapla.mjs" komutunu çalıştır. Çıktıdaki sonuçları defterin "Motorun sonucu" sütununa yaz, farkı yüzde olarak hesapla. Fark %1'den büyükse nedenini bul ve düzelt.
+4. Ortam tablosundaki her değerin yanına güvenilir bir kaynak (NASA, ESA) bağlantısı yaz. Emin olmadığın değeri "emin değilim" diye işaretle.
+5. Yaptığın her işi YZ-GUNLUGU.md'ye bir satır olarak ekle.
+6. Her adımı ayrı, Türkçe mesajlı bir commit olarak kaydet.
+ayarlar.js, fizik.js ve hesap.js dosyalarında hiçbir şeyi değiştirme. Bitince bize neyi yaptığını ve hangi değerleri kendimizin kontrol etmesi gerektiğini listele.`,
+    ipucu: 'Bu komut, depoya erişebilen bir kodlama ajanı içindir (ör. Claude Code, Codex, GitHub Copilot ajanı). Ajanın açtığı her değişikliği GitHub\'da "Commits" sekmesinden birlikte okuyun.' },
+  { asama: 0, rol: 'Takım kaptanı', baslik: 'Asistanla hesap defterini yaz',
+    metin: `${BEN} Görevimiz "{baslik}" — {gezegen} üzerinde, araç: {arac}.
+Aşağıda oyunumuzun ayarlar.js dosyası var. Projemizdeki fizik motoru şu denklemleri kullanıyor:
+- Ağırlık: W = m × g
+- Rotor itkisi: T = 0,012 × ρ × A × v_uç²  ·  indüklenmiş hız: v_i = √(W ÷ (2ρA))  ·  askıda güç: P = W × v_i ÷ verim + avyonik  ·  süre: t = batarya × 3600 ÷ P
+- Roket: ṁ = W ÷ (Isp × 9,807)  ·  süre: t = yakıt ÷ ṁ  ·  Δv = Isp × 9,807 × ln(m_dolu ÷ m_kuru)
+- Rota: üs (0,0) → hedefler (sırayla) → üs; her ayak √(Δx² + Δz²)
+- Süre tahmini: toplam yol ÷ maksHiz + ayak sayısı × 2 × 25 m ÷ dikey hız (rotor 3, roket 4 m/s) + gözlem süreleri
+
+Bu bilgilerle bizim için bir "Fizik Hesap Defteri" yaz (Markdown). Bölümler: 1. Ortam, 2. Kütle ve ağırlık, 3. Rotor ya da roket hesapları (aracımıza göre), 4. Görev rotası (tablo), 5. Süre ve enerji/yakıt bütçesi. Her hesabı "formül → sayıları yerine koyma → sonuç (birimiyle)" biçiminde yaz. Kısa tut; açıklamayı hesapların altına bir cümleyle ekle.
+
+[ayarlar.js dosyasının tamamını buraya yapıştırın]`,
+    ipucu: 'Cevabı GitHub\'da FIZIK-HESAPLARI.md dosyasını düzenleyip (kalem simgesi) yapıştırın. Sonra oyunun "🧮 Hesaplar" sayfasıyla her sonucu karşılaştırın.' },
+  { asama: 0, rol: 'Bilim danışmanı', baslik: 'Hesap farkını bul',
+    metin: `${BEN} Bir hesabımızda yapay zekânın bulduğu sonuçla oyunun fizik motorunun bulduğu sonuç farklı çıktı.
+
+Hesap defterimizdeki satır:
+[DEFTERDEKİ SATIRI YAPIŞTIRIN — formül, yerine koyma, sonuç]
+
+Oyunun "🧮 Hesaplar" sayfasındaki aynı satır:
+[HESAPLAR SAYFASINDAKİ SATIRI YAPIŞTIRIN]
+
+Hangi adımda ayrıldıklarını bul: yanlış sayı mı kullanılmış, birim mi karışmış, işlem sırası mı yanlış, yuvarlama mı? Doğrudan cevabı söylemek yerine bizim kontrol edebileceğimiz şekilde adım adım göster.`,
+    ipucu: 'Hatayı bulduğunuzda YZ-GUNLUGU.md\'nin "Yapay zekânın yanıldığı yerler" bölümüne yazın: bu, değerlendirmede artı puandır.' },
+
   // ---------------------------------------------------------------- 1
   { asama: 1, rol: 'Bilim danışmanı', baslik: 'Gezegeni tanı',
     metin: `${BEN} Görevimiz {gezegen} üzerinde geçiyor.

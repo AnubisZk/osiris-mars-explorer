@@ -20,6 +20,9 @@ yeni bir gezegen, yeni bir araç, yeni hedefler, yeni bir hikâye.
 | `oyun.js` | Ekrana çizim, tuşlar, menüler | Kodcu | ✅ "ÖĞRENCİ:" yazan yerler |
 | `gorevler.js` | Atölyedeki 7 hazır görev | — | ❌ Gerek yok |
 | `index.html` | Sayfanın iskeleti ve görünüşü (renkler, panel yerleri) | Tasarımcı | ✅ İsterseniz |
+| `FIZIK-HESAPLARI.md` | Fizik hesap defteri: formül → yerine koyma → sonuç | Kaptan + Bilim danışmanı | ✅ **Yapay zekâyla doldurup doğrulayın** |
+| `hesap.html`, `hesap.js`, `hesapla.mjs` | Görevin bütün hesaplarını oyunun motoruyla adım adım üretir | Bilim danışmanı | ❌ Değiştirmeyin, doğrulamak için kullanın |
+| `AGENTS.md`, `CLAUDE.md` | Depoda çalışan yapay zekâ ajanlarının kuralları | Takım kaptanı | ❌ Gerek yok |
 | `GOREV-TASARIMI.md` | Takımınızın tasarım belgesi | Tüm takım | ✅ **Doldurmanız gerekiyor** |
 | `ROLLER.md` | Takımdaki görev dağılımı | Tüm takım | ✅ İsimleri yazın |
 | `KOMUTLAR.md` | Yapay zekâya ne soracağınızın hazır örnekleri | Herkes | Okuyun, kullanın |
@@ -82,8 +85,9 @@ Takımca sırayla yapın. Her birinden sonra kaydedip sayfayı yenileyin.
 
 ## 4. Kendi görevinizi yapın
 
-Atölye sayfasındaki **6 aşamayı** takip edin. Kısaca:
+Atölye sayfasındaki **7 adımı** takip edin. Kısaca:
 
+0. **Depoyu kur** — Takım kaptanı GitHub deposunu açar, kiti yükler; yapay zekâ `FIZIK-HESAPLARI.md`'yi doldurur, takım her sonucu **🧮 Hesaplar** sayfasıyla doğrular.
 1. **Görevi anla** — Bir görev kartı seçin ya da kendi görevinizi uydurun.
 2. **Tasarla** — `GOREV-TASARIMI.md` belgesini doldurun. Kod yazmadan önce!
 3. **Kur** — Kiti çalıştırın (yukarıdaki Yol B), `ROLLER.md`'yi doldurun.
@@ -92,6 +96,19 @@ Atölye sayfasındaki **6 aşamayı** takip edin. Kısaca:
 5. **Test et** — Oyunu en az 3 kez oynayın, uçuş raporlarını tasarım belgesine yapıştırın.
    Bilim danışmanı bütün sayıları kaynağıyla kontrol eder.
 6. **Yayınla ve sun** — Öğretmeniniz projeyi Netlify'da yayınlar, siz 5 dakikalık sunum yaparsınız.
+
+---
+
+## 4½. Fizik hesaplarını doğrula
+
+Oyunun üst çubuğundaki **🧮 Hesaplar** düğmesi (`hesap.html`) görevinizin bütün hesaplarını,
+oyunun kendi denklemleriyle, **formül → sayılar → sonuç** biçiminde gösterir. Bilgisayarda
+Node.js varsa aynı rapor komut satırından da alınır:
+```
+node hesapla.mjs
+```
+`FIZIK-HESAPLARI.md`'ye yapay zekânın ya da sizin yazdığınız her sonucu bununla karşılaştırın.
+Fark %1'den büyükse biri yanılmıştır: hangi adımda olduğunu bulun ve günlüğe yazın.
 
 ---
 

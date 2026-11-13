@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fizik hesapları · Görev Kiti</title>
+<style>
+  body{margin:0;background:#0b0d12;color:#eef2f7;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:900px;margin:0 auto;padding:24px 18px 60px}
+  h1{font-size:28px;margin:10px 0 6px}h2{font-size:19px;margin:26px 0 8px;color:#ffb36b}
+  blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid #6cc3ff;background:#6cc3ff12;color:#cfe9ff;border-radius:0 8px 8px 0}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:#131720;border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid #ffffff1a}th{color:#a6b0bf}
+  li{margin:4px 0}b{color:#fff}
+  .ust{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 0;border-bottom:1px solid #ffffff1a}
+  .ust a,.ust button,.ust select{background:#ffffff14;color:#eef2f7;border:1px solid #ffffff2a;border-radius:8px;padding:7px 12px;font:600 14px system-ui;text-decoration:none;cursor:pointer}
+  .ust .ana{background:#ff9a52;color:#1d1005;border:0}
+  #hata{display:none;background:#3b1111;border:2px solid #ff6b6b;color:#ffd6d6;border-radius:10px;padding:12px;white-space:pre-wrap;font-family:ui-monospace,monospace}
+  @media print{.ust{display:none}body{background:#fff;color:#000}table{background:#fff}h2{color:#000}b{color:#000}}
+</style>
+</head>
+<body><main>
+  <div class="ust">
+    <a href="./">← Oyuna dön</a>
+    <select id="secim" title="Hangi görevin hesapları?"></select>
+    <button class="ana" id="kopyala">📋 Markdown olarak kopyala</button>
+    <button onclick="print()">🖨 Yazdır</button>
+  </div>
+  <div id="hata"></div>
+  <article id="rapor">Hesaplanıyor…</article>
+</main>
+<script type="module">
+  // Bu sayfa oyunla aynı fizik denklemlerini (fizik.js) kullanır: FIZIK-HESAPLARI.md'deki
+  // sonuçlarınızı buradakilerle karşılaştırın.
+  const $ = s => document.querySelector(s);
+  try {
+    const [{ GOREV }, { GOREVLER }, { hesapRaporu }] = await Promise.all([import('./ayarlar.js'), import('./gorevler.js'), import('./hesap.js')]);
+    const ek = new URLSearchParams(location.search).get('gorev');
+    $('#secim').innerHTML = `<option value="">ayarlar.js (sizin göreviniz)</option>` + Object.values(GOREVLER).map(g => `<option value="${g.kimlik}" ${ek === g.kimlik ? 'selected' : ''}>Hazır görev: ${g.baslik}</option>`).join('');
+    $('#secim').onchange = e => { location.search = e.target.value ? `?gorev=${e.target.value}` : ''; };
+    const metin = hesapRaporu(ek && GOREVLER[ek] ? GOREVLER[ek] : GOREV);
+    $('#rapor').innerHTML = markdown(metin);
+    $('#kopyala').onclick = async () => {
+      try { await navigator.clipboard.writeText(metin); $('#kopyala').textContent = 'Kopyalandı ✓'; }
+      catch { $('#kopyala').textContent = 'Kopyalanamadı'; }
+    };
+  } catch (e) {
+    $('#hata').style.display = 'block';
+    $('#hata').textContent = '⚠ Hesaplar yapılamadı:\n' + (e?.message ?? e) + '\n\nayarlar.js dosyasında bir yazım hatası olabilir. Oyunu açınca çıkan kırmızı kutuya da bakın.';
+    $('#rapor').textContent = '';
+  }
+  // Rapor için yeterli küçük Markdown çizici (başlık, tablo, madde, alıntı, kalın)
+  function markdown(m) {
+    const k = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    const satir = m.split('\n'); let h = '', i = 0;
+    while (i < satir.length) {
+      const s = satir[i];
+      if (s.startsWith('|')) {
+        const tablo = []; while (i < satir.length && satir[i].startsWith('|')) tablo.push(satir[i++]);
+        const hucre = r => r.slice(1, -1).split('|').map(c => c.trim());
+        h += '<table><tr>' + hucre(tablo[0]).map(c => `<th>${k(c)}</th>`).join('') + '</tr>' + tablo.slice(2).map(r => '<tr>' + hucre(r).map(c => `<td>${k(c)}</td>`).join('') + '</tr>').join('') + '</table>';
+        continue;
+      }
+      if (s.startsWith('# ')) h += `<h1>${k(s.slice(2))}</h1>`;
+      else if (s.startsWith('## ')) h += `<h2>${k(s.slice(3))}</h2>`;
+      else if (s.startsWith('> ')) h += `<blockquote>${k(s.slice(2))}</blockquote>`;
+      else if (s.startsWith('- ')) { h += '<ul>'; while (i < satir.length && satir[i].startsWith('- ')) h += `<li>${k(satir[i++].slice(2))}</li>`; h += '</ul>'; continue; }
+      else if (s.trim()) h += `<p>${k(s)}</p>`;
+      i++;
+    }
+    return h;
+  }
+</script>
+</body>
+</html>

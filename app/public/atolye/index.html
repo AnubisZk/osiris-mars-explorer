@@ -157,8 +157,8 @@
 <!-- ============================================================ NASIL -->
 <section id="nasil"><div class="kap">
   <span class="etiket">Genel bakış</span>
-  <h2>6 aşamada görevden oyuna</h2>
-  <p class="alt">Toplam yaklaşık 5 saat: bir okul günü ya da birkaç haftaya yayılan ders saatleri. Her aşamanın sonunda elinizde somut bir çıktı olur.</p>
+  <h2>Depodan yayına 7 adım</h2>
+  <p class="alt">Toplam yaklaşık 5,5 saat: bir okul günü ya da birkaç haftaya yayılan ders saatleri. İlk iş, takım kaptanının GitHub deposunu açıp yapay zekâya fizik hesaplarını doldurtmasıdır (Aşama 0). Her aşamanın sonunda elinizde somut bir çıktı olur.</p>
   <div class="izgara serit" id="serit"></div>
 </div></section>
 
@@ -404,6 +404,11 @@ $('#sayilar').innerHTML = [[Object.keys(GOREVLER).length, 'hazır görev'], [4, 
 
 // ---------------------------------------------------------------- aşama şeridi + rehber içeriği
 const REHBER = {
+  0: { amac: 'Takım kaptanı GitHub deposunu açar, kiti yükler ve yapay zekâya fizik hesaplarını doldurtur; takım her sonucu oyunun kendi motoruyla doğrular.',
+       kim: { 'Takım kaptanı': 'Depoyu açar, kiti yükler, yapay zekâyı yönlendirir. (Genelde Kodcu kaptan olur.)', 'Bilim danışmanı': 'Yapay zekânın her hesabını "🧮 Hesaplar" sayfasıyla karşılaştırır.', 'Sunucu': 'Depo adresini ve ilk yapay zekâ kayıtlarını günlüğe yazar.', 'Öğretmen': 'GitHub hesabına giriş yapar; ajan kullanılacaksa depoya erişimini verir.' },
+       yap: ['Öğretmenin GitHub hesabında github.com/new sayfasını açın; depo adı: takım numarası + görev, ör. gorev-takim3-titan. "Add a README" kutusunu işaretlemeyin, "Create repository" deyin', 'Bu sayfadan Görev Kiti zip\'ini indirin ve bilgisayarda çıkarın', 'GitHub\'daki boş depoda "uploading an existing file" bağlantısına tıklayın; gorev-kiti klasörünün İÇİNDEKİ bütün dosyaları sürükleyip bırakın, "Commit changes" deyin', 'Görev kartınızdan "⬇ ayarlar.js"i indirip aynı yolla yükleyin (eskisinin üzerine yazar)', 'Yapay zekâyı yönlendirin: depoya erişebilen bir ajan varsa "Ajanla depoyu doldur", yoksa asistanda "Asistanla hesap defterini yaz" komutunu kullanın', 'Asistanla çalıştıysanız: GitHub\'da FIZIK-HESAPLARI.md → kalem simgesi → cevabı yapıştırın → "Commit changes"', 'Bilim danışmanı her sonucu görev kartındaki "🧮 Hesaplar" sayfasıyla karşılaştırıp "Motorun sonucu" sütununu doldursun; fark %1\'den büyükse "Hesap farkını bul" komutunu kullanın', 'Depo adresini öğretmene verin ve ROLLER.md\'ye kaptanın adını değil rolünü yazın'],
+       cikti: 'Takımın GitHub deposu · doldurulmuş ve doğrulanmış FIZIK-HESAPLARI.md · günlükte ilk kayıtlar',
+       takildin: 'Dosyalar "gorev-kiti/" diye bir alt klasöre düştüyse klasörü değil içindekileri sürüklemediniz demektir; öğretmeninize söyleyin, düzeltmesi bir dakika. Yapay zekânın hesabı motorla tutmuyorsa paniklemeyin: bu, bulmanız gereken bir hata ve artı puan!' },
   1: { amac: 'Görevinizi seçin ve o dünyayı tanıyın. Henüz kod yok!',
        kim: { 'Tüm takım': 'Görev kartlarını okuyup birini seçer ya da kendi görevini uydurur.', 'Bilim danışmanı': 'Gezegenin yerçekimi, havası ve ışık gecikmesini kaynağıyla bulur.', 'Tasarımcı': 'O dünyaya gitmiş gerçek araçları araştırır.', 'Sunucu': 'YZ-GUNLUGU.md\'yi açar, ilk kayıtları tutar.' },
        yap: ['Takım olarak 3–4 kişiyle oturun, rolleri dağıtın', 'Görev kartlarını okuyun ve birini seçin ("Bu görevi seç")', 'Seçtiğiniz görevi "Dene" ile bir kez oynayın', '"Gezegeni tanı" komutunu asistanda "Üçünü karşılaştır" ile sorun; cevapları birbiriyle ve gezegenler.js ile karşılaştırın', '"Gerçek görevleri öğren" komutunu kullanın, ilham alacağınız aracı seçin', 'Asistanın günlüğünü indirip YZ-GUNLUGU.md\'ye ekleyin, "Nasıl kontrol ettin?" sütununu doldurun'],
@@ -459,6 +464,7 @@ function kartlar() {
       <div class="dugmeler">
         <button class="dugme ${secili === g.kimlik ? 'ana' : 'ikinci'} kucuk" data-sec="${g.kimlik}">${secili === g.kimlik ? '✓ Seçili' : 'Bu görevi seç'}</button>
         <a class="dugme ikinci kucuk" href="kit/?gorev=${g.kimlik}" target="_blank" rel="noopener">▶ Dene</a>
+        <a class="dugme ikinci kucuk" href="kit/hesap.html?gorev=${g.kimlik}" target="_blank" rel="noopener" title="Bu görevin bütün fizik hesapları, adım adım">🧮 Hesaplar</a>
         <button class="dugme ikinci kucuk" data-indir="${g.kimlik}" title="Kitteki ayarlar.js ile değiştir">⬇ ayarlar.js</button>
       </div>
     </article>`).join('');
@@ -532,6 +538,9 @@ const DOSYALAR = [
   ['arazi.js', 'Zemini (tepeler, kraterler) matematikle üretir', 'Tasarımcı + Kodcu', '✅ İsterseniz'],
   ['oyun.js', 'Ekrana çizim, tuşlar, menüler (three.js)', 'Kodcu', '✅ "ÖĞRENCİ:" yazan yerler'],
   ['index.html', 'Sayfanın iskeleti ve görünüşü', 'Tasarımcı', '✅ İsterseniz'],
+  ['FIZIK-HESAPLARI.md', 'Fizik hesap defteri: formül → yerine koyma → sonuç', 'Kaptan + Bilim', '✅ Yapay zekâyla doldurulup doğrulanacak'],
+  ['hesap.html · hesap.js · hesapla.mjs', 'Görevin bütün hesaplarını oyunun motoruyla adım adım üretir (doğrulama)', 'Bilim danışmanı', '❌ Değiştirmeyin, kullanın'],
+  ['AGENTS.md · CLAUDE.md', 'Depoda çalışan yapay zekâ ajanlarının uyacağı kurallar', 'Kaptan', '❌ Gerek yok'],
   ['GOREV-TASARIMI.md', 'Takımın tasarım belgesi', 'Tüm takım', '✅ Doldurulacak'],
   ['ROLLER.md', 'Görev dağılımı ve takım sözleşmesi', 'Tüm takım', '✅ Doldurulacak'],
   ['YZ-GUNLUGU.md', 'Yapay zekâ kullanım kaydı', 'Sunucu', '✅ Her kullanımda'],
@@ -617,7 +626,7 @@ const SOZLUK = [
 $('#sozlukTablo').innerHTML = SOZLUK.map(([a, b]) => `<tr><td style="white-space:nowrap"><b>${a}</b></td><td>${b}</td></tr>`).join('');
 
 // ---------------------------------------------------------------- öğretmen listesi
-const OGRETMEN = ['Netlify hesabında takım sayısı kadar proje adı belirle', 'Netlify\'da ATOLYE_KODU sınıf kodunu tanımla ve asistanı bir soruyla dene', 'Bilgisayarlara VS Code ve Live Server eklentisini kur', 'Kiti indir, bir bilgisayarda açıp çalıştığını dene (internet erişimi: cdn.jsdelivr.net açık olmalı)', 'Görev kartlarını yazdır ya da projeksiyona hazırla', 'Takımları ve rol dağılımını belirle', 'Sunum için süre tutucu ve jüri listesi hazırla'];
+const OGRETMEN = ['Netlify hesabında takım sayısı kadar proje adı belirle', 'Netlify\'da ATOLYE_KODU sınıf kodunu tanımla ve asistanı bir soruyla dene', 'Bilgisayarlara VS Code ve Live Server eklentisini kur', 'Kiti indir, bir bilgisayarda açıp çalıştığını dene (internet erişimi: cdn.jsdelivr.net açık olmalı)', 'Görev kartlarını yazdır ya da projeksiyona hazırla', 'Takımları, rol dağılımını ve takım kaptanlarını belirle; kaptanların GitHub\'da depo açabileceği hesabı hazırla', 'Sunum için süre tutucu ve jüri listesi hazırla'];
 const ogrIsaret = depo.al('ogretmen', {});
 $('#ogretmenListe').innerHTML = OGRETMEN.map((y, i) => `<label class="${ogrIsaret[i] ? 'tamam' : ''}"><input type="checkbox" data-ogr="${i}" ${ogrIsaret[i] ? 'checked' : ''}><span>${y}</span></label>`).join('');
 $('#ogretmenListe').addEventListener('change', e => { const i = e.target.dataset.ogr; ogrIsaret[i] = e.target.checked; depo.koy('ogretmen', ogrIsaret); e.target.closest('label').classList.toggle('tamam', e.target.checked); });
