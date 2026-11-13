@@ -231,7 +231,8 @@
       <ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:8px 0">
         <li>Her sayıyı bir kaynakla kontrol et.</li>
         <li>Anlamadığın kodu yapıştırma: önce "bu kodu açıkla" de.</li>
-        <li>Her kullanımı <code>YZ-GUNLUGU.md</code>'ye yaz.</li>
+        <li>Her kullanımı <code>YZ-GUNLUGU.md</code>'ye yaz. Ajanlara verilen komutlar <code>KOMUT-KAYDI.md</code>'ye kelimesi kelimesine kaydedilir.</li>
+        <li>Komutların ilk satırındaki <code>[Hazır komut Kx.y]</code> kodunu silme: hangi hazır komutu kullandığını gösterir.</li>
         <li>Ad soyad, okul numarası, adres, telefon, fotoğraf yazma.</li>
         <li>Yapay zekânın bir hatasını yakalamak bir başarıdır: günlüğe yaz, sunumda anlat!</li>
       </ul>
@@ -381,7 +382,7 @@
 
 <script type="module">
 import { GOREVLER, ayarlarDosyasi } from './kit/gorevler.js';
-import { KOMUTLAR, ASAMALAR, komutuDoldur } from './kit/komutlar.js';
+import { KOMUTLAR, ASAMALAR, komutuDoldur, komutBasligi } from './kit/komutlar.js';
 import { GEZEGENLER } from './kit/gezegenler.js';
 import { aracOzeti, ortam } from './kit/fizik.js';
 
@@ -406,7 +407,7 @@ $('#sayilar').innerHTML = [[Object.keys(GOREVLER).length, 'hazır görev'], [4, 
 const REHBER = {
   0: { amac: 'Takım kaptanı GitHub deposunu açar, kiti yükler ve yapay zekâya fizik hesaplarını doldurtur; takım her sonucu oyunun kendi motoruyla doğrular.',
        kim: { 'Takım kaptanı': 'Depoyu açar, kiti yükler, yapay zekâyı yönlendirir. (Genelde Kodcu kaptan olur.)', 'Bilim danışmanı': 'Yapay zekânın her hesabını "🧮 Hesaplar" sayfasıyla karşılaştırır.', 'Sunucu': 'Depo adresini ve ilk yapay zekâ kayıtlarını günlüğe yazar.', 'Öğretmen': 'GitHub hesabına giriş yapar; ajan kullanılacaksa depoya erişimini verir.' },
-       yap: ['Öğretmenin GitHub hesabında github.com/new sayfasını açın; depo adı: takım numarası + görev, ör. gorev-takim3-titan. "Add a README" kutusunu işaretlemeyin, "Create repository" deyin', 'Bu sayfadan Görev Kiti zip\'ini indirin ve bilgisayarda çıkarın', 'GitHub\'daki boş depoda "uploading an existing file" bağlantısına tıklayın; gorev-kiti klasörünün İÇİNDEKİ bütün dosyaları sürükleyip bırakın, "Commit changes" deyin', 'Görev kartınızdan "⬇ ayarlar.js"i indirip aynı yolla yükleyin (eskisinin üzerine yazar)', 'Yapay zekâyı yönlendirin: depoya erişebilen bir ajan varsa "Ajanla depoyu doldur", yoksa asistanda "Asistanla hesap defterini yaz" komutunu kullanın', 'Asistanla çalıştıysanız: GitHub\'da FIZIK-HESAPLARI.md → kalem simgesi → cevabı yapıştırın → "Commit changes"', 'Bilim danışmanı her sonucu görev kartındaki "🧮 Hesaplar" sayfasıyla karşılaştırıp "Motorun sonucu" sütununu doldursun; fark %1\'den büyükse "Hesap farkını bul" komutunu kullanın', 'Depo adresini öğretmene verin ve ROLLER.md\'ye kaptanın adını değil rolünü yazın'],
+       yap: ['Öğretmenin GitHub hesabında github.com/new sayfasını açın; depo adı: takım numarası + görev, ör. gorev-takim3-titan. "Add a README" kutusunu işaretlemeyin, "Create repository" deyin', 'Bu sayfadan Görev Kiti zip\'ini indirin ve bilgisayarda çıkarın', 'GitHub\'daki boş depoda "uploading an existing file" bağlantısına tıklayın; gorev-kiti klasörünün İÇİNDEKİ bütün dosyaları sürükleyip bırakın, "Commit changes" deyin', 'Görev kartınızdan "⬇ ayarlar.js"i indirip aynı yolla yükleyin (eskisinin üzerine yazar)', 'Yapay zekâyı yönlendirin: depoya erişebilen bir ajan varsa "Ajanla depoyu doldur", yoksa asistanda "Asistanla hesap defterini yaz" komutunu kullanın', 'Asistanla çalıştıysanız: GitHub\'da FIZIK-HESAPLARI.md → kalem simgesi → cevabı yapıştırın → "Commit changes"', 'Bilim danışmanı her sonucu görev kartındaki "🧮 Hesaplar" sayfasıyla karşılaştırıp "Motorun sonucu" sütununu doldursun; fark %1\'den büyükse "Hesap farkını bul" komutunu kullanın', 'Ajan kullandıysanız KOMUT-KAYDI.md\'yi açın: komutunuz kelimesi kelimesine kaydedilmiş mi, commit\'ler yazılmış mı? "Takımın kontrolü" satırını siz doldurun', 'Depo adresini öğretmene verin ve ROLLER.md\'ye kaptanın adını değil rolünü yazın'],
        cikti: 'Takımın GitHub deposu · doldurulmuş ve doğrulanmış FIZIK-HESAPLARI.md · günlükte ilk kayıtlar',
        takildin: 'Dosyalar "gorev-kiti/" diye bir alt klasöre düştüyse klasörü değil içindekileri sürüklemediniz demektir; öğretmeninize söyleyin, düzeltmesi bir dakika. Yapay zekânın hesabı motorla tutmuyorsa paniklemeyin: bu, bulmanız gereken bir hata ve artı puan!' },
   1: { amac: 'Görevinizi seçin ve o dünyayı tanıyın. Henüz kod yok!',
@@ -493,7 +494,7 @@ function gorevBaglami() {
 }
 function komutKarti(k, n) {
   const { gorev, gezegenAdi } = gorevBaglami();
-  return `<div class="komut"><div class="kb"><span class="rozet">${k.rol}</span><b>${k.baslik}</b><button class="dugme ikinci kucuk" data-sor>🤖 Asistana sor</button><button class="dugme ana kucuk" data-kopyala>📋 Kopyala</button></div><pre>${esc(komutuDoldur(k.metin, gorev, gezegenAdi))}</pre><div class="ipucu">💡 ${esc(k.ipucu)}</div></div>`;
+  return `<div class="komut"><div class="kb"><span class="rozet" title="Komutun kalıcı kodu: komut kaydında hangi hazır komutun kullanıldığını gösterir">${k.kod}</span><span class="rozet">${k.rol}</span><b>${k.baslik}</b><button class="dugme ikinci kucuk" data-sor>🤖 Asistana sor</button><button class="dugme ana kucuk" data-kopyala>📋 Kopyala</button></div><pre>${esc(komutBasligi(k) + '\n' + komutuDoldur(k.metin, gorev, gezegenAdi))}</pre><div class="ipucu">💡 ${esc(k.ipucu)}</div></div>`;
 }
 
 // ---------------------------------------------------------------- rehber
@@ -541,6 +542,7 @@ const DOSYALAR = [
   ['FIZIK-HESAPLARI.md', 'Fizik hesap defteri: formül → yerine koyma → sonuç', 'Kaptan + Bilim', '✅ Yapay zekâyla doldurulup doğrulanacak'],
   ['hesap.html · hesap.js · hesapla.mjs', 'Görevin bütün hesaplarını oyunun motoruyla adım adım üretir (doğrulama)', 'Bilim danışmanı', '❌ Değiştirmeyin, kullanın'],
   ['AGENTS.md · CLAUDE.md', 'Depoda çalışan yapay zekâ ajanlarının uyacağı kurallar', 'Kaptan', '❌ Gerek yok'],
+  ['KOMUT-KAYDI.md', 'Ajanlara verilen her komutun kelimesi kelimesine kaydı (şeffaflık)', 'Ajan yazar, takım kontrol eder', '✅ "Takımın kontrolü" satırlarını doldurun'],
   ['GOREV-TASARIMI.md', 'Takımın tasarım belgesi', 'Tüm takım', '✅ Doldurulacak'],
   ['ROLLER.md', 'Görev dağılımı ve takım sözleşmesi', 'Tüm takım', '✅ Doldurulacak'],
   ['YZ-GUNLUGU.md', 'Yapay zekâ kullanım kaydı', 'Sunucu', '✅ Her kullanımda'],
@@ -599,7 +601,7 @@ const RUBRIK = [
   ['1. Bilimsel doğruluk', 25, 'Tüm sayılar kaynaklı; itki/ağırlık ve askıda kalma süresi elle hesaplanıp oyunla karşılaştırılmış', 'Sayıların çoğu kaynaklı, hesap denenmiş', 'Bazı sayılar kaynaksız', 'Sayılar uydurma ya da kontrol edilmemiş'],
   ['2. Çalışan oyun', 20, 'Hatasız, yayında, baştan sona oynanabiliyor', 'Küçük kusurlar var ama oynanıyor', 'Kısmen çalışıyor', 'Çalışmıyor'],
   ['3. Özgün görev tasarımı', 20, 'Hikâye, hedefler ve zorluk birbirine bağlı, gerçek bir göreve dayanıyor; en az bir yeni özellik eklenmiş', 'Kendi görevi var, hedefler anlamlı', 'Hazır görev küçük değişikliklerle kullanılmış', 'Hazır görev aynen kullanılmış'],
-  ['4. Yapay zekâyı sorumlu kullanma', 20, 'Günlük eksiksiz; yapay zekânın bir hatası yakalanmış; takım kodu açıklayabiliyor', 'Günlük düzenli, kontroller yapılmış', 'Günlük eksik', 'Günlük yok ya da kod anlaşılmadan kopyalanmış'],
+  ['4. Yapay zekâyı sorumlu ve şeffaf kullanma', 20, 'Günlük ve komut kaydı eksiksiz (her komut kelimesi kelimesine, commit\'lerle bağlı, takım kontrolleri yazılmış); yapay zekânın bir hatası yakalanmış; takım kodu açıklayabiliyor', 'Günlük ve komut kaydı düzenli, kontroller yapılmış', 'Günlük ya da komut kaydı eksik', 'Kayıt yok ya da kod anlaşılmadan kopyalanmış'],
   ['5. Takım çalışması ve sunum', 15, 'Herkes rolünü anlatabiliyor; 5 dakikada canlı demo ve "ne öğrendik"', 'Sunum düzenli, roller belli', 'Sunum dağınık', 'Sunum yok'],
 ];
 $('#rubrik').innerHTML = `<tr><th>Ölçüt</th><th>Puan</th><th>4 · Mükemmel</th><th>3 · İyi</th><th>2 · Gelişiyor</th><th>1 · Başlangıç</th></tr>` + RUBRIK.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join('');
@@ -750,15 +752,18 @@ async function sor(model, mesajlar, kutu) {
 let gunluk = depo.al('yzGunluk', []);
 const gunlukSay = () => { $('#gunlukSayi').textContent = gunluk.length; };
 function gunlugeEkle(model, soru, cevap) {
-  gunluk.push({ zaman: new Date().toISOString(), arac: durum.modeller[model]?.ad ?? model, gorev: secili ? GOREVLER[secili].baslik : '', soru: soru.slice(0, 400), cevap: (cevap ?? '').replace(/```[\s\S]*?```/g, '[kod]').replace(/\s+/g, ' ').slice(0, 300) });
+  const kod = soru.match(/\[Hazır komut (K\d+\.\d+)/)?.[1] ?? '';
+  gunluk.push({ zaman: new Date().toISOString(), arac: durum.modeller[model]?.ad ?? model, model: durum.modeller[model]?.model ?? '', gorev: secili ? GOREVLER[secili].baslik : '', kod, soru: soru.slice(0, 8000), cevap: (cevap ?? '').replace(/```[\s\S]*?```/g, '[kod]').replace(/\s+/g, ' ').slice(0, 300) });
   if (gunluk.length > 300) gunluk = gunluk.slice(-300);
   depo.koy('yzGunluk', gunluk); gunlukSay();
 }
 $('#gunlukIndir').onclick = () => {
   if (!gunluk.length) return bildir('Günlük henüz boş.');
   const h = s => String(s).replace(/\|/g, '\\|').replace(/\n+/g, ' ');
-  const satirlar = gunluk.map((g, i) => `| ${i + 1} | ${new Date(g.zaman).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} |  | ${h(g.arac)} (Görev Asistanı) | ${h(g.soru)} | ${h(g.cevap)} |  |  |`);
-  const metin = `# Görev Asistanı günlüğü\n\n> Bu tablo atölye sayfasındaki asistan tarafından otomatik oluşturuldu. **"Kim"**, **"Nasıl kontrol ettin?"** ve **"Sonra ne yaptın?"** sütunlarını takımca doldurun, sonra satırları YZ-GUNLUGU.md dosyanıza ekleyin.\n\n| # | Saat | Kim (rol) | Hangi araç | Ne sordun? (komut) | Ne aldın? (özet) | Nasıl kontrol ettin? | Sonra ne yaptın? |\n|---|---|---|---|---|---|---|---|\n${satirlar.join('\n')}\n`;
+  const zaman = g => new Date(g.zaman).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const satirlar = gunluk.map((g, i) => `| ${i + 1} | ${zaman(g)} |  | ${h(g.arac)} (Görev Asistanı) | ${g.kod ? `**${g.kod}** (hazır komut) · ` : ''}${h(g.soru.replace(/^\[Hazır komut[^\]]*\]\s*/, '').slice(0, 160))}… (tam metin aşağıda, #${i + 1}) | ${h(g.cevap)} |  |  |`);
+  const tamMetin = gunluk.map((g, i) => `### #${i + 1} — ${zaman(g)} · ${g.arac}${g.model ? ` (${g.model})` : ''}${g.gorev ? ` · görev: ${g.gorev}` : ''}\n\n- **Kaynak:** ${g.kod ? `Atölye hazır komutu ${g.kod}` : 'Takımın kendi sorusu'}\n- **Gönderilen metnin tamamı:**\n\n\`\`\`\`text\n${g.soru}\n\`\`\`\`\n`);
+  const metin = `# Görev Asistanı günlüğü\n\n> Bu tablo atölye sayfasındaki asistan tarafından otomatik oluşturuldu. **"Kim"**, **"Nasıl kontrol ettin?"** ve **"Sonra ne yaptın?"** sütunlarını takımca doldurun, sonra satırları YZ-GUNLUGU.md dosyanıza ekleyin.\n\n| # | Saat | Kim (rol) | Hangi araç | Ne sordun? (komut) | Ne aldın? (özet) | Nasıl kontrol ettin? | Sonra ne yaptın? |\n|---|---|---|---|---|---|---|---|\n${satirlar.join('\n')}\n\n## Gönderilen komutların tam metni\n\n> Şeffaflık için: asistana gönderilen her metin, değiştirilmeden.\n\n${tamMetin.join('\n')}`;
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([metin], { type: 'text/markdown;charset=utf-8' })); a.download = 'asistan-gunlugu.md'; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };

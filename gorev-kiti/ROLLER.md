@@ -42,9 +42,10 @@ yönlendirerek `FIZIK-HESAPLARI.md`'yi doldurtur (atölyede "Aşama 0"). Genelde
 
 ## 🎤 Sunucu ve kayıtçı
 - `YZ-GUNLUGU.md`'yi tutar: kim, ne zaman, hangi yapay zekâya, ne sordu, ne aldı, ne değiştirdi.
+- `KOMUT-KAYDI.md`'yi denetler: ajanlara verilen her komut kelimesi kelimesine kaydedilmiş mi, commit'leri yazılmış mı? "Takımın kontrolü" satırlarını takımla birlikte doldurur.
 - Test uçuşlarını yapar ya da izler, uçuş raporlarını tasarım belgesine yapıştırır.
 - 5 dakikalık sunumu hazırlar ve takımı sunuma çalıştırır.
-- **Dosyaları:** `YZ-GUNLUGU.md`, `GOREV-TASARIMI.md` (bölüm 7, 8)
+- **Dosyaları:** `YZ-GUNLUGU.md`, `KOMUT-KAYDI.md`, `GOREV-TASARIMI.md` (bölüm 7, 8)
 - **Yapay zekâya sorabileceği:** sunum taslağı, anlatım sırası
 - **Teslim:** dolu günlük + sunum
 

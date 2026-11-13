@@ -133,3 +133,15 @@ test('kit ships the agent rules, the calculation notebook and the stage-0 prompt
   assert.equal(ASAMALAR[0].no, 0);
   assert.ok(KOMUTLAR.filter(k => k.asama === 0).length >= 2);
 });
+
+test('transparency: every prepared prompt has a stable code; agents must log prompts verbatim in KOMUT-KAYDI.md', async () => {
+  const { komutBasligi } = await import('../gorev-kiti/komutlar.js');
+  const kodlar = KOMUTLAR.map(k => k.kod);
+  assert.equal(new Set(kodlar).size, kodlar.length);
+  assert.ok(kodlar.every(k => /^K\d+\.\d+$/.test(k)));
+  assert.match(komutBasligi(KOMUTLAR[0]), /^\[Hazır komut K0\.1 · /);
+  const agents = readFileSync(new URL('../gorev-kiti/AGENTS.md', import.meta.url), 'utf8');
+  assert.match(agents, /KOMUT-KAYDI\.md/); assert.match(agents, /kelimesi kelimesine/);
+  assert.match(KOMUTLAR.find(k => k.kod === 'K0.1').metin, /KOMUT-KAYDI\.md'ye kelimesi kelimesine kaydet/);
+  assert.match(readFileSync(new URL('../gorev-kiti/KOMUT-KAYDI.md', import.meta.url), 'utf8'), /## Kayıtlar/);
+});

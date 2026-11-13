@@ -33,12 +33,14 @@ Görevimiz: "{baslik}" — {gezegen} üzerinde, araç: {arac}. Görevde {hedefSa
 ayarlar.js şu anda bu görevin hazır ayarlarını içeriyor: gezegen = '{gezegenKimlik}'.
 
 Senden istediklerimiz, sırayla:
+0. AGENTS.md'deki şeffaflık kuralına göre bu komutu, işe başlamadan önce, KOMUT-KAYDI.md'ye kelimesi kelimesine kaydet ve commit et.
 1. README.md, ayarlar.js, fizik.js ve gezegenler.js dosyalarını oku. fizik.js'teki denklemleri bize 5–6 maddede, bir lise öğrencisinin anlayacağı şekilde özetle.
 2. FIZIK-HESAPLARI.md dosyasını görevimiz için doldur: her satır "formül → sayıları yerine koyma → sonuç (birimiyle)" olsun. Aracımız {arac}; kullanılmayan bölümü (3A rotor ya da 3B roket) sil.
 3. "node hesapla.mjs" komutunu çalıştır. Çıktıdaki sonuçları defterin "Motorun sonucu" sütununa yaz, farkı yüzde olarak hesapla. Fark %1'den büyükse nedenini bul ve düzelt.
 4. Ortam tablosundaki her değerin yanına güvenilir bir kaynak (NASA, ESA) bağlantısı yaz. Emin olmadığın değeri "emin değilim" diye işaretle.
 5. Yaptığın her işi YZ-GUNLUGU.md'ye bir satır olarak ekle.
-6. Her adımı ayrı, Türkçe mesajlı bir commit olarak kaydet.
+6. Her adımı ayrı, Türkçe mesajlı bir commit olarak kaydet; mesajların sonuna komut numarasını ekle.
+7. İş bitince KOMUT-KAYDI.md'deki kaydı tamamla (yaptıkların, commit'ler, emin olmadıkların).
 ayarlar.js, fizik.js ve hesap.js dosyalarında hiçbir şeyi değiştirme. Bitince bize neyi yaptığını ve hangi değerleri kendimizin kontrol etmesi gerektiğini listele.`,
     ipucu: 'Bu komut, depoya erişebilen bir kodlama ajanı içindir (ör. Claude Code, Codex, GitHub Copilot ajanı). Ajanın açtığı her değişikliği GitHub\'da "Commits" sekmesinden birlikte okuyun.' },
   { asama: 0, rol: 'Takım kaptanı', baslik: 'Asistanla hesap defterini yaz',
@@ -184,6 +186,11 @@ Bize sorulabilecek 6 zor soru yaz: 2'si bilim, 2'si kod, 2'si yapay zekâ kullan
     ipucu: 'Her soruyu bir takım arkadaşınız cevaplasın, diğerleri yorum yapsın.' },
 ];
 
+// Her hazır komutun kalıcı kodu: K<aşama>.<sıra> (ör. K0.1). Komut kaydında hangi hazır
+// komutun kullanıldığını gösterir.
+KOMUTLAR.forEach(k => { k.kod = `K${k.asama}.${KOMUTLAR.filter(x => x.asama === k.asama).indexOf(k) + 1}`; });
+export const komutBasligi = k => `[Hazır komut ${k.kod} · ${k.baslik} · Görev Atölyesi]`;
+
 // Komuttaki {yer tutucu}ları bir görevle doldurur
 export function komutuDoldur(metin, gorev, gezegenAdi) {
   const a = gorev?.arac ?? {};
@@ -217,11 +224,12 @@ export function komutlarMd() {
     '- Yapay zekâ **yanılabilir**: özellikle sayılarda, tarihlerde ve kaynak adlarında. Her sayıyı kontrol edin.',
     '- Anlamadığınız kodu yapıştırmayın: önce "bu kodu açıkla" deyin.',
     '- Ad soyad, okul numarası, adres, telefon, fotoğraf gibi kişisel bilgileri yazmayın.',
-    '- Hesaplar öğretmeninizindir; araçları onun gözetiminde kullanın.', ''];
+    '- Hesaplar öğretmeninizindir; araçları onun gözetiminde kullanın.',
+    '- Her komutun ilk satırındaki `[Hazır komut Kx.y ...]` kodunu silmeyin: ajanlar komutları KOMUT-KAYDI.md\'ye bu kodla kaydeder.', ''];
   for (const a of ASAMALAR) {
     s.push(`## Aşama ${a.no} — ${a.ad} (${a.sure})`, '');
     for (const k of KOMUTLAR.filter(k => k.asama === a.no)) {
-      s.push(`### ${k.baslik} · *${k.rol}*`, '', '```', k.metin, '```', '', `💡 ${k.ipucu}`, '');
+      s.push(`### ${k.kod} · ${k.baslik} · *${k.rol}*`, '', '```', komutBasligi(k), k.metin, '```', '', `💡 ${k.ipucu}`, '');
     }
   }
   return s.join('\n');

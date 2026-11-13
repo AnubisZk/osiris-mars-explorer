@@ -19,32 +19,37 @@
 - Anlamadığınız kodu yapıştırmayın: önce "bu kodu açıkla" deyin.
 - Ad soyad, okul numarası, adres, telefon, fotoğraf gibi kişisel bilgileri yazmayın.
 - Hesaplar öğretmeninizindir; araçları onun gözetiminde kullanın.
+- Her komutun ilk satırındaki `[Hazır komut Kx.y ...]` kodunu silmeyin: ajanlar komutları KOMUT-KAYDI.md'ye bu kodla kaydeder.
 
 ## Aşama 0 — Depoyu kur (30 dk)
 
-### Ajanla depoyu doldur · *Takım kaptanı*
+### K0.1 · Ajanla depoyu doldur · *Takım kaptanı*
 
 ```
+[Hazır komut K0.1 · Ajanla depoyu doldur · Görev Atölyesi]
 Bu depo bir öğrenci takımının "Görev Kiti" projesi. Önce AGENTS.md dosyasını oku ve oradaki kurallara uy.
 
 Görevimiz: "{baslik}" — {gezegen} üzerinde, araç: {arac}. Görevde {hedefSayisi} hedef var.
 ayarlar.js şu anda bu görevin hazır ayarlarını içeriyor: gezegen = '{gezegenKimlik}'.
 
 Senden istediklerimiz, sırayla:
+0. AGENTS.md'deki şeffaflık kuralına göre bu komutu, işe başlamadan önce, KOMUT-KAYDI.md'ye kelimesi kelimesine kaydet ve commit et.
 1. README.md, ayarlar.js, fizik.js ve gezegenler.js dosyalarını oku. fizik.js'teki denklemleri bize 5–6 maddede, bir lise öğrencisinin anlayacağı şekilde özetle.
 2. FIZIK-HESAPLARI.md dosyasını görevimiz için doldur: her satır "formül → sayıları yerine koyma → sonuç (birimiyle)" olsun. Aracımız {arac}; kullanılmayan bölümü (3A rotor ya da 3B roket) sil.
 3. "node hesapla.mjs" komutunu çalıştır. Çıktıdaki sonuçları defterin "Motorun sonucu" sütununa yaz, farkı yüzde olarak hesapla. Fark %1'den büyükse nedenini bul ve düzelt.
 4. Ortam tablosundaki her değerin yanına güvenilir bir kaynak (NASA, ESA) bağlantısı yaz. Emin olmadığın değeri "emin değilim" diye işaretle.
 5. Yaptığın her işi YZ-GUNLUGU.md'ye bir satır olarak ekle.
-6. Her adımı ayrı, Türkçe mesajlı bir commit olarak kaydet.
+6. Her adımı ayrı, Türkçe mesajlı bir commit olarak kaydet; mesajların sonuna komut numarasını ekle.
+7. İş bitince KOMUT-KAYDI.md'deki kaydı tamamla (yaptıkların, commit'ler, emin olmadıkların).
 ayarlar.js, fizik.js ve hesap.js dosyalarında hiçbir şeyi değiştirme. Bitince bize neyi yaptığını ve hangi değerleri kendimizin kontrol etmesi gerektiğini listele.
 ```
 
 💡 Bu komut, depoya erişebilen bir kodlama ajanı içindir (ör. Claude Code, Codex, GitHub Copilot ajanı). Ajanın açtığı her değişikliği GitHub'da "Commits" sekmesinden birlikte okuyun.
 
-### Asistanla hesap defterini yaz · *Takım kaptanı*
+### K0.2 · Asistanla hesap defterini yaz · *Takım kaptanı*
 
 ```
+[Hazır komut K0.2 · Asistanla hesap defterini yaz · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimiz "{baslik}" — {gezegen} üzerinde, araç: {arac}.
 Aşağıda oyunumuzun ayarlar.js dosyası var. Projemizdeki fizik motoru şu denklemleri kullanıyor:
 - Ağırlık: W = m × g
@@ -60,9 +65,10 @@ Bu bilgilerle bizim için bir "Fizik Hesap Defteri" yaz (Markdown). Bölümler: 
 
 💡 Cevabı GitHub'da FIZIK-HESAPLARI.md dosyasını düzenleyip (kalem simgesi) yapıştırın. Sonra oyunun "🧮 Hesaplar" sayfasıyla her sonucu karşılaştırın.
 
-### Hesap farkını bul · *Bilim danışmanı*
+### K0.3 · Hesap farkını bul · *Bilim danışmanı*
 
 ```
+[Hazır komut K0.3 · Hesap farkını bul · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Bir hesabımızda yapay zekânın bulduğu sonuçla oyunun fizik motorunun bulduğu sonuç farklı çıktı.
 
 Hesap defterimizdeki satır:
@@ -78,9 +84,10 @@ Hangi adımda ayrıldıklarını bul: yanlış sayı mı kullanılmış, birim m
 
 ## Aşama 1 — Görevi anla (30 dk)
 
-### Gezegeni tanı · *Bilim danışmanı*
+### K1.1 · Gezegeni tanı · *Bilim danışmanı*
 
 ```
+[Hazır komut K1.1 · Gezegeni tanı · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimiz {gezegen} üzerinde geçiyor.
 {gezegen} için şu bilgileri bir tablo hâlinde ver:
 - yüzeyde yerçekimi ivmesi (m/s²)
@@ -92,9 +99,10 @@ Her değerin yanına güvenilir bir kaynağın adını yaz (NASA, ESA gibi). Emi
 
 💡 Gelen sayıları gezegenler.js dosyasındaki değerlerle karşılaştırın. Farklıysa kaynağına bakın ve günlüğe yazın.
 
-### Gerçek görevleri öğren · *Tasarımcı*
+### K1.2 · Gerçek görevleri öğren · *Tasarımcı*
 
 ```
+[Hazır komut K1.2 · Gerçek görevleri öğren · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimiz {gezegen} üzerinde geçiyor.
 {gezegen}'e gönderilmiş ya da gönderilmesi planlanan, yüzeye inen veya uçan araçları listele. Her biri için: adı, hangi ajansın olduğu, yılı ve en ilginç başarısı (bir cümle). En fazla 6 araç yaz. Bilmediğin ya da emin olmadığın tarihleri uydurma, "emin değilim" yaz.
 ```
@@ -103,18 +111,20 @@ Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi sim�
 
 ## Aşama 2 — Tasarla (45 dk)
 
-### Hikâye yaz · *Tasarımcı*
+### K2.1 · Hikâye yaz · *Tasarımcı*
 
 ```
+[Hazır komut K2.1 · Hikâye yaz · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimizin adı "{baslik}". {gezegen} üzerinde, {arac} ile geçiyor. Oyuncu birkaç hedefi gözlemleyip üsse dönüyor.
 Oyunun başında oyuncunun okuyacağı 3–5 cümlelik bir görev hikâyesi yaz. 3 farklı seçenek ver: biri heyecanlı, biri bilimsel, biri gizemli olsun. 12 yaşındaki bir okurun anlayacağı bir dille yaz. Bilimsel olarak yanlış bir şey söyleme.
 ```
 
 💡 En beğendiğinizi seçin, kendi cümlelerinizle değiştirin. Hikâyedeki her bilimsel iddiayı bilim danışmanı kontrol etsin.
 
-### Hedefleri seç · *Tasarımcı*
+### K2.2 · Hedefleri seç · *Tasarımcı*
 
 ```
+[Hazır komut K2.2 · Hedefleri seç · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimiz {gezegen} üzerinde geçiyor. Uçan aracımız {hedefSayisi} noktayı gözlemleyecek.
 {gezegen} yüzeyinde bilim insanlarının incelemek isteyeceği {hedefSayisi} türde yer öner. Her biri için:
 - en fazla 3 kelimelik bir ad (oyunda etiket olarak görünecek)
@@ -124,9 +134,10 @@ Gerçekte var olan yer türlerini kullan (krater, kumul, buz çatlağı gibi).
 
 💡 Hedefleri kâğıt haritaya yerleştirin: üs ortada, her kare 100 m. Sonra x ve z değerlerini tasarım belgesine yazın.
 
-### Aracı boyutlandır · *Bilim danışmanı*
+### K2.3 · Aracı boyutlandır · *Bilim danışmanı*
 
 ```
+[Hazır komut K2.3 · Aracı boyutlandır · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Aracımız {gezegen} üzerinde uçacak. Yerçekimi {g} m/s², aracın kütlesi {kutle} kg.
 1. Aracın ağırlığını (newton) hesapla. Formülü yaz, sonra sayıları yerine koy.
 2. Aracın yerden kalkabilmesi için motorların en az ne kadar itki üretmesi gerektiğini açıkla.
@@ -138,9 +149,10 @@ Her adımı ayrı göster. Sonucu ben de hesap makinesiyle kontrol edeceğim.
 
 ## Aşama 3 — Kur (20 dk)
 
-### Kiti anla · *Kodcu*
+### K3.1 · Kiti anla · *Kodcu*
 
 ```
+[Hazır komut K3.1 · Kiti anla · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Aşağıda oyunumuzun ayarlar.js dosyası var. Bu dosyayı bir lise öğrencisine anlatır gibi açıkla:
 - Dosyada hangi bölümler var, her biri oyunda neyi değiştiriyor?
 - "arac" bölümündeki her ayarın gerçek hayatta neye karşılık geldiğini bir cümleyle söyle.
@@ -154,9 +166,10 @@ Kodu yeniden yazma, sadece açıkla.
 
 ## Aşama 4 — Üret (2 saat)
 
-### Görevi ayarlar.js'e yaz · *Kodcu*
+### K4.1 · Görevi ayarlar.js'e yaz · *Kodcu*
 
 ```
+[Hazır komut K4.1 · Görevi ayarlar.js'e yaz · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Aşağıda oyunumuzun ayarlar.js dosyası ve takımımızın tasarım kararları var.
 ayarlar.js dosyasını tasarımımıza göre güncelle. Kurallar:
 - Alan adlarını (baslik, arac, hedefler...) ve dosyanın yapısını DEĞİŞTİRME, yalnızca değerleri değiştir.
@@ -175,9 +188,10 @@ Tasarım kararlarımız:
 
 💡 Yeni dosyayı kaydetmeden önce değişen satırlar listesini takımca okuyun. Bilim danışmanı sayıları onaylasın.
 
-### Yeni özellik ekle · *Kodcu*
+### K4.2 · Yeni özellik ekle · *Kodcu*
 
 ```
+[Hazır komut K4.2 · Yeni özellik ekle · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Oyunun ekran ve kontrol kodu oyun.js dosyasında. Fizik hesabı ayrı bir dosyada (fizik.js); ona dokunmak istemiyoruz.
 oyun.js'e şu özelliği eklemek istiyoruz: [ÖZELLİĞİ YAZIN — örnekler: "motor sesi: itki arttıkça yükselen bir uğultu, Web Audio API ile, dışarıdan ses dosyası kullanmadan" / "her hedefin ortasına dönen bir kaya modeli" / "görev tamamlanınca ekranda konfeti"].
 - Tüm dosyayı yeniden yazma. Hangi satırın altına hangi kodu eklemem gerektiğini göster.
@@ -189,9 +203,10 @@ oyun.js'e şu özelliği eklemek istiyoruz: [ÖZELLİĞİ YAZIN — örnekler: "
 
 💡 Önce dosyanın bir kopyasını alın (ör. oyun-yedek.js). Ekledikten sonra oyunu açıp deneyin; bozulursa kırmızı kutudaki yazıyla "Hata ayıkla" komutunu kullanın.
 
-### Hata ayıkla · *Kodcu*
+### K4.3 · Hata ayıkla · *Kodcu*
 
 ```
+[Hazır komut K4.3 · Hata ayıkla · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Oyunumuzda bir hata var.
 Hata mesajı (kırmızı kutuda ya da F12 → Console'da gördüğümüz):
 [HATA MESAJINI BURAYA YAPIŞTIRIN]
@@ -206,9 +221,10 @@ Son değiştirdiğimiz kod:
 
 💡 Düzeltmeyi uygulamadan önce açıklamayı anladığınızdan emin olun. Bu hatayı günlüğün "yanıldığı yerler" bölümüne değil, kayıtlar bölümüne yazın.
 
-### Kapak görseli · *Tasarımcı*
+### K4.4 · Kapak görseli · *Tasarımcı*
 
 ```
+[Hazır komut K4.4 · Kapak görseli · Görev Atölyesi]
 Bir oyun kapak görseli için görsel üretme aracına verilecek bir komut yaz (İngilizce, en fazla 60 kelime).
 Görsel: {gezegen} yüzeyinde, {arac} uçarken. Hikâye: {hikaye}
 Gerçekçi bilimsel illüstrasyon tarzında olsun. Gökyüzünün ve zeminin rengi {gezegen} için bilimsel olarak doğru olsun. Görselde yazı, logo ya da gerçek bir kişi olmasın.
@@ -218,9 +234,10 @@ Gerçekçi bilimsel illüstrasyon tarzında olsun. Gökyüzünün ve zeminin ren
 
 ## Aşama 5 — Test et (45 dk)
 
-### Sonuçları yorumla · *Bilim danışmanı*
+### K5.1 · Sonuçları yorumla · *Bilim danışmanı*
 
 ```
+[Hazır komut K5.1 · Sonuçları yorumla · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Oyunumuzun fizik motoru bu formülleri kullanıyor:
 - Rotorun en büyük itkisi: T = 0,012 × ρ × A × (uç hızı)²
 - Askıda kalmak için gereken güç: P = T × √(T / (2ρA)) / verim
@@ -232,9 +249,10 @@ Bizim aracımız {gezegen} üzerinde ve oyun şu değerleri gösteriyor: [GİRİ
 
 💡 Bu açıklamayı tasarım belgesinin 3. bölümüne kendi cümlelerinizle özetleyin.
 
-### Yapay zekâyı denetle · *Bilim danışmanı*
+### K5.2 · Yapay zekâyı denetle · *Bilim danışmanı*
 
 ```
+[Hazır komut K5.2 · Yapay zekâyı denetle · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Bir yapay zekâ bize şu bilgiyi verdi:
 "[KONTROL ETMEK İSTEDİĞİNİZ BİLGİYİ YAPIŞTIRIN]"
 Bu bilgiyi doğrulamak için hangi güvenilir kaynaklara bakmalıyız? Bu bilgide hata olma ihtimali olan yerler neler? Doğrudan "doğru" ya da "yanlış" demek yerine, bizim nasıl kontrol edebileceğimizi anlat.
@@ -244,9 +262,10 @@ Bu bilgiyi doğrulamak için hangi güvenilir kaynaklara bakmalıyız? Bu bilgid
 
 ## Aşama 6 — Yayınla ve sun (40 dk)
 
-### Sunum planı · *Sunucu*
+### K6.1 · Sunum planı · *Sunucu*
 
 ```
+[Hazır komut K6.1 · Sunum planı · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Projemizi 5 dakikada jüriye sunacağız. Görevimiz: "{baslik}" ({gezegen}).
 Bize 5 dakikalık bir sunum planı yap. Bölümler: görev ve hikâye (1 dk), bilim — neden bu araç bu gezegende uçabiliyor (1 dk), canlı oyun gösterimi (1,5 dk), yapay zekâyı nasıl kullandık ve nerede yanıldığını nasıl yakaladık (1 dk), ne öğrendik (0,5 dk).
 Her bölüm için kimin konuşacağını boş bırak, söylenecek 2–3 ana fikri madde olarak yaz. Tam metin yazma; kendi cümlelerimizle konuşacağız.
@@ -254,9 +273,10 @@ Her bölüm için kimin konuşacağını boş bırak, söylenecek 2–3 ana fikr
 
 💡 Sunumu en az bir kez süre tutarak prova edin.
 
-### Jüri soruları · *Sunucu*
+### K6.2 · Jüri soruları · *Sunucu*
 
 ```
+[Hazır komut K6.2 · Jüri soruları · Görev Atölyesi]
 Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Görevimiz "{baslik}" ({gezegen}, {arac}). Jüri üyeleri bilim insanları ve öğretmenler.
 Bize sorulabilecek 6 zor soru yaz: 2'si bilim, 2'si kod, 2'si yapay zekâ kullanımı hakkında olsun. Cevapları YAZMA; cevapları biz hazırlayacağız.
 ```

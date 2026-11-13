@@ -23,6 +23,7 @@ yeni bir gezegen, yeni bir araç, yeni hedefler, yeni bir hikâye.
 | `FIZIK-HESAPLARI.md` | Fizik hesap defteri: formül → yerine koyma → sonuç | Kaptan + Bilim danışmanı | ✅ **Yapay zekâyla doldurup doğrulayın** |
 | `hesap.html`, `hesap.js`, `hesapla.mjs` | Görevin bütün hesaplarını oyunun motoruyla adım adım üretir | Bilim danışmanı | ❌ Değiştirmeyin, doğrulamak için kullanın |
 | `AGENTS.md`, `CLAUDE.md` | Depoda çalışan yapay zekâ ajanlarının kuralları | Takım kaptanı | ❌ Gerek yok |
+| `KOMUT-KAYDI.md` | Ajanlara verilen her komutun kelimesi kelimesine kaydı: projenin şeffaflık belgesi | Ajan yazar, Sunucu kontrol eder | ✅ "Takımın kontrolü" satırlarını doldurun |
 | `GOREV-TASARIMI.md` | Takımınızın tasarım belgesi | Tüm takım | ✅ **Doldurmanız gerekiyor** |
 | `ROLLER.md` | Takımdaki görev dağılımı | Tüm takım | ✅ İsimleri yazın |
 | `KOMUTLAR.md` | Yapay zekâya ne soracağınızın hazır örnekleri | Herkes | Okuyun, kullanın |
