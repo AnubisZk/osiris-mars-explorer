@@ -1,0 +1,3 @@
+# Bu kit derleme gerektirmez: klasör olduğu gibi yayınlanır.
+[build]
+  publish = "."

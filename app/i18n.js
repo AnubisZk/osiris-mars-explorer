@@ -47,6 +47,7 @@ const S={
     marsCardTitle:'Mars Aerial Explorer',marsCardText:'Design Mars rotorcraft, plan missions at Jezero, run experiments: thin CO₂ air, solar energy over sols, light-time delay to Earth.',
     open:'Open simulator',gravityShort:'Gravity',densityShort:'Air density',delayShort:'Pilot delay',vehicleShort:'Default vehicle',
     earthDelay:'none (on site)',marsDelay:'3–22 min light time',
+    workshopTag:'For students',workshopTitle:'Mission Workshop',workshopText:'Turn a space mission into your own playable simulator in a day: mission cards, team roles, a ready-made kit and AI prompts, step by step (in Turkish).',workshopGo:'Open the workshop',
     landFoot:'Terrain is procedural and labelled as such in both worlds unless real elevation data is loaded. Xbox controller supported.',
   },
   tr:{
@@ -96,6 +97,7 @@ const S={
     marsCardTitle:'Mars Hava Kaşifi',marsCardText:'Mars rotorlu araçları tasarla, Jezero\'da görev planla, deney yap: ince CO₂ havası, sol sol güneş enerjisi, Dünya\'ya ışık gecikmesi.',
     open:'Simülatörü aç',gravityShort:'Yerçekimi',densityShort:'Hava yoğunluğu',delayShort:'Pilot gecikmesi',vehicleShort:'Varsayılan araç',
     earthDelay:'yok (sahada)',marsDelay:'3–22 dk ışık süresi',
+    workshopTag:'Öğrenciler için',workshopTitle:'Görev Atölyesi',workshopText:'Bir uzay görevini bir günde kendi oynanabilir simülatörüne dönüştür: görev kartları, takım rolleri, hazır kit ve yapay zekâ komutları, adım adım.',workshopGo:'Atölyeyi aç',
     landFoot:'Gerçek yükseklik verisi yüklenmedikçe arazi iki dünyada da prosedüreldir ve öyle etiketlenir. Xbox kumandası desteklenir.',
   },
 };

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Görev Kiti · Uzay Görevi Simülatörü</title>
+  <!--
+    Bu sayfa hiçbir kurulum istemez: klasörü bir web sunucusunda açman yeterli.
+    three.js (3B çizim kütüphanesi) internetten, jsDelivr üzerinden yüklenir.
+  -->
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js" } }
+  </script>
+  <style>
+    :root{--panel:#0d1117d9;--cizgi:#ffffff26;--yazi:#eef2f6;--soluk:#a9b4c0;--vurgu:#ffb347;--iyi:#6fdc8c;--kotu:#ff6b6b}
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--yazi);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+    canvas#sahne{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+    .panel{position:fixed;background:var(--panel);border:1px solid var(--cizgi);border-radius:12px;backdrop-filter:blur(6px);padding:10px 12px;z-index:2}
+    #ust{left:10px;top:10px;right:10px;display:flex;align-items:center;gap:12px;padding:8px 12px}
+    #ust h1{font-size:16px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #ust .bosluk{flex:1}#ust .etiket{color:var(--soluk);font-size:13px;white-space:nowrap}
+    #ust button{background:#ffffff1a;color:var(--yazi);border:1px solid var(--cizgi);border-radius:8px;padding:4px 10px;font:inherit;cursor:pointer}
+    #olcum{left:10px;top:62px;min-width:250px;font:13px/1.6 ui-monospace,Consolas,monospace}
+    #olcum .satir{display:flex;justify-content:space-between;gap:14px}#olcum b{font-weight:600}
+    .cubuk{height:7px;border-radius:4px;background:#ffffff1f;overflow:hidden;margin:2px 0 6px}.cubuk>i{display:block;height:100%;background:var(--iyi);transition:width .2s}
+    #uyari{color:var(--vurgu);min-height:1.4em;font-family:system-ui,sans-serif;font-size:13px}
+    #hedefPanel{right:10px;top:62px;width:240px}
+    #hedefPanel h3,#olcum h3{margin:0 0 6px;font:600 12px system-ui,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--vurgu)}
+    .hedef{margin:5px 0}.hedef .ad{display:flex;justify-content:space-between;font-size:13px}.hedef.tamam .ad{color:var(--iyi)}
+    canvas#harita{display:block;width:100%;aspect-ratio:1;border-radius:8px;background:#0007;margin-top:8px}
+    #not{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;color:#ffffffa0;z-index:2;pointer-events:none;text-align:center}
+    #gecikmeYazi{position:fixed;left:50%;top:62px;transform:translateX(-50%);z-index:2;padding:4px 10px;border-radius:8px;background:#3a2516d9;color:#ffd8a8;font-size:13px;display:none}
+    .kaplama{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:16px;background:#000a}
+    .kaplama[hidden]{display:none}
+    .kart{max-width:760px;width:100%;max-height:100%;overflow:auto;background:#10151c;border:1px solid var(--cizgi);border-radius:16px;padding:22px 24px}
+    .kart h2{margin:0 0 4px;font-size:24px}.kart h3{margin:18px 0 6px;color:var(--vurgu);font-size:13px;text-transform:uppercase;letter-spacing:.6px}
+    .kart p{margin:6px 0;color:#dfe6ee}.kart .soluk{color:var(--soluk)}
+    .izgara{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 18px}
+    .izgara div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #ffffff12;padding:3px 0}
+    .tuslar{display:grid;grid-template-columns:auto 1fr;gap:4px 12px}.tuslar kbd{background:#ffffff1a;border:1px solid var(--cizgi);border-bottom-width:2px;border-radius:5px;padding:0 6px;font:12px ui-monospace,monospace;white-space:nowrap}
+    .dugme{display:inline-block;margin-top:16px;background:var(--vurgu);color:#1d1205;border:0;border-radius:10px;padding:10px 18px;font:600 15px system-ui,sans-serif;cursor:pointer}
+    .dugme.ikincil{background:#ffffff1a;color:var(--yazi);border:1px solid var(--cizgi);margin-left:8px}
+    .durumKutu{padding:10px 12px;border-radius:10px;margin-top:8px}.durumKutu.iyi{background:#173225;color:#b9f3c8}.durumKutu.kotu{background:#3b1717;color:#ffc4c4}
+    textarea{width:100%;min-height:110px;background:#0b0f14;color:var(--yazi);border:1px solid var(--cizgi);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,monospace}
+    #hata{position:fixed;left:10px;right:10px;bottom:10px;z-index:9;background:#3b1111;border:2px solid var(--kotu);color:#ffd6d6;border-radius:12px;padding:12px 14px;font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;display:none}
+    #hata b{font-family:system-ui,sans-serif;font-size:15px;color:#fff}
+    #dokunmatik{position:fixed;inset:auto 0 46px 0;z-index:3;display:none;justify-content:space-between;padding:0 14px;pointer-events:none}
+    #dokunmatik .grup{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,58px);gap:6px;pointer-events:auto}
+    #dokunmatik button{background:#ffffff26;border:1px solid #ffffff40;border-radius:12px;color:#fff;font-size:22px;touch-action:none;user-select:none}
+    @media (pointer:coarse){#dokunmatik{display:flex}}
+    @media (max-width:760px){#hedefPanel{width:170px;font-size:12px}#olcum{min-width:0;font-size:12px}#ust .etiket{display:none}}
+  </style>
+</head>
+<body>
+  <canvas id="sahne" tabindex="0"></canvas>
+
+  <div id="ust" class="panel">
+    <h1 id="baslik">Görev Kiti</h1><span class="etiket" id="dunyaYazi"></span>
+    <div class="bosluk"></div>
+    <span class="etiket" id="saat">00:00</span>
+    <button id="yardimDugme" title="Görev bilgisi ve kontroller">? Yardım</button>
+  </div>
+
+  <div id="olcum" class="panel">
+    <h3>Telemetri</h3>
+    <div id="olcumIcerik"></div>
+    <div id="uyari"></div>
+  </div>
+
+  <div id="hedefPanel" class="panel">
+    <h3>Hedefler</h3>
+    <div id="hedefListe"></div>
+    <canvas id="harita" width="360" height="360"></canvas>
+  </div>
+
+  <div id="gecikmeYazi"></div>
+  <div id="not">Arazi temsilidir: matematikle üretilmiştir, gerçek harita değildir.</div>
+
+  <div id="dokunmatik">
+    <div class="grup">
+      <span></span><button data-tus="ileri">▲</button><span></span>
+      <button data-tus="sol">◀</button><button data-tus="geri">▼</button><button data-tus="sag">▶</button>
+    </div>
+    <div class="grup" style="grid-template-columns:repeat(2,58px)">
+      <button data-tus="yukari">⤒</button><button data-tus="kamSol">⟲</button>
+      <button data-tus="asagi">⤓</button><button data-tus="kamSag">⟳</button>
+    </div>
+  </div>
+
+  <!-- Görev başlangıç ekranı: içeriği oyun.js, ayarlar.js'ten doldurur -->
+  <div id="giris" class="kaplama"><div class="kart" id="girisKart">Yükleniyor…</div></div>
+  <!-- Görev sonu ekranı -->
+  <div id="son" class="kaplama" hidden><div class="kart" id="sonKart"></div></div>
+
+  <div id="hata"></div>
+
+  <script type="module">
+    // Hata yakalayıcı: ayarlar.js'te bir yazım hatası olursa sayfa beyaz kalmasın,
+    // öğrenci ne olduğunu kırmızı kutuda görsün.
+    const kutu = document.getElementById('hata');
+    function goster(baslik, ayrinti) {
+      kutu.style.display = 'block';
+      kutu.innerHTML = '';
+      const b = document.createElement('b'); b.textContent = '⚠ ' + baslik;
+      kutu.append(b, '\n' + ayrinti + '\n\nİpucu: Son değiştirdiğin satırı kontrol et. Virgül, tırnak ve süslü parantezleri ({ }) say. Hata mesajını yapay zekâya da sorabilirsin.');
+    }
+    window.addEventListener('error', e => goster('Oyunda bir hata oluştu', `${e.message}\n${e.filename ?? ''}:${e.lineno ?? ''}`));
+    window.addEventListener('unhandledrejection', e => goster('Oyunda bir hata oluştu', String(e.reason?.message ?? e.reason)));
+    try {
+      await import('./oyun.js');
+    } catch (e) {
+      goster('Oyun yüklenemedi', String(e?.message ?? e) + (location.protocol === 'file:' ? '\n\nSayfayı dosyaya çift tıklayarak açtın. Tarayıcılar buna izin vermez: README.md\'deki "Bilgisayarında çalıştır" adımını uygula.' : ''));
+    }
+  </script>
+</body>
+</html>

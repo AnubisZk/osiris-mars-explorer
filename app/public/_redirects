@@ -5,3 +5,5 @@
 # Short links to the two simulators
 /earth  /?world=earth  301
 /mars   /?world=mars   301
+# Mission workshop (Netlify already adds the trailing slash to /atolye)
+/workshop  /atolye/  301

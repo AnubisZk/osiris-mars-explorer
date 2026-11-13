@@ -74,6 +74,10 @@ export function showLanding(){
       h('div',{class:'land-top'},h('h1',{},h('span',{},'OsirisZk'),' · NASA Space Apps 2026'),lang),
       h('h2',{},t('landTitle')),h('p',{class:'sub'},t('landSub')),
       h('div',{class:'cards'},card('earth'),card('mars')),
+      h('a',{class:'workshop',href:'atolye/'},
+        h('span',{class:'wicon'},'🛠'),
+        h('span',{class:'wtext'},h('small',{},t('workshopTag')),h('b',{},t('workshopTitle')),h('span',{},t('workshopText'))),
+        h('span',{class:'go'},`${t('workshopGo')} →`)),
       h('p',{class:'foot'},t('landFoot')));
   };
   render();

@@ -237,3 +237,18 @@ Software: Rapier (Apache-2.0), three.js (MIT), Vite (MIT), geotiff.js (MIT, impo
 
 To be decided by the team before submission. Space Apps requires openly available materials; the
 challenge default is Apache-2.0.
+
+## Mission Workshop (Görev Atölyesi)
+
+`/atolye/` on the site is a step-by-step, Turkish-language guide for student teams: turn a space
+mission into their own playable simulator in a day with the help of AI tools, under a teacher's
+guidance. It contains 7 mission cards (Earth, Mars, Moon, Titan, Europa), 4 team roles, 6 stages
+with checklists, an AI prompt pack filled in for the chosen mission, a "can it fly?" calculator,
+a scoring rubric, a glossary and teacher notes.
+
+The students' starter project is `gorev-kiti/`: a dependency-free three.js flight game in one
+folder (`ayarlar.js` = the whole mission; `fizik.js` = rotor momentum theory, rocket equation,
+drag; `arazi.js` = labelled procedural terrain) plus design, roles, AI-log and rubric documents.
+`npm run build` (via `tools/build-kit.mjs`) copies it to `/atolye/kit/` as a live demo and packs
+`/atolye/gorev-kiti.zip`. `tests/gorev-kiti.test.js` flies every mission card with a scripted
+autopilot.

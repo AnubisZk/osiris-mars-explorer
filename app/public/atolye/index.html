@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Görev Atölyesi · OsirisZk</title>
+<meta name="description" content="Öğrenciler için adım adım rehber: bir uzay görevini yapay zekâ yardımıyla bir günde oynanabilir bir simülatöre dönüştür.">
+<style>
+  :root{--bg:#0b0d12;--kart:#131720;--kart2:#1a2030;--cizgi:#ffffff1c;--yazi:#eef2f7;--soluk:#a6b0bf;--turuncu:#ff9a52;--mavi:#6cc3ff;--yesil:#6fdc8c;--sari:#ffd34d;--kirmizi:#ff7b7b;--mor:#c9a2ff}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:70px}
+  body{margin:0;background:radial-gradient(1100px 520px at 10% -8%,#16324a 0,transparent 60%),radial-gradient(900px 520px at 95% 0,#3a1a0e 0,transparent 60%),var(--bg);color:var(--yazi);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  a{color:var(--mavi)}
+  .kap{max-width:1120px;margin:0 auto;padding:0 18px}
+  /* üst menü */
+  nav.ust{position:sticky;top:0;z-index:20;background:#0b0d12e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--cizgi)}
+  nav.ust .kap{display:flex;align-items:center;gap:16px;height:56px;overflow-x:auto;white-space:nowrap}
+  nav.ust b{font-size:15px}nav.ust b span{color:var(--turuncu)}
+  nav.ust a{color:var(--soluk);text-decoration:none;font-size:14px}nav.ust a:hover{color:var(--yazi)}
+  nav.ust .bosluk{flex:1}
+  #seciliCip{font-size:13px;padding:4px 10px;border-radius:99px;background:#ff9a5222;border:1px solid #ff9a5266;color:#ffd2b0}
+  /* genel */
+  section{padding:56px 0 8px}
+  h1{font-size:clamp(32px,5vw,52px);line-height:1.08;letter-spacing:-.8px;margin:42px 0 14px}
+  h2{font-size:clamp(24px,3.2vw,34px);letter-spacing:-.4px;margin:0 0 8px}
+  h3{font-size:19px;margin:0 0 6px}
+  .alt{color:var(--soluk);max-width:760px;margin:0 0 24px}
+  .etiket{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--turuncu);margin-bottom:6px}
+  .dugme{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;border:0;font:600 15px system-ui,sans-serif;cursor:pointer;text-decoration:none}
+  .dugme.ana{background:var(--turuncu);color:#1d1005}.dugme.ikinci{background:#ffffff14;color:var(--yazi);border:1px solid var(--cizgi)}
+  .dugme.kucuk{padding:7px 12px;font-size:13px;border-radius:8px}
+  .dugmeler{display:flex;gap:10px;flex-wrap:wrap}
+  .izgara{display:grid;gap:16px}
+  .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:16px;padding:20px}
+  .rozet{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#ffffff12;color:var(--soluk);margin-right:6px}
+  table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--cizgi)}th{color:var(--soluk);font-weight:600}
+  .tablo{overflow-x:auto;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px}
+  code,kbd{font:13px ui-monospace,Consolas,monospace;background:#ffffff12;border-radius:5px;padding:1px 5px}
+  .not{border-left:3px solid var(--sari);background:#ffd34d10;padding:10px 14px;border-radius:0 10px 10px 0;margin:14px 0;color:#f3e7c0}
+  .not.mavi{border-color:var(--mavi);background:#6cc3ff10;color:#cfe9ff}.not.kirmizi{border-color:var(--kirmizi);background:#ff7b7b10;color:#ffd6d6}
+  /* kahraman */
+  .sayilar{display:flex;gap:26px;flex-wrap:wrap;margin:28px 0 0;color:var(--soluk);font-size:14px}.sayilar b{display:block;font-size:28px;color:var(--yazi)}
+  /* aşama şeridi */
+  .serit{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .asama{position:relative;padding:16px}
+  .asama .no{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--turuncu);color:#1d1005;font-weight:700;margin-bottom:8px}
+  .asama .sure{font-size:13px;color:var(--soluk)}.asama p{font-size:14px;color:#cfd6e0;margin:6px 0 0}
+  /* görev kartları */
+  .gorevler{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr))}
+  .gorev{display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .2s}
+  .gorev.secili{border-color:var(--turuncu);box-shadow:0 0 0 1px var(--turuncu)}
+  .gorev .ust{display:flex;justify-content:space-between;align-items:center}
+  .gorev .zor{color:var(--sari);font-size:14px;letter-spacing:2px}
+  .gorev p{margin:0;font-size:14px;color:#d4dbe5}.gorev .gercek{font-size:13px;color:var(--soluk)}
+  .gorev dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:6px 0;font-size:13px}.gorev dt{color:var(--soluk)}.gorev dd{margin:0;font-variant-numeric:tabular-nums}
+  .gorev .dugmeler{margin-top:auto;padding-top:8px}
+  .gezegenRenk{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:6px}
+  /* roller */
+  .roller{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+  .rol .ikon{font-size:30px}.rol ul{padding-left:18px;margin:8px 0;font-size:14px;color:#d4dbe5}.rol li{margin:3px 0}
+  .rol .dosya{font-size:13px;color:var(--soluk)}
+  /* rehber */
+  details.adim{background:var(--kart);border:1px solid var(--cizgi);border-radius:16px;margin:12px 0;overflow:hidden}
+  details.adim>summary{list-style:none;cursor:pointer;padding:18px 20px;display:flex;align-items:center;gap:14px}
+  details.adim>summary::-webkit-details-marker{display:none}
+  details.adim>summary .no{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--turuncu);color:#1d1005;font-weight:700}
+  details.adim>summary .bas{flex:1}details.adim>summary h3{margin:0}details.adim>summary small{color:var(--soluk)}
+  details.adim>summary .ilerleme{font-size:13px;color:var(--soluk);white-space:nowrap}
+  details.adim>summary .ok{transition:transform .2s;color:var(--soluk)}details.adim[open]>summary .ok{transform:rotate(90deg)}
+  .adimIcerik{padding:0 20px 20px;display:grid;gap:18px}
+  .adimIcerik h4{margin:0 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--mavi)}
+  .kimNe{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .kimNe div{background:var(--kart2);border-radius:10px;padding:10px 12px;font-size:14px}.kimNe b{display:block;margin-bottom:2px}
+  .liste label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed #ffffff14;font-size:15px;cursor:pointer}
+  .liste input{margin-top:5px;width:18px;height:18px;accent-color:var(--yesil);flex:none}
+  .liste label.tamam span{color:var(--soluk);text-decoration:line-through}
+  .cikti{background:#6fdc8c12;border:1px solid #6fdc8c44;border-radius:10px;padding:10px 12px;font-size:14px}
+  /* komutlar */
+  .komut{background:var(--kart2);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden}
+  .komut .kb{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--cizgi)}
+  .komut .kb b{flex:1}
+  .komut pre{margin:0;padding:12px 14px;white-space:pre-wrap;font:13px/1.55 ui-monospace,Consolas,monospace;color:#dfe7f1;max-height:320px;overflow:auto}
+  .komut .ipucu{padding:8px 14px 12px;font-size:13px;color:#cfe9ff}
+  .komutlar{display:grid;gap:12px}
+  /* hesaplayıcı */
+  .hesap{grid-template-columns:minmax(260px,1fr) minmax(260px,1.2fr)}
+  .alan{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center;margin:8px 0;font-size:14px}
+  .alan input,.alan select{width:100%;background:#0b0f16;color:var(--yazi);border:1px solid var(--cizgi);border-radius:8px;padding:7px 9px;font:inherit}
+  .sonuc{font-size:15px}.sonuc div{display:flex;justify-content:space-between;border-bottom:1px solid var(--cizgi);padding:6px 0}.sonuc b{font-variant-numeric:tabular-nums}
+  .karar{margin-top:12px;padding:12px;border-radius:10px;font-weight:600}.karar.iyi{background:#173225;color:#b9f3c8}.karar.kotu{background:#3b1717;color:#ffc4c4}
+  .formul{font:15px ui-monospace,Consolas,monospace;background:#0b0f16;border-radius:10px;padding:10px 14px;margin:8px 0;overflow-x:auto}
+  footer{padding:40px 0 60px;color:var(--soluk);font-size:13px}
+  #bildirim{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2533;border:1px solid var(--cizgi);padding:8px 14px;border-radius:10px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
+  #bildirim.on{opacity:1}
+  @media (max-width:760px){.hesap{grid-template-columns:1fr}nav.ust .gizle{display:none}}
+  @media print{
+    body{background:#fff;color:#000;font-size:12px}nav.ust,.dugme,.dugmeler,#bildirim{display:none!important}
+    .kart,details.adim,.tablo,.komut,.kimNe div{background:#fff!important;border-color:#bbb!important;color:#000}
+    .komut pre,.gorev p,.rol ul,.kimNe div,.asama p{color:#000!important}section{padding:16px 0;break-inside:avoid-page}
+    details.adim{break-inside:avoid}a{color:#000}
+  }
+</style>
+</head>
+<body>
+<nav class="ust"><div class="kap">
+  <b><span>OsirisZk</span> · Görev Atölyesi</b>
+  <a href="#nasil">Nasıl?</a><a href="#gorevler">Görevler</a><a href="#roller">Roller</a><a href="#rehber">Adım adım</a>
+  <a href="#yz" class="gizle">Yapay zekâ</a><a href="#kit" class="gizle">Kit</a><a href="#bilim" class="gizle">Bilim</a><a href="#degerlendirme" class="gizle">Puanlama</a><a href="#ogretmen" class="gizle">Öğretmen</a>
+  <span class="bosluk"></span><span id="seciliCip">Görev seçilmedi</span><a href="../">← Simülatörler</a>
+</div></nav>
+
+<header class="kap">
+  <h1>Bir uzay görevini<br>bir günde oyuna dönüştür.</h1>
+  <p class="alt">Takımına bir görev kartı seç: Mars'ta helikopter, Ay'da roketli iniş aracı, Titan'da uçan bir robot... Hazır <b>Görev Kiti</b> ve birkaç yapay zekâ aracının yardımıyla görevini tasarla, kodla, bilimsel olarak doğrula ve yayınla. Bu sayfa sana her adımı gösterecek.</p>
+  <div class="dugmeler">
+    <a class="dugme ana" href="#gorevler">🚀 Görev seç</a>
+    <a class="dugme ikinci" href="gorev-kiti.zip" download>⬇ Görev Kiti'ni indir (.zip)</a>
+    <a class="dugme ikinci" href="kit/" target="_blank" rel="noopener">▶ Canlı demoyu aç</a>
+  </div>
+  <div class="sayilar" id="sayilar"></div>
+  <div class="not mavi" style="margin-top:28px">👩‍🏫 Bu atölye <b>öğretmen rehberliğinde</b> yapılır. GitHub, Netlify ve yapay zekâ araçlarının hesapları öğretmenindir; bir hesaba giriş ya da yayınlama gerektiğinde öğretmenine haber ver.</div>
+</header>
+
+<!-- ============================================================ NASIL -->
+<section id="nasil"><div class="kap">
+  <span class="etiket">Genel bakış</span>
+  <h2>6 aşamada görevden oyuna</h2>
+  <p class="alt">Toplam yaklaşık 5 saat: bir okul günü ya da birkaç haftaya yayılan ders saatleri. Her aşamanın sonunda elinizde somut bir çıktı olur.</p>
+  <div class="izgara serit" id="serit"></div>
+</div></section>
+
+<!-- ============================================================ GÖREVLER -->
+<section id="gorevler"><div class="kap">
+  <span class="etiket">Aşama 1</span>
+  <h2>Görev kartları</h2>
+  <p class="alt">Bir kart seç. <b>"Bu görevi seç"</b> dediğinde, aşağıdaki yapay zekâ komutları ve rehber bu göreve göre dolar. <b>"Dene"</b> görevi oyunda açar. <b>"ayarlar.js"</b> görevin ayar dosyasını indirir: bunu kitteki <code>ayarlar.js</code> ile değiştirirsen oyunun bu görevle başlar. Kartlardaki sayılar, oyunun kendi fizik motoruyla hesaplanır.</p>
+  <div class="izgara gorevler" id="gorevKartlari"></div>
+  <div class="kart" style="margin-top:16px">
+    <h3>✏️ Ya da kendi görevini uydur</h3>
+    <p style="color:#d4dbe5;margin:6px 0">Hazır kartlardan birini başlangıç olarak al ve değiştir. İyi bir görevin 5 parçası:</p>
+    <ol style="color:#d4dbe5;font-size:15px;margin:0">
+      <li><b>Dünya:</b> Dünya, Mars, Ay, Titan ya da Europa. (Yeni bir gezegen eklemek bonus puan!)</li>
+      <li><b>Araç:</b> Havası olan yerde rotor, havası olmayan yerde roket. Gerçek bir araçtan ilham al.</li>
+      <li><b>3–5 hedef:</b> Her biri bilimsel olarak neden önemli? Hedefin adı bunu anlatsın.</li>
+      <li><b>Bir zorluk:</b> rüzgâr, süre sınırı (fırtına, gece), ışık gecikmesi ya da az yakıt.</li>
+      <li><b>Bir hikâye:</b> Oyuncu neden bu görevde? Neyi bulmaya çalışıyor?</li>
+    </ol>
+  </div>
+</div></section>
+
+<!-- ============================================================ ROLLER -->
+<section id="roller"><div class="kap">
+  <span class="etiket">Takım</span>
+  <h2>Dört rol, tek görev</h2>
+  <p class="alt">Takımlar 3–4 kişi olur. 3 kişilik takımda <b>Sunucu</b> rolü paylaşılır. Herkesin bir ana rolü vardır ama herkes her şeye yardım eder. İsimleri kitteki <code>ROLLER.md</code> dosyasına yazın ve takım sözleşmesini imzalayın.</p>
+  <div class="izgara roller" id="rolKartlari"></div>
+</div></section>
+
+<!-- ============================================================ REHBER -->
+<section id="rehber"><div class="kap">
+  <span class="etiket">Adım adım</span>
+  <h2>Rehber</h2>
+  <p class="alt">Her aşamayı aç, kimin ne yapacağını oku ve yaptıklarını işaretle. İşaretlerin bu tarayıcıda saklanır. Her aşamanın kendi yapay zekâ komutları var; seçtiğin göreve göre otomatik dolar.</p>
+  <div class="dugmeler" style="margin-bottom:10px"><button class="dugme ikinci kucuk" id="hepsiniAc">Hepsini aç</button><button class="dugme ikinci kucuk" id="isaretleriSil">İşaretleri sıfırla</button><button class="dugme ikinci kucuk" onclick="print()">🖨 Yazdır</button></div>
+  <div id="adimlar"></div>
+</div></section>
+
+<!-- ============================================================ YAPAY ZEKÂ -->
+<section id="yz"><div class="kap">
+  <span class="etiket">Yapay zekâ</span>
+  <h2>Yapay zekâyı bir takım arkadaşı gibi kullan</h2>
+  <p class="alt">Yapay zekâ çok hızlı yazar, açıklar ve kod üretir. Ama yanılabilir: özellikle sayılarda, tarihlerde ve kaynak adlarında. Bu atölyede yapay zekâ <b>serbest</b>; kullandığını yazmamak serbest değil.</p>
+  <div class="izgara" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
+    <div class="kart">
+      <h3>İyi bir komutun 5 parçası</h3>
+      <ol style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:8px 0">
+        <li><b>Kimsin?</b> "Ben bir öğrenciyim, takımımla bir uzay oyunu yapıyoruz."</li>
+        <li><b>Ne var?</b> Elindeki bilgiyi ya da kodu yapıştır.</li>
+        <li><b>Ne istiyorsun?</b> Tek ve açık bir iş iste.</li>
+        <li><b>Nasıl?</b> Biçimi söyle: tablo, adım adım, yalnızca değişen satırlar.</li>
+        <li><b>Kontrol:</b> "Kaynağını yaz", "emin değilsen söyle".</li>
+      </ol>
+      <p style="font-size:14px;color:var(--soluk);margin:0">❌ Kötü: <i>"mars oyunu yap"</i><br>✅ İyi: <i>"Ben bir öğrenciyim… ayarlar.js dosyamda hedefleri şu üç noktaya göre değiştir… alan adlarını değiştirme… değişen satırları listele."</i></p>
+    </div>
+    <div class="kart">
+      <h3>Hangi işe hangi araç?</h3>
+      <table>
+        <tr><th>İş</th><th>Araç türü</th></tr>
+        <tr><td>Bilgi bulma, açıklama, hikâye</td><td>Sohbet asistanı (ör. Claude, ChatGPT, Gemini)</td></tr>
+        <tr><td>Kod yazma, hata ayıklama</td><td>Sohbet asistanı ya da kod asistanı</td></tr>
+        <tr><td>Kapak görseli, simge</td><td>Görsel üretme aracı</td></tr>
+        <tr><td>Sayıları doğrulama</td><td><b>Yapay zekâ değil:</b> NASA, ESA, TÜBİTAK kaynakları</td></tr>
+      </table>
+      <p style="font-size:13px;color:var(--soluk);margin:8px 0 0">Araçları öğretmeninin açtığı hesaplardan, onun gözetiminde kullan.</p>
+    </div>
+    <div class="kart">
+      <h3>Altın kurallar</h3>
+      <ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:8px 0">
+        <li>Her sayıyı bir kaynakla kontrol et.</li>
+        <li>Anlamadığın kodu yapıştırma: önce "bu kodu açıkla" de.</li>
+        <li>Her kullanımı <code>YZ-GUNLUGU.md</code>'ye yaz.</li>
+        <li>Ad soyad, okul numarası, adres, telefon, fotoğraf yazma.</li>
+        <li>Yapay zekânın bir hatasını yakalamak bir başarıdır: günlüğe yaz, sunumda anlat!</li>
+      </ul>
+    </div>
+  </div>
+  <div class="kart" style="margin-top:16px">
+    <h3>🔎 Isınma oyunu: Yapay zekâ avı (10 dk)</h3>
+    <p style="color:#d4dbe5;margin:6px 0">Takımca bir yapay zekâ aracına sorun: <i>"Mars'ın yüzeyindeki yerçekimi ivmesi, hava yoğunluğu ve Dünya'dan ışık gecikmesi nedir? Kaynak ver."</i> Gelen cevabı aşağıdaki tabloyla ve NASA'nın Mars sayfasıyla karşılaştırın. Farklı olan bir şey var mı? Verdiği kaynak gerçekten var mı ve o sayıyı söylüyor mu? Bulduklarınızı günlüğe yazın.</p>
+  </div>
+  <h3 style="margin-top:26px">Tüm komutlar</h3>
+  <p class="alt" style="margin-bottom:12px">Aşamalara göre gruplanmış hazır komutlar. Seçili görev: <b id="yzSecili">yok</b> — <a href="#gorevler">görev seç</a>.</p>
+  <div class="komutlar" id="tumKomutlar"></div>
+</div></section>
+
+<!-- ============================================================ KİT -->
+<section id="kit"><div class="kap">
+  <span class="etiket">Aşama 3</span>
+  <h2>Görev Kiti</h2>
+  <p class="alt">Kit, çalışan bir 3B uçuş oyunudur. Kurulum gerektirmez; tek klasör, sade JavaScript. Oyunun her şeyi <code>ayarlar.js</code> dosyasından okunur.</p>
+  <div class="dugmeler" style="margin-bottom:18px"><a class="dugme ana" href="gorev-kiti.zip" download>⬇ Kiti indir (.zip)</a><a class="dugme ikinci" href="kit/" target="_blank" rel="noopener">▶ Canlı demo</a><a class="dugme ikinci" href="kit/README.md" target="_blank" rel="noopener">📄 README</a></div>
+  <div class="tablo"><table id="dosyaTablosu"></table></div>
+  <h3 style="margin-top:26px">Oyunu bilgisayarında çalıştır</h3>
+  <div class="izgara" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">
+    <div class="kart"><span class="rozet">önerilen</span><h3>VS Code + Live Server</h3><ol style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:6px 0">
+      <li>Zip'i çıkar, VS Code'da <i>File → Open Folder</i> ile <code>gorev-kiti</code> klasörünü aç.</li>
+      <li>Eklentilerden <b>Live Server</b>'ı kur (öğretmen önceden kurabilir).</li>
+      <li><code>index.html</code>'e sağ tıkla → <b>Open with Live Server</b>.</li>
+      <li><code>ayarlar.js</code>'i değiştirip <kbd>Ctrl</kbd>+<kbd>S</kbd>: oyun kendiliğinden yenilenir.</li></ol></div>
+    <div class="kart"><h3>Komut satırı</h3><p style="font-size:15px;color:#d4dbe5;margin:6px 0">Klasörün içinde:</p><div class="formul">python -m http.server 8000</div><p style="font-size:15px;color:#d4dbe5;margin:6px 0">ya da</p><div class="formul">npx serve .</div><p style="font-size:14px;color:var(--soluk);margin:6px 0">Sonra tarayıcıda <code>http://localhost:8000</code>.</p></div>
+    <div class="kart"><h3>⚠ Çift tıklama çalışmaz</h3><p style="font-size:15px;color:#d4dbe5;margin:6px 0"><code>index.html</code>'e çift tıklarsan tarayıcı güvenlik nedeniyle oyunu açmaz ve kırmızı bir uyarı gösterir. Yukarıdaki yollardan birini kullan. Oyun, 3B kütüphanesini internetten indirdiği için internet bağlantısı gerekir.</p></div>
+  </div>
+  <h3 style="margin-top:26px">İlk 10 dakika: ısınma</h3>
+  <div class="kart"><ol style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:0">
+    <li><b>Renk:</b> <code>arac → renk</code> değerini <code>"#ff4fa0"</code> yap. Helikopter pembe oldu mu?</li>
+    <li><b>Başlık:</b> <code>baslik</code> satırına takımınızın görev adını yaz.</li>
+    <li><b>Yeni hedef:</b> <code>hedefler</code> listesindeki bir satırı kopyala, adını ve <code>x</code>, <code>z</code> değerlerini değiştir. Haritada yeni halka çıktı mı?</li>
+    <li><b>Deney:</b> <code>gezegen: "mars"</code> yerine <code>"dunya"</code> yaz. Giriş ekranındaki "İtki / ağırlık" ve "Askıda kalma gücü" neden değişti? Tartışın, sonra geri alın.</li>
+    <li><b>Hata kutusu:</b> Bilerek bir virgül sil, kaydet, kırmızı kutuyu oku. Virgülü geri koy. Hata kutusu sana neyin bozulduğunu söyler; ondan korkma.</li>
+  </ol></div>
+</div></section>
+
+<!-- ============================================================ BİLİM -->
+<section id="bilim"><div class="kap">
+  <span class="etiket">Bilim köşesi</span>
+  <h2>Uçabilir mi? Hesapla!</h2>
+  <p class="alt">Oyunun fizik motoru gerçek denklemlerin sadeleştirilmiş hâllerini kullanır. Aşağıdaki hesaplayıcı aynı motoru çalıştırır: değerleri değiştir, aracın uçup uçamayacağını gör.</p>
+  <div class="izgara hesap">
+    <div class="kart" id="hesapGirdi"></div>
+    <div class="kart"><div class="sonuc" id="hesapSonuc"></div><div id="hesapKarar"></div></div>
+  </div>
+  <div class="izgara" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin-top:16px">
+    <div class="kart"><h3>1. Ağırlık</h3><div class="formul">W = m × g</div><p style="font-size:14px;color:#d4dbe5;margin:0">Kütle (m) her yerde aynıdır; ağırlık yerçekimine (g) bağlıdır. 1,8 kg'lık Ingenuity Dünya'da 17,7 N, Mars'ta yalnızca 6,7 N ağırlığındadır.</p></div>
+    <div class="kart"><h3>2. Rotor itkisi</h3><div class="formul">T = C<sub>T</sub> × ρ × A × v<sub>uç</sub>²</div><p style="font-size:14px;color:#d4dbe5;margin:0">İtki hava yoğunluğuyla (ρ) doğru orantılıdır. Mars'ın havası ~60 kat seyrek olduğundan aynı rotor ~60 kat az itki üretir. Çözüm: dev rotor (A) ve hızlı uç (v). Havası olmayan yerde ρ = 0 → T = 0.</p></div>
+    <div class="kart"><h3>3. Rotor gücü</h3><div class="formul">P = T × √(T ÷ 2ρA) ÷ verim</div><p style="font-size:14px;color:#d4dbe5;margin:0">Seyrek havada aynı itki için çok daha fazla güç gerekir. Mars helikopteri askıda ~300 W harcar; bu da bataryayı dakikalar içinde bitirir.</p></div>
+    <div class="kart"><h3>4. Roket</h3><div class="formul">yakıt tüketimi = T ÷ (Isp × g₀)</div><p style="font-size:14px;color:#d4dbe5;margin:0">Roket havaya ihtiyaç duymaz: kendi yakıtını geriye atarak ileri itilir. Isp (özgül itki) büyükse yakıt daha verimli kullanılır. Hava direnci olmadığı için durmak da roketle olur!</p></div>
+  </div>
+  <h3 style="margin-top:26px">Dünyaları karşılaştır</h3>
+  <div class="tablo"><table id="gezegenTablosu"></table></div>
+  <p style="font-size:13px;color:var(--soluk)">Değerler kitteki <code>gezegenler.js</code> dosyasından gelir. Bilim danışmanı her birini kaynağıyla kontrol etmeli.</p>
+</div></section>
+
+<!-- ============================================================ DEĞERLENDİRME -->
+<section id="degerlendirme"><div class="kap">
+  <span class="etiket">Puanlama</span>
+  <h2>Nasıl değerlendirileceksiniz? (100 puan)</h2>
+  <p class="alt">Sunumdan önce takımınızı bu tabloyla kendiniz puanlayın. Her ölçütün puanı: <code>seviye ÷ 4 × ölçüt puanı</code>.</p>
+  <div class="tablo"><table id="rubrik"></table></div>
+  <div class="izgara" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin-top:16px">
+    <div class="kart"><h3>Sunumda sorulabilecekler</h3><ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:6px 0">
+      <li>Aracınız neden bu gezegende uçabiliyor (ya da uçamıyor)?</li><li>Yapay zekânın verdiği bir bilgiyi nasıl doğruladınız?</li>
+      <li>Kodun hangi kısmını siz yazdınız? Bu satır ne yapıyor?</li><li>Gerçek bir görevde ışık gecikmesi neden sorun olur?</li><li>Bir gün daha olsaydı neyi değiştirirdiniz?</li></ul></div>
+    <div class="kart"><h3>Bonus (en çok +10)</h3><ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:6px 0">
+      <li>Ses efekti, yeni bir araç modeli ya da yeni bir gezegen eklemek (+5)</li>
+      <li>Aracı bilimsel olarak iyileştirip puan farkını ölçmek (+5)</li></ul></div>
+  </div>
+</div></section>
+
+<!-- ============================================================ SÖZLÜK -->
+<section id="sozluk"><div class="kap">
+  <span class="etiket">Sözlük</span>
+  <h2>Bilmen gereken 16 kavram</h2>
+  <div class="tablo"><table id="sozlukTablo"></table></div>
+</div></section>
+
+<!-- ============================================================ ÖĞRETMEN -->
+<section id="ogretmen"><div class="kap">
+  <span class="etiket">Öğretmen için</span>
+  <h2>Hazırlık ve uygulama notları</h2>
+  <div class="izgara" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">
+    <div class="kart"><h3>Bir gün önce</h3><div class="liste" id="ogretmenListe"></div></div>
+    <div class="kart"><h3>İki uygulama planı</h3>
+      <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Tek gün (hackathon öncesi / kamp):</b> 09:00 açılış ve ısınma · 09:30 Aşama 1–2 · 10:45 ara · 11:00 Aşama 3–4 · 12:30 öğle · 13:15 Aşama 4 devam · 14:30 Aşama 5 · 15:15 Aşama 6 ve sunumlar.</p>
+      <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Üç hafta (haftada 2 ders saati):</b> 1. hafta Aşama 1–2 · 2. hafta Aşama 3–4 · 3. hafta Aşama 5–6 ve sunum. Tasarım belgesi ve günlük ara teslim olarak kontrol edilebilir.</p></div>
+    <div class="kart"><h3>Yayınlama seçenekleri</h3>
+      <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Hızlı:</b> Netlify → <i>Add new project → Deploy manually</i>, takımın <code>gorev-kiti</code> klasörünü sürükle-bırak. Her takıma ayrı proje adı verin (ör. <code>gorev-takim-3</code>).</p>
+      <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Sürekli:</b> Her takıma bir GitHub reposu, Netlify o repoya bağlı. Takım her push'ta siteyi günceller; commit geçmişi süreç değerlendirmesi için kanıt olur. <code>netlify.toml</code> hazırdır.</p></div>
+    <div class="kart"><h3>Gizlilik ve güvenlik</h3><ul style="font-size:14px;color:#d4dbe5;padding-left:18px;margin:6px 0">
+      <li>Yapay zekâ ve barındırma hesapları öğretmenindir; öğrenciler kendi hesaplarını açmaz.</li>
+      <li>Yapay zekâ araçlarının çoğunun yaş sınırı vardır; bu yüzden kullanım öğretmen gözetiminde olur.</li>
+      <li>Öğrencilerin yapay zekâya kişisel bilgi ve fotoğraf girmemesini hatırlatın.</li>
+      <li>Yayınlanan sitelerde öğrenci tam adı yerine takım adı kullanın.</li></ul></div>
+  </div>
+</div></section>
+
+<footer class="kap">
+  OsirisZk · Görev Atölyesi — Altıeylül BİLSEM. Kitteki araziler temsilidir (prosedüreldir); bilimsel değerler <code>gezegenler.js</code> dosyasında kaynaklarıyla birlikte verilmiştir.
+  <br><a href="../">← Dünya ve Mars simülatörlerine dön</a>
+</footer>
+<div id="bildirim" role="status"></div>
+
+<script type="module">
+import { GOREVLER, ayarlarDosyasi } from './kit/gorevler.js';
+import { KOMUTLAR, ASAMALAR, komutuDoldur } from './kit/komutlar.js';
+import { GEZEGENLER } from './kit/gezegenler.js';
+import { aracOzeti, ortam } from './kit/fizik.js';
+
+const $ = s => document.querySelector(s);
+const sayi = (v, b = 1) => (+v).toLocaleString('tr-TR', { minimumFractionDigits: b, maximumFractionDigits: b });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const depo = { al(k, v) { try { const x = localStorage.getItem('atolye:' + k); return x == null ? v : JSON.parse(x); } catch { return v; } },
+               koy(k, v) { try { localStorage.setItem('atolye:' + k, JSON.stringify(v)); } catch {} } };
+function bildir(m) { const b = $('#bildirim'); b.textContent = m; b.classList.add('on'); clearTimeout(bildir.t); bildir.t = setTimeout(() => b.classList.remove('on'), 2200); }
+async function kopyala(metin) {
+  try { await navigator.clipboard.writeText(metin); bildir('Kopyalandı ✓ Yapay zekâ aracına yapıştır.'); }
+  catch { const t = document.createElement('textarea'); t.value = metin; document.body.append(t); t.select(); try { document.execCommand('copy'); bildir('Kopyalandı ✓'); } catch { bildir('Kopyalanamadı: metni elle seç.'); } t.remove(); }
+}
+function indir(ad, metin) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([metin], { type: 'text/javascript;charset=utf-8' })); a.download = ad; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+
+let secili = depo.al('secili', null);
+if (secili && !GOREVLER[secili]) secili = null;
+
+$('#sayilar').innerHTML = [[Object.keys(GOREVLER).length, 'hazır görev'], [4, 'takım rolü'], [ASAMALAR.length, 'aşama'], [KOMUTLAR.length, 'yapay zekâ komutu'], [Object.keys(GEZEGENLER).length, 'dünya']].map(([s, a]) => `<div><b>${s}</b>${a}</div>`).join('');
+
+// ---------------------------------------------------------------- aşama şeridi + rehber içeriği
+const REHBER = {
+  1: { amac: 'Görevinizi seçin ve o dünyayı tanıyın. Henüz kod yok!',
+       kim: { 'Tüm takım': 'Görev kartlarını okuyup birini seçer ya da kendi görevini uydurur.', 'Bilim danışmanı': 'Gezegenin yerçekimi, havası ve ışık gecikmesini kaynağıyla bulur.', 'Tasarımcı': 'O dünyaya gitmiş gerçek araçları araştırır.', 'Sunucu': 'YZ-GUNLUGU.md\'yi açar, ilk kayıtları tutar.' },
+       yap: ['Takım olarak 3–4 kişiyle oturun, rolleri dağıtın', 'Görev kartlarını okuyun ve birini seçin ("Bu görevi seç")', 'Seçtiğiniz görevi "Dene" ile bir kez oynayın', '"Gezegeni tanı" komutunu kullanın ve cevabı gezegenler.js ile karşılaştırın', '"Gerçek görevleri öğren" komutunu kullanın, ilham alacağınız aracı seçin', 'Yapay zekâ kullanımlarını günlüğe yazın'],
+       cikti: 'Seçilmiş görev · dolu ROLLER.md · günlükte en az 2 kayıt',
+       takildin: 'Karar veremiyor musunuz? Zorluğu ★ olan bir görevle başlayın; sonra kendinize ait bir değişiklik eklersiniz.' },
+  2: { amac: 'Görevi kâğıt üzerinde tasarlayın. Gerçek uzay ajansları da önce tasarlar, sonra üretir.',
+       kim: { 'Tasarımcı': 'Hikâyeyi yazar, hedefleri kâğıt haritaya yerleştirir.', 'Bilim danışmanı': 'Aracın kütlesini ve gücünü tahmin eder, ağırlığı elle hesaplar.', 'Kodcu': 'Tasarımın kitte nasıl karşılık bulacağını düşünür: hangi ayar neyi değiştirir?', 'Sunucu': 'Kararları tasarım belgesine işler.' },
+       yap: ['GOREV-TASARIMI.md\'nin 1. bölümünü (görev özeti, hikâye) doldurun', '2. bölümdeki dünya tablosunu kaynaklarıyla doldurun', 'Kâğıda harita çizin: üs ortada, her kare 100 m', '3–5 hedefi haritaya yerleştirip x, z değerlerini tabloya yazın', 'Aracın ağırlığını hesap makinesiyle bulun (3. bölüm)', 'Bir zorluk seçin: rüzgâr, süre, gecikme ya da az yakıt (5. bölüm)'],
+       cikti: 'Dolu tasarım belgesi (bölüm 1–5) · kâğıt harita',
+       takildin: 'Hedeflerin yerini bilemiyorsanız: üsse 80–200 m uzaklıkta, farklı yönlerde olsunlar. Çok uzak hedef = batarya biter.' },
+  3: { amac: 'Kiti bilgisayarda çalıştırın ve tanıyın.',
+       kim: { 'Kodcu': 'Kiti indirir, VS Code + Live Server ile açar.', 'Tüm takım': 'Isınma alıştırmalarını sırayla yapar.', 'Bilim danışmanı': 'fizik.js\'teki açıklamaları okur.', 'Sunucu': 'İlk test uçuşunun raporunu kaydeder.' },
+       yap: ['Kiti indirin ve zip\'ten çıkarın', 'VS Code + Live Server ile oyunu açın (Kit bölümüne bakın)', 'Isınma 1–5\'i sırayla yapın', '"Kiti anla" komutuyla ayarlar.js\'i yapay zekâya açıklatın', 'Hazır görevi bir kez oynayın ve uçuş raporunu kopyalayın'],
+       cikti: 'Bilgisayarda çalışan kit · ilk uçuş raporu',
+       takildin: 'Oyun açılmıyorsa: dosyaya çift tıklamış olabilirsiniz (çalışmaz) ya da internet yok. Kırmızı kutudaki yazıyı okuyun.' },
+  4: { amac: 'Tasarımınızı oyuna dönüştürün. Yapay zekâ en çok burada yardımcı olur.',
+       kim: { 'Kodcu': 'ayarlar.js\'i günceller, yeni özellikleri ekler, hataları ayıklar.', 'Tasarımcı': 'Görünüşü düzenler, kapak görseli hazırlar.', 'Bilim danışmanı': 'Oyuna giren her sayıyı onaylar.', 'Sunucu': 'Her yapay zekâ kullanımını günlüğe yazar.' },
+       yap: ['Önce ayarlar.js\'in bir yedeğini alın (ayarlar-yedek.js)', '"Görevi ayarlar.js\'e yaz" komutuyla görevinizi işleyin', 'Değişen satırlar listesini takımca okuyun; bilim danışmanı onaylasın', 'Oyunu açın: giriş ekranında aracınız "uçabilir" mi?', 'Kitte olmayan en az bir yeni özellik ekleyin ("Yeni özellik ekle")', 'Her hatada "Hata ayıkla" komutunu kullanın ve nedenini anlayın', 'İsterseniz kapak görseli üretin'],
+       cikti: 'Kendi görevinizle çalışan oyun · en az bir yeni özellik · güncel günlük',
+       takildin: 'Her şey bozulduysa yedeği geri koyun. Bir seferde tek değişiklik yapın, kaydedin, deneyin.' },
+  5: { amac: 'Oyunu test edin ve bilimsel olarak doğrulayın.',
+       kim: { 'Tüm takım': 'Oyunu sırayla en az 3 kez oynar.', 'Bilim danışmanı': 'Giriş ekranındaki değerleri elle hesaplananlarla karşılaştırır.', 'Kodcu': 'Testte bulunan hataları düzeltir.', 'Sunucu': 'Uçuş raporlarını tasarım belgesine yapıştırır.' },
+       yap: ['En az 3 test uçuşu yapın, raporları 7. bölüme yapıştırın', 'Denemeler arasında bir şeyi değiştirin (ör. batarya) ve sonucu karşılaştırın', '"Sonuçları yorumla" komutuyla fizik formüllerini anlayın', 'Yapay zekânın verdiği her sayıyı kaynakla kontrol edin ("Yapay zekâyı denetle")', 'Yapay zekânın yanıldığı bir yer bulduysanız günlüğe yazın', 'Değerlendirme tablosuyla takımınızı puanlayın'],
+       cikti: '3 uçuş raporu · kaynaklı sayılar · kendi puanlamanız',
+       takildin: 'Görev çok mu zor? Hedefleri yaklaştırın ya da bataryayı büyütün; ama bunu neden yaptığınızı yazın.' },
+  6: { amac: 'Görevinizi yayınlayın ve anlatın.',
+       kim: { 'Öğretmen': 'Projeyi Netlify\'da yayınlar ve adresi verir.', 'Sunucu': 'Sunumu yönetir, süreyi tutar.', 'Tüm takım': 'Herkes kendi rolünü anlatır.', 'Bilim danışmanı': 'Bilim sorularına cevap verir.' },
+       yap: ['Klasörü öğretmene teslim edin (zip ya da repo)', 'Yayın adresini açıp oyunu bir kez oynayın', '"Sunum planı" komutuyla 5 dakikalık planı çıkarın', '"Jüri soruları" komutuyla zor sorulara hazırlanın', 'Süre tutarak bir prova yapın', 'Tasarım belgesinin 8. bölümünü (ne öğrendik) doldurun'],
+       cikti: 'Yayındaki oyun · 5 dakikalık sunum · tamamlanmış belgeler',
+       takildin: 'Sunumda canlı demo çalışmazsa diye oyunun bir ekran görüntüsünü ya da kısa videosunu hazır tutun.' },
+};
+$('#serit').innerHTML = ASAMALAR.map(a => `<div class="kart asama"><div class="no">${a.no}</div><h3>${a.ad}</h3><div class="sure">${a.sure}</div><p>${REHBER[a.no].cikti}</p></div>`).join('');
+
+// ---------------------------------------------------------------- görev kartları
+function ozetSatirlari(g) {
+  const o = aracOzeti(g), ort = ortam(g), roket = g.arac.tip === 'roket';
+  return [
+    ['Dünya', `<span class="gezegenRenk" style="background:${ort.zemin1}"></span>${esc(ort.ad)}`],
+    ['Araç', esc(g.arac.ad)],
+    ['İtki / ağırlık', sayi(o.itkiAgirlikOrani, 2)],
+    ['Askıda kalma', `${sayi(o.askidaKalmaSuresi_s / 60, 1)} dk ${roket ? '(yakıtla)' : `(${sayi(o.askidaGuc_W, 0)} W)`}`],
+    ['Hedef', `${g.hedefler.length}${g.sureSiniri_s ? ` · süre ${sayi(g.sureSiniri_s / 60, 1)} dk` : ''}${g.gecikme_s ? ` · gecikme ${sayi(g.gecikme_s, 1)} s` : ''}${g.ruzgar?.artis_m_s_dk ? ' · artan rüzgâr' : ''}`],
+  ];
+}
+function kartlar() {
+  $('#gorevKartlari').innerHTML = Object.values(GOREVLER).map(g => `
+    <article class="kart gorev ${secili === g.kimlik ? 'secili' : ''}" data-id="${g.kimlik}">
+      <div class="ust"><span class="zor" title="zorluk">${'★'.repeat(g.zorluk)}<span style="opacity:.25">${'★'.repeat(3 - g.zorluk)}</span></span><span class="rozet">${g.arac.tip === 'roket' ? '🚀 roket' : '🚁 rotor'}</span></div>
+      <h3>${esc(g.baslik)}</h3>
+      <p>${esc(g.hikaye)}</p>
+      <dl>${ozetSatirlari(g).map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>
+      <p class="gercek">🛰 ${esc(g.gercekGorev)}</p>
+      <div class="dugmeler">
+        <button class="dugme ${secili === g.kimlik ? 'ana' : 'ikinci'} kucuk" data-sec="${g.kimlik}">${secili === g.kimlik ? '✓ Seçili' : 'Bu görevi seç'}</button>
+        <a class="dugme ikinci kucuk" href="kit/?gorev=${g.kimlik}" target="_blank" rel="noopener">▶ Dene</a>
+        <button class="dugme ikinci kucuk" data-indir="${g.kimlik}" title="Kitteki ayarlar.js ile değiştir">⬇ ayarlar.js</button>
+      </div>
+    </article>`).join('');
+}
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-sec]'); if (s) { secili = s.dataset.sec; depo.koy('secili', secili); hepsiniCiz(); bildir(`Seçildi: ${GOREVLER[secili].baslik}. Komutlar bu göreve göre doldu.`); }
+  const i = e.target.closest('[data-indir]'); if (i) { indir('ayarlar.js', ayarlarDosyasi(GOREVLER[i.dataset.indir])); bildir('ayarlar.js indirildi: kit klasöründeki dosyanın yerine koy.'); }
+  const k = e.target.closest('[data-kopyala]'); if (k) kopyala(k.closest('.komut').querySelector('pre').textContent);
+});
+
+// ---------------------------------------------------------------- roller
+const ROLLER = [
+  { ikon: '🎨', ad: 'Tasarımcı', is: ['Görevin hikâyesini yazar', 'Hedefleri kâğıt haritaya yerleştirir', 'Aracın rengini, arazinin görünüşünü seçer', 'Kapak görseli hazırlar'], dosya: 'GOREV-TASARIMI.md (1, 4, 6) · ayarlar.js (hikâye, hedefler) · index.html' },
+  { ikon: '💻', ad: 'Kodcu', is: ['Kiti bilgisayarda çalıştırır', 'Değişiklikleri koda işler', 'Yapay zekâdan kod ister ama anlamadan yapıştırmaz', 'Kırmızı hata kutusunu okuyup düzeltir'], dosya: 'ayarlar.js · oyun.js · gerekirse fizik.js, arazi.js' },
+  { ikon: '🔬', ad: 'Bilim danışmanı', is: ['Gezegen ve araç için gerçek sayıları bulur', 'Yapay zekânın verdiği her sayıyı kaynakla doğrular', 'Ağırlığı ve itkiyi elle hesaplar, oyunla karşılaştırır', 'Bilim sorularını cevaplar'], dosya: 'GOREV-TASARIMI.md (2, 3) · gezegenler.js · ayarlar.js (araç)' },
+  { ikon: '🎤', ad: 'Sunucu ve kayıtçı', is: ['Yapay zekâ günlüğünü tutar', 'Test uçuşlarının raporlarını kaydeder', '5 dakikalık sunumu hazırlar', 'Takımı sunuma çalıştırır'], dosya: 'YZ-GUNLUGU.md · GOREV-TASARIMI.md (7, 8)' },
+];
+$('#rolKartlari').innerHTML = ROLLER.map(r => `<div class="kart rol"><div class="ikon">${r.ikon}</div><h3>${r.ad}</h3><ul>${r.is.map(x => `<li>${x}</li>`).join('')}</ul><div class="dosya">📁 ${r.dosya}</div></div>`).join('');
+
+// ---------------------------------------------------------------- komut kartı
+function gorevBaglami() {
+  if (!secili) return { gorev: null, gezegenAdi: null };
+  const g = structuredClone(GOREVLER[secili]); const ort = ortam(g); g._g = sayi(ort.g, 2);
+  return { gorev: g, gezegenAdi: ort.ad };
+}
+function komutKarti(k, n) {
+  const { gorev, gezegenAdi } = gorevBaglami();
+  return `<div class="komut"><div class="kb"><span class="rozet">${k.rol}</span><b>${k.baslik}</b><button class="dugme ana kucuk" data-kopyala>📋 Kopyala</button></div><pre>${esc(komutuDoldur(k.metin, gorev, gezegenAdi))}</pre><div class="ipucu">💡 ${esc(k.ipucu)}</div></div>`;
+}
+
+// ---------------------------------------------------------------- rehber
+let isaretler = depo.al('isaretler', {});
+function adimlar() {
+  const acik = new Set([...document.querySelectorAll('details.adim[open]')].map(d => d.dataset.no));
+  $('#adimlar').innerHTML = ASAMALAR.map(a => {
+    const r = REHBER[a.no], toplam = r.yap.length, yapilan = r.yap.filter((_, i) => isaretler[`${a.no}.${i}`]).length;
+    return `<details class="adim" data-no="${a.no}" ${acik.has(String(a.no)) ? 'open' : ''}>
+      <summary><span class="no">${a.no}</span><span class="bas"><h3>${a.ad}</h3><small>${a.sure} · ${r.amac}</small></span><span class="ilerleme">${yapilan}/${toplam} ✓</span><span class="ok">▶</span></summary>
+      <div class="adimIcerik">
+        <div><h4>Kim ne yapar?</h4><div class="kimNe">${Object.entries(r.kim).map(([k, v]) => `<div><b>${k}</b>${v}</div>`).join('')}</div></div>
+        <div><h4>Yapılacaklar</h4><div class="liste">${r.yap.map((y, i) => { const id = `${a.no}.${i}`; return `<label class="${isaretler[id] ? 'tamam' : ''}"><input type="checkbox" data-isaret="${id}" ${isaretler[id] ? 'checked' : ''}><span>${y}</span></label>`; }).join('')}</div></div>
+        <div class="cikti">📦 <b>Bu aşamanın çıktısı:</b> ${r.cikti}</div>
+        <div><h4>Yapay zekâ komutları</h4>${secili ? '' : '<div class="not">Henüz görev seçmedin: komutlardaki {süslü parantezli} yerler boş kaldı. <a href="#gorevler">Görev seç</a>.</div>'}<div class="komutlar">${KOMUTLAR.filter(k => k.asama === a.no).map(komutKarti).join('')}</div></div>
+        <div class="not mavi">🧭 <b>Takıldıysan:</b> ${r.takildin}</div>
+      </div></details>`;
+  }).join('');
+}
+document.addEventListener('change', e => {
+  const c = e.target.closest('[data-isaret]'); if (!c) return;
+  isaretler[c.dataset.isaret] = c.checked; depo.koy('isaretler', isaretler);
+  c.closest('label').classList.toggle('tamam', c.checked);
+  const no = c.dataset.isaret.split('.')[0], r = REHBER[no];
+  c.closest('details').querySelector('.ilerleme').textContent = `${r.yap.filter((_, i) => isaretler[`${no}.${i}`]).length}/${r.yap.length} ✓`;
+});
+$('#hepsiniAc').onclick = () => { const d = document.querySelectorAll('details.adim'), ac = [...d].some(x => !x.open); d.forEach(x => x.open = ac); $('#hepsiniAc').textContent = ac ? 'Hepsini kapat' : 'Hepsini aç'; };
+$('#isaretleriSil').onclick = () => { if (confirm('Rehberdeki bütün işaretler silinsin mi?')) { isaretler = {}; depo.koy('isaretler', isaretler); adimlar(); } };
+addEventListener('beforeprint', () => document.querySelectorAll('details.adim').forEach(d => d.open = true));
+
+// ---------------------------------------------------------------- tüm komutlar
+function tumKomutlar() {
+  $('#yzSecili').textContent = secili ? GOREVLER[secili].baslik : 'yok';
+  $('#tumKomutlar').innerHTML = ASAMALAR.map(a => `<h3 style="margin:14px 0 0">Aşama ${a.no} · ${a.ad}</h3>${KOMUTLAR.filter(k => k.asama === a.no).map(komutKarti).join('')}`).join('');
+}
+
+// ---------------------------------------------------------------- kit dosya tablosu
+const DOSYALAR = [
+  ['ayarlar.js', 'Görevin tamamı: hikâye, gezegen, araç, hedefler, rüzgâr, süre', 'Herkes', '✅ En çok burayı değiştireceksiniz'],
+  ['gezegenler.js', 'Gezegenlerin bilimsel verileri', 'Bilim danışmanı', '⚠️ Yalnızca kaynağını yazarak'],
+  ['fizik.js', 'Aracın nasıl uçtuğunu hesaplayan denklemler', 'Bilim + Kodcu', '⚠️ Anlayarak, test ederek'],
+  ['arazi.js', 'Zemini (tepeler, kraterler) matematikle üretir', 'Tasarımcı + Kodcu', '✅ İsterseniz'],
+  ['oyun.js', 'Ekrana çizim, tuşlar, menüler (three.js)', 'Kodcu', '✅ "ÖĞRENCİ:" yazan yerler'],
+  ['index.html', 'Sayfanın iskeleti ve görünüşü', 'Tasarımcı', '✅ İsterseniz'],
+  ['GOREV-TASARIMI.md', 'Takımın tasarım belgesi', 'Tüm takım', '✅ Doldurulacak'],
+  ['ROLLER.md', 'Görev dağılımı ve takım sözleşmesi', 'Tüm takım', '✅ Doldurulacak'],
+  ['YZ-GUNLUGU.md', 'Yapay zekâ kullanım kaydı', 'Sunucu', '✅ Her kullanımda'],
+  ['KOMUTLAR.md', 'Bu sayfadaki komutların çevrimdışı kopyası', '—', 'Okuyun'],
+  ['DEGERLENDIRME.md', 'Puanlama tablosu', '—', 'Okuyun'],
+  ['gorevler.js · komutlar.js · netlify.toml', 'Hazır görevler, komutlar, yayın ayarı', '—', '❌ Gerek yok'],
+];
+$('#dosyaTablosu').innerHTML = `<tr><th>Dosya</th><th>Ne işe yarar?</th><th>Sorumlu</th><th>Değiştirmeli miyim?</th></tr>` + DOSYALAR.map(r => `<tr><td><code>${r[0]}</code></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+
+// ---------------------------------------------------------------- hesaplayıcı
+const H = depo.al('hesap', { gezegen: 'mars', tip: 'rotor', kutle_kg: 1.8, rotorAlani_m2: 2.26, ucHizi_m_s: 150, rotorVerimi: 0.2, avyonikGucu_W: 20, batarya_Wh: 30, kuruKutle_kg: 300, yakit_kg: 150, maksItki_N: 1500, isp_s: 300 });
+const ALANLAR = {
+  rotor: [['kutle_kg', 'Kütle (kg)', 0.1], ['rotorAlani_m2', 'Rotor alanı (m²)', 0.01], ['ucHizi_m_s', 'Uç hızı (m/s)', 5], ['rotorVerimi', 'Rotor verimi (0–1)', 0.05], ['avyonikGucu_W', 'Sürekli güç (W)', 1], ['batarya_Wh', 'Batarya (Wh)', 1]],
+  roket: [['kuruKutle_kg', 'Kuru kütle (kg)', 10], ['yakit_kg', 'Yakıt (kg)', 5], ['maksItki_N', 'En büyük itki (N)', 50], ['isp_s', 'Özgül itki Isp (s)', 10]],
+};
+function hesapGirdi() {
+  $('#hesapGirdi').innerHTML = `<h3>Aracını tasarla</h3>
+    <div class="alan"><label>Dünya</label><select data-h="gezegen">${Object.entries(GEZEGENLER).map(([k, g]) => `<option value="${k}" ${H.gezegen === k ? 'selected' : ''}>${g.ad}</option>`).join('')}</select></div>
+    <div class="alan"><label>Araç tipi</label><select data-h="tip"><option value="rotor" ${H.tip === 'rotor' ? 'selected' : ''}>🚁 rotor</option><option value="roket" ${H.tip === 'roket' ? 'selected' : ''}>🚀 roket</option></select></div>
+    ${ALANLAR[H.tip].map(([k, ad, adim]) => `<div class="alan"><label>${ad}</label><input type="number" step="${adim}" min="0" value="${H[k]}" data-h="${k}"></div>`).join('')}
+    <div class="dugmeler" style="margin-top:10px"><button class="dugme ikinci kucuk" id="ornekIng">Ingenuity</button><button class="dugme ikinci kucuk" id="ornekAy">Ay iniş aracı</button></div>`;
+  $('#ornekIng').onclick = () => { Object.assign(H, { gezegen: 'mars', tip: 'rotor', kutle_kg: 1.8, rotorAlani_m2: 2.26, ucHizi_m_s: 150, rotorVerimi: 0.2, avyonikGucu_W: 20, batarya_Wh: 30 }); hesapGirdi(); hesapla(); };
+  $('#ornekAy').onclick = () => { Object.assign(H, { gezegen: 'ay', tip: 'roket', kuruKutle_kg: 300, yakit_kg: 150, maksItki_N: 1500, isp_s: 300 }); hesapGirdi(); hesapla(); };
+}
+document.addEventListener('input', e => {
+  const k = e.target.dataset?.h; if (!k) return;
+  H[k] = e.target.tagName === 'SELECT' ? e.target.value : parseFloat(e.target.value);
+  depo.koy('hesap', H); if (k === 'tip') hesapGirdi(); hesapla();
+});
+function hesapla() {
+  const arac = H.tip === 'roket' ? { tip: 'roket', kuruKutle_kg: H.kuruKutle_kg, yakit_kg: H.yakit_kg, maksItki_N: H.maksItki_N, isp_s: H.isp_s }
+    : { tip: 'rotor', kutle_kg: H.kutle_kg, rotorAlani_m2: H.rotorAlani_m2, ucHizi_m_s: H.ucHizi_m_s, rotorVerimi: H.rotorVerimi, avyonikGucu_W: H.avyonikGucu_W, batarya_Wh: H.batarya_Wh };
+  const gecerli = Object.entries(arac).every(([k, v]) => typeof v === 'string' || (Number.isFinite(v) && (v > 0 || (k === 'avyonikGucu_W' && v >= 0))))
+    && (arac.tip !== 'rotor' || arac.rotorVerimi <= 1);
+  if (!gecerli) { $('#hesapSonuc').innerHTML = '<p>Bütün değerler pozitif sayı olmalı.</p>'; $('#hesapKarar').innerHTML = ''; return; }
+  const g = { gezegen: H.gezegen, arac, hedefler: [] }, o = aracOzeti(g), ort = ortam(g);
+  const s = [['Ağırlık (m × g)', `${sayi(o.agirlik_N, 1)} N`], ['En büyük itki', `${sayi(o.maksItki_N, 1)} N`], ['İtki / ağırlık', sayi(o.itkiAgirlikOrani, 2)]];
+  if (H.tip === 'roket') s.push(['Hız değişimi bütçesi (Δv)', `${sayi(o.deltaV_m_s, 0)} m/s`], ['Askıda kalma süresi', `${sayi(o.askidaKalmaSuresi_s / 60, 1)} dk`]);
+  else s.push(['Askıda kalma gücü', `${sayi(o.askidaGuc_W, 0)} W`], ['Askıda kalma süresi', o.ucabilir ? `${sayi(o.askidaKalmaSuresi_s / 60, 1)} dk` : '—'], ['Uç Mach sayısı', ort.sesHizi_m_s ? sayi(o.ucMach, 2) : '—']);
+  $('#hesapSonuc').innerHTML = `<h3>Sonuç · ${esc(ort.ad)}</h3>` + s.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
+  let karar;
+  if (H.tip === 'rotor' && ort.rho0 <= 0) karar = `<div class="karar kotu">✗ ${esc(ort.ad)} üzerinde hava yok: rotor itki üretemez. Roket seç.</div>`;
+  else if (!o.ucabilir) karar = `<div class="karar kotu">✗ Kalkamaz: itki ağırlıktan küçük (oran ${sayi(o.itkiAgirlikOrani, 2)}). ${H.tip === 'rotor' ? 'Rotor alanını ya da uç hızını büyüt, kütleyi azalt.' : 'İtkiyi artır ya da aracı hafiflet.'}</div>`;
+  else if (H.tip === 'rotor' && o.ucMach > 0.8) karar = `<div class="karar kotu">⚠ Uçar ama rotor uçları ses hızına çok yakın (Mach ${sayi(o.ucMach, 2)}). Gerçekte verim düşer ve titreşim artar; uç hızını azaltıp rotoru büyüt.</div>`;
+  else if (o.itkiAgirlikOrani < 1.3) karar = `<div class="karar kotu">⚠ Ancak uçar: itki ağırlığın yalnızca ${sayi(o.itkiAgirlikOrani, 2)} katı. Rüzgârda ve tırmanırken zorlanır. 1,5'in üstü daha güvenli.</div>`;
+  else karar = `<div class="karar iyi">✓ Uçabilir! İtki ağırlığın ${sayi(o.itkiAgirlikOrani, 1)} katı, yaklaşık ${sayi(o.askidaKalmaSuresi_s / 60, 1)} dakika askıda kalabilir.</div>`;
+  $('#hesapKarar').innerHTML = karar;
+}
+
+// ---------------------------------------------------------------- gezegen tablosu
+$('#gezegenTablosu').innerHTML = `<tr><th>Dünya</th><th>Yerçekimi</th><th>Hava yoğunluğu</th><th>Rotor çalışır mı?</th><th>Işık gecikmesi</th><th>Kaynak</th></tr>` +
+  Object.values(GEZEGENLER).map(g => `<tr><td><span class="gezegenRenk" style="background:${g.zemin1}"></span>${g.ad}</td><td>${sayi(g.yercekimi_m_s2, 2)} m/s²</td><td>${g.havaYogunlugu_kg_m3 > 0 ? sayi(g.havaYogunlugu_kg_m3, g.havaYogunlugu_kg_m3 < 0.1 ? 3 : 2) + ' kg/m³' : 'yok'}</td><td>${g.havaYogunlugu_kg_m3 > 0 ? '✓' : '✗ roket gerekir'}</td><td>${g.isikGecikmesi}</td><td style="color:var(--soluk)">${g.kaynak}</td></tr>`).join('');
+
+// ---------------------------------------------------------------- rubrik
+const RUBRIK = [
+  ['1. Bilimsel doğruluk', 25, 'Tüm sayılar kaynaklı; itki/ağırlık ve askıda kalma süresi elle hesaplanıp oyunla karşılaştırılmış', 'Sayıların çoğu kaynaklı, hesap denenmiş', 'Bazı sayılar kaynaksız', 'Sayılar uydurma ya da kontrol edilmemiş'],
+  ['2. Çalışan oyun', 20, 'Hatasız, yayında, baştan sona oynanabiliyor', 'Küçük kusurlar var ama oynanıyor', 'Kısmen çalışıyor', 'Çalışmıyor'],
+  ['3. Özgün görev tasarımı', 20, 'Hikâye, hedefler ve zorluk birbirine bağlı, gerçek bir göreve dayanıyor; en az bir yeni özellik eklenmiş', 'Kendi görevi var, hedefler anlamlı', 'Hazır görev küçük değişikliklerle kullanılmış', 'Hazır görev aynen kullanılmış'],
+  ['4. Yapay zekâyı sorumlu kullanma', 20, 'Günlük eksiksiz; yapay zekânın bir hatası yakalanmış; takım kodu açıklayabiliyor', 'Günlük düzenli, kontroller yapılmış', 'Günlük eksik', 'Günlük yok ya da kod anlaşılmadan kopyalanmış'],
+  ['5. Takım çalışması ve sunum', 15, 'Herkes rolünü anlatabiliyor; 5 dakikada canlı demo ve "ne öğrendik"', 'Sunum düzenli, roller belli', 'Sunum dağınık', 'Sunum yok'],
+];
+$('#rubrik').innerHTML = `<tr><th>Ölçüt</th><th>Puan</th><th>4 · Mükemmel</th><th>3 · İyi</th><th>2 · Gelişiyor</th><th>1 · Başlangıç</th></tr>` + RUBRIK.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join('');
+
+// ---------------------------------------------------------------- sözlük
+const SOZLUK = [
+  ['Yerçekimi ivmesi (g)', 'Bir cismin serbest düşerken her saniye ne kadar hızlandığı. Dünya\'da 9,81 m/s².'],
+  ['Kütle / ağırlık', 'Kütle (kg) cismin madde miktarıdır, her yerde aynıdır. Ağırlık (N) yerçekiminin o cisme uyguladığı kuvvettir: m × g.'],
+  ['İtki', 'Motorun aracı ittiği kuvvet (newton). Araç kalkmak için ağırlığından büyük itki üretmeli.'],
+  ['Hava yoğunluğu (ρ)', 'Bir metreküp havanın kütlesi. Rotorun itebileceği hava ne kadar azsa itki o kadar azdır.'],
+  ['Rotor alanı (A)', 'Dönen pervanelerin süpürdüğü daire alanı: π × yarıçap² × rotor sayısı.'],
+  ['Uç hızı / Mach', 'Rotor ucunun hızı. Ses hızına oranı Mach sayısıdır; 0,8\'i geçmesi iyi değildir.'],
+  ['Watt (W) / watt-saat (Wh)', 'Watt anlık güçtür. Watt-saat bataryadaki enerjidir: 300 W\'lık bir araç 30 Wh\'lik bataryayı 6 dakikada bitirir.'],
+  ['Özgül itki (Isp)', 'Bir roket motorunun yakıtı ne kadar verimli kullandığının ölçüsü (saniye).'],
+  ['Δv (delta-v)', 'Bir roketin yakıtıyla yapabileceği toplam hız değişimi. Görevin "hız bütçesi".'],
+  ['Işık gecikmesi', 'Radyo sinyalinin Dünya\'dan araca gitme süresi. Mars\'a 3–22 dakika: gerçek zamanlı kumanda imkânsız.'],
+  ['Otonom', 'Kendi kendine karar veren. Uzak gezegenlerdeki araçlar otonom uçmak zorundadır.'],
+  ['Prosedürel arazi', 'Gerçek haritadan değil, matematiksel bir formülden üretilen arazi.'],
+  ['Prompt (komut)', 'Yapay zekâya yazdığın istek. İyi komut, iyi cevap getirir.'],
+  ['Repo (depo)', 'Bir projenin bütün dosyalarının ve değişiklik geçmişinin tutulduğu yer (ör. GitHub).'],
+  ['Commit / push', 'Commit: bir değişikliği açıklamasıyla kaydetmek. Push: bu kayıtları GitHub\'a göndermek.'],
+  ['Deploy (yayınlama)', 'Projeyi internette herkesin açabileceği bir adrese koymak (ör. Netlify).'],
+];
+$('#sozlukTablo').innerHTML = SOZLUK.map(([a, b]) => `<tr><td style="white-space:nowrap"><b>${a}</b></td><td>${b}</td></tr>`).join('');
+
+// ---------------------------------------------------------------- öğretmen listesi
+const OGRETMEN = ['Netlify hesabında takım sayısı kadar proje adı belirle', 'Yapay zekâ araçlarına öğretmen hesabıyla giriş yapılmış tarayıcı profilleri hazırla', 'Bilgisayarlara VS Code ve Live Server eklentisini kur', 'Kiti indir, bir bilgisayarda açıp çalıştığını dene (internet erişimi: cdn.jsdelivr.net açık olmalı)', 'Görev kartlarını yazdır ya da projeksiyona hazırla', 'Takımları ve rol dağılımını belirle', 'Sunum için süre tutucu ve jüri listesi hazırla'];
+const ogrIsaret = depo.al('ogretmen', {});
+$('#ogretmenListe').innerHTML = OGRETMEN.map((y, i) => `<label class="${ogrIsaret[i] ? 'tamam' : ''}"><input type="checkbox" data-ogr="${i}" ${ogrIsaret[i] ? 'checked' : ''}><span>${y}</span></label>`).join('');
+$('#ogretmenListe').addEventListener('change', e => { const i = e.target.dataset.ogr; ogrIsaret[i] = e.target.checked; depo.koy('ogretmen', ogrIsaret); e.target.closest('label').classList.toggle('tamam', e.target.checked); });
+
+// ---------------------------------------------------------------- hepsini çiz
+function hepsiniCiz() {
+  $('#seciliCip').textContent = secili ? `Seçili: ${GOREVLER[secili].baslik}` : 'Görev seçilmedi';
+  kartlar(); adimlar(); tumKomutlar();
+}
+hepsiniCiz(); hesapGirdi(); hesapla();
+</script>
+</body>
+</html>

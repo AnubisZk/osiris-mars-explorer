@@ -19,9 +19,10 @@
     "planet:compare": "node tools/planet-compare.mjs --out reports/planet-compare",
     "bench": "node tools/physics-bench.mjs --with tools/planet-bench-scenarios.mjs --out reports/physics-bench.json",
     "dev:app": "vite app --open",
-    "build": "vite build app --outDir ../dist --emptyOutDir --base ./",
+    "build": "node tools/build-kit.mjs && vite build app --outDir ../dist --emptyOutDir --base ./",
     "experiments": "node tools/experiment.mjs all",
-    "model-check": "node tools/model-check.mjs"
+    "model-check": "node tools/model-check.mjs",
+    "kit": "node tools/build-kit.mjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
