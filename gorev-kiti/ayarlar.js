@@ -58,6 +58,12 @@ export const GOREV = {
   gecikme_s: 0,             // komutların araca ulaşma süresi (ışık gecikmesi)
   sureSiniri_s: 0,          // 0 = süre sınırı yok
 
+  // ---- GERÇEK VERİ: DİJİTAL İKİZ (isteğe bağlı, bkz. VERI-IKIZI.md) ----------
+  // Veri Atölyesi'nde (veri-atolyesi.html) gerçek ölçümlerden eğittiğiniz atmosfer modelini
+  // kullanmak için modeli veri/ klasörüne koyun ve aşağıdaki satırı açın.
+  // saat: görevin başladığı yerel güneş saati (0–24). Hava yoğunluğu ve rüzgâr modelden gelir.
+  // atmosfer: { model: 'veri/jezero-atmosfer.json', saat: 10 },
+
   // ---- ARAZİ (Tasarımcı) ----------------------------------------------------
   // Temsili, matematikle üretilmiş arazi. tohum'u değiştirince yeni bir arazi çıkar.
   arazi: { tohum: 7, krater: 30, tepe: 6 },

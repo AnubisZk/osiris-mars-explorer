@@ -13,12 +13,20 @@ import { GOREV as AYAR } from './ayarlar.js';
 import { GOREVLER } from './gorevler.js';
 import { araziKur } from './arazi.js';
 import { ortam, aracOzeti, yeniDurum, adim, puan, USS_YARICAPI } from './fizik.js';
+import { atmosferiBagla } from './atmosfer.js';
+import { GEZEGENLER } from './gezegenler.js';
 
 // ---------------------------------------------------------------- görevi seç
 // Adres çubuğunda ?gorev=titan gibi bir ek varsa hazır görev, yoksa ayarlar.js
 const ek = new URLSearchParams(location.search).get('gorev');
 const GOREV = ek && GOREVLER[ek] ? structuredClone(GOREVLER[ek]) : AYAR;
 dogrula(GOREV);
+// Gerçek veriden eğitilmiş atmosfer modeli varsa (ayarlar.js → atmosfer) önce onu yükle
+await atmosferiBagla(GOREV, async yol => {
+  const r = await fetch(yol, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`Atmosfer modeli bulunamadı: ${yol} (${r.status}). Dosyayı veri/ klasörüne koydunuz mu? Adı ayarlar.js'teki adla aynı mı?`);
+  return r.json();
+}, GEZEGENLER[GOREV.gezegen]?.gazSabiti_J_kgK);
 const ORT = ortam(GOREV);
 const ARAC = GOREV.arac;
 const OZET = aracOzeti(GOREV);
@@ -37,6 +45,10 @@ function dogrula(g) {
   else h.push(`arac.tip 'rotor' ya da 'roket' olmalı (şu an: ${JSON.stringify(a.tip)})`);
   if (!Array.isArray(g.hedefler) || g.hedefler.length === 0) h.push('en az bir hedef olmalı (hedefler: [ ... ])');
   else g.hedefler.forEach((t, i) => { if (typeof t.x !== 'number' || typeof t.z !== 'number') h.push(`hedefler[${i}] için x ve z sayı olmalı`); });
+  if (g.atmosfer) {
+    if (typeof g.atmosfer.model !== 'string' || !g.atmosfer.model.endsWith('.json')) h.push("atmosfer.model bir .json dosyasının yolu olmalı (ör. 'veri/jezero-atmosfer.json')");
+    if (!(g.atmosfer.saat >= 0 && g.atmosfer.saat < 24)) h.push(`atmosfer.saat 0 ile 24 arasında olmalı (şu an: ${JSON.stringify(g.atmosfer.saat)})`);
+  }
   if (h.length) throw new Error('ayarlar.js içinde düzeltilmesi gerekenler:\n • ' + h.join('\n • '));
 }
 
@@ -305,7 +317,10 @@ function paneller() {
     roket ? ['Kütle', `${sayi(ARAC.kuruKutle_kg + d.yakit_kg, 0)} kg`] : ['Kalan süre (bu güçle)', d.guc_W > 1 ? sure(d.enerji_Wh * 3600 / d.guc_W) : '—'],
     ['Pilot', yardimciPilot ? 'yardımcı pilot' : 'elle (zor mod)'],
   ];
-  if (GOREV.ruzgar?.hiz_m_s || GOREV.ruzgar?.artis_m_s_dk) satirlar.push(['Rüzgâr', `${sayi((GOREV.ruzgar.hiz_m_s ?? 0) + (GOREV.ruzgar.artis_m_s_dk ?? 0) * d.zaman / 60)} m/s`]);
+  if (GOREV._atmosfer) {
+    const a = ortam(GOREV, d.zaman).atm;
+    satirlar.push(['Hava yoğunluğu (veri)', `${sayi(a.rho, 4)} kg/m³`], ['Rüzgâr (veri)', `${sayi(a.ruzgarHiz, 1)} m/s`]);
+  } else if (GOREV.ruzgar?.hiz_m_s || GOREV.ruzgar?.artis_m_s_dk) satirlar.push(['Rüzgâr', `${sayi((GOREV.ruzgar.hiz_m_s ?? 0) + (GOREV.ruzgar.artis_m_s_dk ?? 0) * d.zaman / 60)} m/s`]);
   $('olcumIcerik').innerHTML = satirlar.map(([a, b]) => `<div class="satir"><span>${a}</span><b>${b}</b></div>`).join('') +
     `<div class="satir"><span>${roket ? 'Yakıt' : 'Batarya'}</span><b>%${sayi(kalanOran * 100, 0)}</b></div><div class="cubuk"><i style="width:${Math.max(0, kalanOran * 100)}%;background:${kalanOran < 0.25 ? 'var(--kotu)' : kalanOran < 0.5 ? 'var(--vurgu)' : 'var(--iyi)'}"></i></div>`;
 
@@ -362,6 +377,11 @@ function girisEkrani() {
     ['Askıda kalma süresi', `${sayi(o.askidaKalmaSuresi_s / 60, 1)} dakika`],
   ];
   if (!roket && o.ucMach) bilgi.push(['Rotor ucu / ses hızı (Mach)', sayi(o.ucMach, 2) + (o.ucMach > 0.8 ? ' ⚠ çok yüksek' : '')]);
+  if (ORT.atm) {
+    const sa = GOREV.atmosfer.saat, b = GOREV._atmosfer.bilgi;
+    bilgi.push(['Atmosfer', `🛰 veri modeli: ${b.ad ?? GOREV.atmosfer.model}`], ['Başlangıç saati (yerel)', `${String(Math.floor(sa)).padStart(2, '0')}:${String(Math.round(sa % 1 * 60)).padStart(2, '0')}`],
+      ['O saatte', `p = ${sayi(ORT.atm.p, 0)} Pa · T = ${sayi(ORT.atm.T - 273.15, 0)} °C · rüzgâr ${sayi(ORT.atm.ruzgarHiz, 1)} m/s`], ['Modelin kaynağı', b.kaynak ?? '—']);
+  }
   const ucar = o.ucabilir
     ? `<div class="durumKutu iyi">✓ Bu araç burada uçabilir: itkisi ağırlığının ${sayi(o.itkiAgirlikOrani, 1)} katı.</div>`
     : `<div class="durumKutu kotu">✗ Bu araç burada kalkamaz: itki/ağırlık oranı ${sayi(o.itkiAgirlikOrani, 2)}. Kalkmak için 1'den büyük olmalı. ${!roket && ORT.rho0 <= 0 ? 'Burada hava yok; rotor işe yaramaz, roket gerekir.' : roket ? 'Daha güçlü motor ya da daha hafif araç dene.' : 'Rotor alanını ya da uç hızını büyüt, kütleyi azalt.'}</div>`;
@@ -373,6 +393,7 @@ function girisEkrani() {
     <h3>Bilim notu</h3><p>${GOREV.bilimNotu ?? ''}</p>
     <h3>Ortam ve araç</h3><div class="izgara">${bilgi.map(([a, b]) => `<div><span class="soluk">${a}</span><span>${b}</span></div>`).join('')}</div>
     ${ucar}
+    ${ORT.atm && /ALIŞTIRMA/i.test(GOREV._atmosfer.bilgi.kaynak ?? '') ? '<div class="durumKutu kotu">⚠ Bu atmosfer modeli ALIŞTIRMA verisiyle eğitilmiş: gerçek ölçüm değildir. Gerçek MEDA verisiyle yeniden eğitin.</div>' : ''}
     <h3>Görev</h3><p>${GOREV.hedefler.length} hedefin her birinde: sarı halkanın içinde, beyaz çizginin altında ve yavaşken bekle. Çubuk dolunca gözlem tamamlanır. Hepsi bitince üsse (H) dön ve yavaşça in.${GOREV.sureSiniri_s > 0 ? ` <b>Süre sınırı: ${sure(GOREV.sureSiniri_s)}.</b>` : ''}</p>
     <h3>Kontroller</h3>
     <div class="tuslar">

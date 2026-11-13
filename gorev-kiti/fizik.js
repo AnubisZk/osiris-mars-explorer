@@ -34,14 +34,22 @@ export const USS_YARICAPI = 10;      // üs pistinin yarıçapı (m)
 const DERECE = Math.PI / 180;
 
 // ---------------------------------------------------------------- ortam
-export function ortam(gorev) {
+// zaman: görev başladıktan sonra geçen süre (s). Görev gerçek veriden eğitilmiş bir
+// atmosfer modeli kullanıyorsa (ayarlar.js → atmosfer, bkz. atmosfer.js) hava yoğunluğu
+// ve rüzgâr o saatteki model değerinden gelir; yoksa sabit değerler kullanılır.
+export function ortam(gorev, zaman = 0) {
   const gz = GEZEGENLER[gorev.gezegen];
   if (!gz) throw new Error(`Bilinmeyen gezegen: "${gorev.gezegen}". gezegenler.js içindeki adlardan birini yaz.`);
-  return {
+  const o = {
     ...gz,
     g: gorev.yercekimi_m_s2 ?? gz.yercekimi_m_s2,
     rho0: gorev.havaYogunlugu_kg_m3 ?? gz.havaYogunlugu_kg_m3,
   };
+  if (gorev._atmosfer) {
+    o.atm = gorev._atmosfer((gorev.atmosfer?.saat ?? 12) + zaman / 3600);
+    o.rho0 = o.atm.rho;
+  }
+  return o;
 }
 
 // Yükseklikle seyrelen hava (üstel atmosfer)
@@ -115,7 +123,7 @@ function yaklas(v, hedef, adim) { return v + sinirla(hedef - v, -adim, adim); }
 //                       false → y gazı artırır/azaltır, x,z eğimi doğrudan verir (zor mod)
 export function adim(d, girdi, gorev, zemin, dt) {
   if (d.sonuc) return d;
-  const ort = ortam(gorev), a = gorev.arac, g = ort.g;
+  const ort = ortam(gorev, d.zaman), a = gorev.arac, g = ort.g;
   const m = kutle(a, d);
   const rho = yogunluk(ort, d.y);
   const Tmax = maksItki(a, rho, d);
@@ -128,7 +136,12 @@ export function adim(d, girdi, gorev, zemin, dt) {
   const rz = gorev.ruzgar ?? {};
   const ruzgarHiz = (rz.hiz_m_s ?? 0) + (rz.artis_m_s_dk ?? 0) * d.zaman / 60;
   const ryon = (rz.yon_derece ?? 0) * DERECE;  // rüzgârın ESTİĞİ yön (0 = kuzeye doğru)
-  const wx = Math.sin(ryon) * ruzgarHiz, wz = -Math.cos(ryon) * ruzgarHiz;
+  let wx = Math.sin(ryon) * ruzgarHiz, wz = -Math.cos(ryon) * ruzgarHiz;
+  if (ort.atm) {                               // veri modeli varsa rüzgâr ondan gelir (+ fırtına artışı)
+    const artis = (rz.artis_m_s_dk ?? 0) * d.zaman / 60;
+    wx = ort.atm.ruzgarDogu + Math.sin(ryon) * artis;
+    wz = -ort.atm.ruzgarKuzey - Math.cos(ryon) * artis;   // oyunda +z güney yönüdür
+  }
 
   // ---- kontrol
   let hedefEgimX, hedefEgimZ, hedefGaz;

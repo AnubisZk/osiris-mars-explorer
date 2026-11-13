@@ -273,6 +273,19 @@
     <div class="kart"><h3>Komut satırı</h3><p style="font-size:15px;color:#d4dbe5;margin:6px 0">Klasörün içinde:</p><div class="formul">python -m http.server 8000</div><p style="font-size:15px;color:#d4dbe5;margin:6px 0">ya da</p><div class="formul">npx serve .</div><p style="font-size:14px;color:var(--soluk);margin:6px 0">Sonra tarayıcıda <code>http://localhost:8000</code>.</p></div>
     <div class="kart"><h3>⚠ Çift tıklama çalışmaz</h3><p style="font-size:15px;color:#d4dbe5;margin:6px 0"><code>index.html</code>'e çift tıklarsan tarayıcı güvenlik nedeniyle oyunu açmaz ve kırmızı bir uyarı gösterir. Yukarıdaki yollardan birini kullan. Oyun, 3B kütüphanesini internetten indirdiği için internet bağlantısı gerekir.</p></div>
   </div>
+  <div class="kart" style="margin-top:22px;border-color:#6cc3ff66;background:linear-gradient(110deg,#13202e,#131720)">
+    <span class="rozet">bonus görev</span>
+    <h3>🛰 Gerçek veriyle dijital ikiz</h3>
+    <p style="color:#d4dbe5;margin:6px 0">Simülatörünün havasını NASA'nın <b>gerçek Mars ölçümleriyle</b> besle. Perseverance gezginindeki MEDA hava istasyonunun verisini indir, <b>Veri Atölyesi</b>'nde basıncın, sıcaklığın ve rüzgârın gün içindeki döngüsünü öğrenen bir model eğit (en küçük kareler yöntemiyle), modeli oyuna bağla ve şunu araştır: <i>Aracımız için en iyi uçuş saati hangisi?</i></p>
+    <div class="dugmeler">
+      <a class="dugme ana" href="kit/veri-atolyesi.html" target="_blank" rel="noopener">🧠 Veri Atölyesi'ni aç</a>
+      <a class="dugme ikinci" href="kit/VERI-IKIZI.md" target="_blank" rel="noopener">📄 Adım adım rehber</a>
+      <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/" target="_blank" rel="noopener">⬇ MEDA verisi (basınç, rüzgâr)</a>
+      <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/" target="_blank" rel="noopener">⬇ MEDA verisi (sıcaklık)</a>
+      <a class="dugme ikinci" href="https://power.larc.nasa.gov/data-access-viewer/" target="_blank" rel="noopener">⬇ NASA POWER (Dünya)</a>
+    </div>
+    <p style="font-size:13px;color:var(--soluk);margin:4px 0 0">Süre 60–90 dk · Bilim danışmanı veriyi hazırlar, Kodcu modeli bağlar, takım deneyi yapar · Komutlar: K4.5, K4.6 · Değerlendirmede bonus (+5).</p>
+  </div>
   <h3 style="margin-top:26px">İlk 10 dakika: ısınma</h3>
   <div class="kart"><ol style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:0">
     <li><b>Renk:</b> <code>arac → renk</code> değerini <code>"#ff4fa0"</code> yap. Helikopter pembe oldu mu?</li>
@@ -315,7 +328,8 @@
       <li>Kodun hangi kısmını siz yazdınız? Bu satır ne yapıyor?</li><li>Gerçek bir görevde ışık gecikmesi neden sorun olur?</li><li>Bir gün daha olsaydı neyi değiştirirdiniz?</li></ul></div>
     <div class="kart"><h3>Bonus (en çok +10)</h3><ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:6px 0">
       <li>Ses efekti, yeni bir araç modeli ya da yeni bir gezegen eklemek (+5)</li>
-      <li>Aracı bilimsel olarak iyileştirip puan farkını ölçmek (+5)</li></ul></div>
+      <li>Aracı bilimsel olarak iyileştirip puan farkını ölçmek (+5)</li>
+      <li>Gerçek NASA verisiyle dijital ikiz: atmosfer modelini eğitip en iyi uçuş saatini bulmak (+5)</li></ul></div>
   </div>
 </div></section>
 
@@ -543,6 +557,7 @@ const DOSYALAR = [
   ['hesap.html · hesap.js · hesapla.mjs', 'Görevin bütün hesaplarını oyunun motoruyla adım adım üretir (doğrulama)', 'Bilim danışmanı', '❌ Değiştirmeyin, kullanın'],
   ['AGENTS.md · CLAUDE.md', 'Depoda çalışan yapay zekâ ajanlarının uyacağı kurallar', 'Kaptan', '❌ Gerek yok'],
   ['KOMUT-KAYDI.md', 'Ajanlara verilen her komutun kelimesi kelimesine kaydı (şeffaflık)', 'Ajan yazar, takım kontrol eder', '✅ "Takımın kontrolü" satırlarını doldurun'],
+  ['veri-atolyesi.html · atmosfer.js · veri/', 'Gerçek ölçümlerden atmosfer modeli eğitme ve oyuna bağlama (dijital ikiz)', 'Bilim + Kodcu', '✅ Bonus görev: VERI-IKIZI.md'],
   ['GOREV-TASARIMI.md', 'Takımın tasarım belgesi', 'Tüm takım', '✅ Doldurulacak'],
   ['ROLLER.md', 'Görev dağılımı ve takım sözleşmesi', 'Tüm takım', '✅ Doldurulacak'],
   ['YZ-GUNLUGU.md', 'Yapay zekâ kullanım kaydı', 'Sunucu', '✅ Her kullanımda'],

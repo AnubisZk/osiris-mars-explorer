@@ -23,3 +23,4 @@ Her ölçüt 4 seviyelidir. Takımınız sunumdan önce kendini bu tabloyla puan
 ## Bonus (en çok +10)
 - Oyuna ses efekti, yeni bir araç modeli ya da yeni bir gezegen eklemek (+5)
 - Oyunun puanını yükseltmek için aracı bilimsel olarak iyileştirip farkı ölçmek (+5)
+- Gerçek NASA verisiyle dijital ikiz (VERI-IKIZI.md): atmosfer modelini eğitip en iyi uçuş saatini bulmak (+5)

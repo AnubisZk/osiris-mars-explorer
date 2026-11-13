@@ -158,6 +158,28 @@ Görsel: {gezegen} yüzeyinde, {arac} uçarken. Hikâye: {hikaye}
 Gerçekçi bilimsel illüstrasyon tarzında olsun. Gökyüzünün ve zeminin rengi {gezegen} için bilimsel olarak doğru olsun. Görselde yazı, logo ya da gerçek bir kişi olmasın.`,
     ipucu: 'Görsel üretme araçlarını öğretmeninizin hesabından kullanın. Ürettiğiniz görseli kullanırsanız günlüğe "yapay zekâyla üretildi" diye yazın.' },
 
+  { asama: 4, rol: 'Bilim danışmanı', baslik: 'Veri dosyasını anla (dijital ikiz)',
+    metin: `${BEN} Oyunumuzun havasını NASA'nın Perseverance gezginindeki MEDA hava istasyonunun gerçek ölçümleriyle besleyeceğiz (bkz. VERI-IKIZI.md).
+Aşağıda indirdiğimiz bir MEDA dosyasının XML etiketinden (label) bir bölüm ve CSV dosyasının ilk birkaç satırı var.
+1. Her sütunun ne olduğunu ve birimini bir tablo hâlinde açıkla.
+2. Hangi sütun yerel güneş saati (LTST), hangisi basınç, hava sıcaklığı, rüzgâr hızı ve rüzgâr yönü? Birimleri ne?
+3. Eksik ya da geçersiz değerler nasıl gösterilmiş olabilir?
+Emin olmadığın yerde tahmin yürütme, "XML'de bu bilgi yok" de.
+
+[XML ETİKETİNDEN SÜTUN TANIMLARINI BURAYA YAPIŞTIRIN]
+
+[CSV DOSYASININ İLK 5 SATIRINI BURAYA YAPIŞTIRIN]`,
+    ipucu: 'Cevabı XML dosyasının kendisiyle karşılaştırın: sütun adı ve birim XML\'de yazandan farklıysa XML doğrudur. Sonra Veri Atölyesi\'nde sütunları buna göre eşleştirin.' },
+  { asama: 4, rol: 'Bilim danışmanı', baslik: 'Modeli yorumla (dijital ikiz)',
+    metin: `${BEN} Veri Atölyesi'nde gerçek Mars ölçümlerinden bir "günlük döngü" modeli eğittik: f(t) = a0 + a1·cos(2πt/24) + b1·sin(2πt/24) + ... (t = yerel güneş saati), katsayıları en küçük kareler yöntemiyle bulundu.
+Sonuçlarımız (harmonik sayısı → RMSE ve R²):
+[TABLOYU BURAYA YAPIŞTIRIN]
+1. RMSE ve R²'yi bir lise öğrencisinin anlayacağı şekilde açıkla.
+2. Harmonik sayısı arttıkça RMSE azalıyorsa bu modelin hep daha iyi olduğu anlamına mı gelir? Aşırı öğrenmeyi bizim örneğimizle açıkla.
+3. Bu modelin sınırları neler? (yer, mevsim, ani olaylar)
+4. Hangi harmonik sayısını seçmemiz mantıklı olur? Kararı bize bırak, sadece neye bakmamız gerektiğini söyle.`,
+    ipucu: 'Seçiminizi ve gerekçenizi VERI-IKIZI.md\'deki "Seçtiğimiz harmonik sayısı" satırına kendi cümlelerinizle yazın.' },
+
   // ---------------------------------------------------------------- 5
   { asama: 5, rol: 'Bilim danışmanı', baslik: 'Sonuçları yorumla',
     metin: `${BEN} Oyunumuzun fizik motoru bu formülleri kullanıyor:

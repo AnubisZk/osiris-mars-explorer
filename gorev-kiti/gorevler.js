@@ -266,6 +266,13 @@ export const GOREV = {
   sureSiniri_s: ${g.sureSiniri_s},          // 0 = süre sınırı yok`);
   if (g.sureBittiMesaji) satir.push(`  sureBittiMesaji: ${s(g.sureBittiMesaji)},`);
   satir.push(`
+  // ---- GERÇEK VERİ: DİJİTAL İKİZ (isteğe bağlı, bkz. VERI-IKIZI.md) ----------
+  // Veri Atölyesi'nde (veri-atolyesi.html) gerçek ölçümlerden eğittiğiniz atmosfer modelini
+  // kullanmak için modeli veri/ klasörüne koyun ve aşağıdaki satırı açın.
+  // saat: görevin başladığı yerel güneş saati (0–24). Hava yoğunluğu ve rüzgâr modelden gelir.`);
+  if (g.atmosfer) satir.push(`  atmosfer: { model: ${s(g.atmosfer.model)}, saat: ${g.atmosfer.saat} },`);
+  else satir.push(`  // atmosfer: { model: 'veri/jezero-atmosfer.json', saat: 10 },`);
+  satir.push(`
   // ---- ARAZİ (Tasarımcı) ----------------------------------------------------
   // Temsili, matematikle üretilmiş arazi. tohum'u değiştirince yeni bir arazi çıkar.
   arazi: { tohum: ${g.arazi.tohum}, krater: ${g.arazi.krater}, tepe: ${g.arazi.tepe} },

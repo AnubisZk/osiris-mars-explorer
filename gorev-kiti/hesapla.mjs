@@ -5,10 +5,15 @@
 import { GOREV } from './ayarlar.js';
 import { GOREVLER } from './gorevler.js';
 import { hesapRaporu } from './hesap.js';
+import { atmosferiBagla } from './atmosfer.js';
+import { GEZEGENLER } from './gezegenler.js';
+import { readFile } from 'node:fs/promises';
 
 const ad = process.argv[2];
 if (ad && !GOREVLER[ad]) {
   console.error(`Bilinmeyen görev: ${ad}. Seçenekler: ${Object.keys(GOREVLER).join(', ')}`);
   process.exit(1);
 }
-process.stdout.write(hesapRaporu(ad ? GOREVLER[ad] : GOREV));
+const gorev = ad ? GOREVLER[ad] : GOREV;
+await atmosferiBagla(gorev, async yol => JSON.parse(await readFile(new URL(yol, import.meta.url), 'utf8')), GEZEGENLER[gorev.gezegen]?.gazSabiti_J_kgK);
+process.stdout.write(hesapRaporu(gorev));

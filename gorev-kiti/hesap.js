@@ -67,10 +67,18 @@ export function hesapRaporu(gorev) {
   L.push('## 1. Ortam', '', '| Büyüklük | Değer | Kaynak |', '|---|---|---|',
     `| Gezegen / uydu | ${ort.ad} | — |`,
     `| Yerçekimi ivmesi g | ${say(ort.g, 3)} m/s² | ${gorev.yercekimi_m_s2 != null ? 'ayarlar.js' : 'gezegenler.js'} |`,
-    `| Yüzeyde hava yoğunluğu ρ | ${ort.rho0 > 0 ? say(ort.rho0, ort.rho0 < 0.1 ? 4 : 3) + ' kg/m³' : 'yok (0)'} | ${gorev.havaYogunlugu_kg_m3 != null ? 'ayarlar.js' : 'gezegenler.js'} |`,
+    `| Yüzeyde hava yoğunluğu ρ | ${ort.rho0 > 0 ? say(ort.rho0, ort.rho0 < 0.1 ? 4 : 3) + ' kg/m³' : 'yok (0)'} | ${ort.atm ? 'atmosfer modeli' : gorev.havaYogunlugu_kg_m3 != null ? 'ayarlar.js' : 'gezegenler.js'} |`,
     `| Ses hızı | ${ort.sesHizi_m_s ? say(ort.sesHizi_m_s, 0) + ' m/s' : '—'} | gezegenler.js |`,
     `| Işık gecikmesi (gerçekte) | ${ort.isikGecikmesi} | gezegenler.js |`,
-    `| Oyundaki komut gecikmesi | ${say(gorev.gecikme_s ?? 0, 1)} s | ayarlar.js |`, '');
+    `| Oyundaki komut gecikmesi | ${say(gorev.gecikme_s ?? 0, 1)} s | ayarlar.js |`);
+  if (ort.atm) {
+    const b = gorev._atmosfer.bilgi;
+    L.push(`| Atmosfer modeli | ${b.ad ?? gorev.atmosfer.model} (başlangıç saati ${say(gorev.atmosfer.saat, 1)}) | ${b.kaynak ?? 'veri modeli'} |`,
+      `| O saatteki basınç / sıcaklık | ${say(ort.atm.p, 0)} Pa / ${say(ort.atm.T, 1)} K | atmosfer modeli |`,
+      `| Yoğunluk ρ = p ÷ (R·T) | ${say(ort.atm.p, 0)} ÷ (${say(ort.gazSabiti_J_kgK, 1)} × ${say(ort.atm.T, 1)}) = ${say(ort.atm.rho, 4)} kg/m³ | atmosfer modeli |`,
+      `| O saatteki rüzgâr | ${say(ort.atm.ruzgarHiz, 1)} m/s | atmosfer modeli |`);
+  }
+  L.push('');
 
   L.push('## 2. Kütle ve ağırlık', '');
   if (h.roket) L.push(`- Toplam kütle: m = kuru kütle + yakıt = ${say(a.kuruKutle_kg, 0)} + ${say(a.yakit_kg, 0)} = **${say(o.kutle_kg, 1)} kg**`);

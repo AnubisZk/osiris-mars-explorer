@@ -20,6 +20,7 @@ yapay zekâ (Claude Code, Codex, GitHub Copilot ajanı vb.) aşağıdaki kuralla
 | `GOREV-TASARIMI.md` | Takımın tasarım belgesi | Takımın kararlarının kaynağı. Oku; takım istemedikçe kendi kararını yazma. |
 | `KOMUT-KAYDI.md` | Sana verilen komutların kelimesi kelimesine kaydı | **Her komutta zorunlu** (aşağıya bak). |
 | `YZ-GUNLUGU.md` | Yapay zekâ kullanım günlüğü | Yaptığın her işi buraya bir satır olarak ekle. |
+| `atmosfer.js`, `veri-atolyesi.html` | Gerçek veriden atmosfer modeli (dijital ikiz) | Değiştirme. Model dosyaları `veri/` klasörüne konur; ayarlar.js'te `atmosfer` satırıyla bağlanır. Model dosyasındaki katsayıları elle değiştirme. |
 | `oyun.js`, `index.html`, `arazi.js` | Ekran, kontroller, arazi | "ÖĞRENCİ:" ile işaretli yerler değiştirilebilir. |
 
 ## Şeffaflık: komut kaydı (ZORUNLU, her komutta)

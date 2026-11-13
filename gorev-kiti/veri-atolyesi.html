@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Veri Atölyesi · Dijital İkiz · Görev Kiti</title>
+<style>
+  :root{--bg:#0b0d12;--kart:#131720;--cizgi:#ffffff1c;--yazi:#eef2f7;--soluk:#a6b0bf;--turuncu:#ff9a52;--mavi:#6cc3ff;--yesil:#6fdc8c;--kirmizi:#ff7b7b;--sari:#ffd34d}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:1000px;margin:0 auto;padding:20px 18px 70px}
+  h1{font-size:30px;margin:14px 0 4px}h2{font-size:21px;margin:0 0 8px}h3{font-size:16px;margin:14px 0 6px;color:var(--mavi)}
+  .alt{color:var(--soluk);margin:0 0 18px}
+  .adim{background:var(--kart);border:1px solid var(--cizgi);border-radius:16px;padding:18px 20px;margin:16px 0}
+  .adim>h2 span{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--turuncu);color:#1d1005;font-size:16px;margin-right:8px}
+  a{color:var(--mavi)}code{font:13px ui-monospace,Consolas,monospace;background:#ffffff12;border-radius:5px;padding:1px 5px}
+  .dugme{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:0;font:600 14px system-ui,sans-serif;cursor:pointer;text-decoration:none}
+  .ana{background:var(--turuncu);color:#1d1005}.ikinci{background:#ffffff14;color:var(--yazi);border:1px solid var(--cizgi)}
+  .dugmeler{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .not{border-left:3px solid var(--sari);background:#ffd34d10;padding:9px 13px;border-radius:0 10px 10px 0;margin:10px 0;color:#f3e7c0;font-size:15px}
+  .not.mavi{border-color:var(--mavi);background:#6cc3ff10;color:#cfe9ff}.not.kirmizi{border-color:var(--kirmizi);background:#ff7b7b14;color:#ffd6d6}
+  table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--cizgi);vertical-align:top}th{color:var(--soluk)}
+  select,input[type=number],input[type=text]{background:#0b0f16;color:var(--yazi);border:1px solid var(--cizgi);border-radius:8px;padding:6px 8px;font:inherit;font-size:14px}
+  .dosya{border:1px solid var(--cizgi);border-radius:12px;padding:12px;margin:10px 0;background:#0f131b}
+  .dosya .bas{display:flex;justify-content:space-between;gap:10px;font-weight:600;flex-wrap:wrap}.dosya .bas small{color:var(--soluk);font-weight:400}
+  .eslesme{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:8px}
+  .eslesme label{display:grid;gap:3px;font-size:13px;color:var(--soluk)}
+  .grafikler{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px}
+  .grafik{background:#0f131b;border:1px solid var(--cizgi);border-radius:12px;padding:10px}
+  .grafik canvas{width:100%;height:auto;display:block}.grafik .ust{display:flex;justify-content:space-between;font-size:14px;gap:8px}.grafik .ust b{color:var(--yazi)}.grafik .ust span{color:var(--soluk)}
+  .sonuc{background:#173225;color:#b9f3c8;border-radius:10px;padding:10px 12px;font-weight:600}
+  .hata{background:#3b1717;color:#ffc4c4;border-radius:10px;padding:10px 12px;white-space:pre-wrap}
+  pre.kod{background:#0b0f16;border:1px solid var(--cizgi);border-radius:8px;padding:10px;overflow-x:auto;font:13px ui-monospace,Consolas,monospace}
+</style>
+</head>
+<body><main>
+  <a href="./">← Oyuna dön</a> · <a href="VERI-IKIZI.md" target="_blank">📄 Adım adım rehber (VERI-IKIZI.md)</a>
+  <h1>🛰 Veri Atölyesi: dijital ikiz</h1>
+  <p class="alt">Gerçek ölçümlerden bir "atmosfer modeli" eğit ve simülatörünü onunla çalıştır. Model gün içinde basıncın, sıcaklığın ve rüzgârın nasıl değiştiğini öğrenir; oyun da artık sabit bir hava yoğunluğu yerine, seçtiğin saatteki gerçeğe yakın değeri kullanır.</p>
+
+  <!-- ===================================================== 1 -->
+  <section class="adim">
+    <h2><span>1</span>Veriyi indir</h2>
+    <p><b>Mars (Jezero Krateri):</b> NASA'nın Perseverance gezgini üzerindeki hava istasyonu <b>MEDA</b>, basıncı, sıcaklığı ve rüzgârı ölçer. Ölçümler NASA'nın Gezegen Veri Sistemi'nde (PDS) herkese açıktır. Her dosya bir Mars gününü (sol) kapsar.</p>
+    <div class="dugmeler">
+      <a class="dugme ana" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/" target="_blank" rel="noopener">⬇ MEDA işlenmiş veri (basınç, rüzgâr)</a>
+      <a class="dugme ana" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/" target="_blank" rel="noopener">⬇ MEDA kalibre veri (hava sıcaklığı)</a>
+    </div>
+    <div class="dugmeler">
+      <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/meda_derived.tar.gz" rel="noopener">📦 İşlenmiş verinin tamamı (.tar.gz, büyük)</a>
+      <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/meda_calibrated.tar.gz" rel="noopener">📦 Kalibre verinin tamamı (.tar.gz, büyük)</a>
+      <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/PERSEVERANCE/meda.html" target="_blank" rel="noopener">ℹ MEDA veri sayfası ve belgeleri</a>
+    </div>
+    <div class="not mavi">💡 <b>Önerilen yol:</b> Bütün arşivi indirmeyin, çok büyük. Klasörlerden aynı Mars mevsiminden <b>2–5 sol</b> seçin. Her sol için adında <b>PS</b> (basınç), <b>WS</b> (rüzgâr) ve <b>ATS</b> (hava sıcaklığı) geçen <code>.csv</code> dosyalarını indirin. Her dosyanın yanındaki aynı adlı <code>.xml</code> dosyası, sütunların ne olduğunu ve birimlerini anlatır. Aynı adlı dosyanın birkaç sürümü varsa en yüksek sürüm numaralısını alın.</div>
+    <p><b>Dünya (ör. Balıkesir):</b> NASA POWER sitesinden bir nokta için <b>saatlik</b> sıcaklık (T2M), yüzey basıncı (PS) ve rüzgâr (WS10M, WD10M) verisini CSV olarak indirebilirsiniz.</p>
+    <div class="dugmeler"><a class="dugme ikinci" href="https://power.larc.nasa.gov/data-access-viewer/" target="_blank" rel="noopener">⬇ NASA POWER veri görüntüleyici</a></div>
+    <div class="not">NASA POWER saatleri <b>UTC</b> verir. Aşağıda "saat kayması" kutusuna <b>+3</b> (Türkiye saati) yazın.</div>
+  </section>
+
+  <!-- ===================================================== 2 -->
+  <section class="adim">
+    <h2><span>2</span>Dosyaları yükle ve sütunları eşleştir</h2>
+    <div class="dugmeler">
+      <label class="dugme ana">📂 Dosya seç (birden çok olabilir)<input type="file" id="dosyaSec" multiple accept=".csv,.tab,.txt,.dat" hidden></label>
+      <button class="dugme ikinci" id="alistirma" title="Gerçek veri değil: aracı denemek için uydurulmuş veri">🧪 Alıştırma verisiyle dene</button>
+      <button class="dugme ikinci" id="temizle">Temizle</button>
+    </div>
+    <p style="font-size:14px;color:var(--soluk)">Dosyalar bilgisayarından dışarı gönderilmez; her şey bu sayfada, tarayıcında hesaplanır. Her dosya için hangi sütunun <b>saat</b> (yerel güneş saati, MEDA'da genellikle <code>LTST</code>), hangisinin <b>basınç</b>, <b>sıcaklık</b> ya da <b>rüzgâr</b> olduğunu seç. Bir dosyada olmayan büyüklüğü "yok" bırak.</p>
+    <div id="dosyalar"></div>
+  </section>
+
+  <!-- ===================================================== 3 -->
+  <section class="adim">
+    <h2><span>3</span>Modeli eğit</h2>
+    <p>Model, verinin gün içindeki döngüsünü sinüs ve kosinüslerin toplamıyla yakalar. <b>Harmonik sayısı</b> kaç dalga kullanılacağını belirler: 1 yalnızca "gündüz sıcak, gece soğuk" diyebilir; 3–4 daha ince ayrıntıları da yakalar. Çok büyük seçersen model gürültüyü de ezberler. Buna <b>aşırı öğrenme</b> denir.</p>
+    <div class="dugmeler" style="align-items:center">
+      <label>Gezegen: <select id="gezegen"></select></label>
+      <label>Harmonik: <select id="harmonik"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+      <button class="dugme ana" id="egit">🧠 Modeli eğit</button>
+    </div>
+    <div id="egitimSonuc"></div>
+    <div class="grafikler" id="grafikler"></div>
+  </section>
+
+  <!-- ===================================================== 4 -->
+  <section class="adim">
+    <h2><span>4</span>Modeli simülatöre bağla</h2>
+    <div id="disaAktar"><p style="color:var(--soluk)">Önce modeli eğit.</p></div>
+  </section>
+
+  <section class="adim">
+    <h2>Nasıl çalışıyor?</h2>
+    <p><b>Model:</b> f(t) = a₀ + a₁·cos(2πt/24) + b₁·sin(2πt/24) + a₂·cos(4πt/24) + b₂·sin(4πt/24) + …  (t = yerel saat)</p>
+    <p><b>Eğitim:</b> a₀, a₁, b₁… katsayıları, modelin ölçümlerden farklarının karelerinin toplamı en küçük olacak şekilde seçilir (<b>en küçük kareler yöntemi</b>). Bu, aslında matris denklemi (XᵀX)·k = Xᵀy'nin çözümüdür.</p>
+    <p><b>Başarı ölçüleri:</b> <b>RMSE</b>, modelin ölçümlerden ortalama ne kadar saptığıdır (birimi ölçümle aynı). <b>R²</b>, verideki değişimin ne kadarını modelin açıkladığıdır (1 = hepsini).</p>
+    <p><b>Hava yoğunluğu:</b> ideal gaz yasasından gelir: ρ = p ÷ (R·T). Mars'ın havası çoğunlukla CO₂ olduğu için R ≈ 191,8 J/(kg·K) alınır; Dünya'da 287,05.</p>
+    <p><b>Neden önemli?</b> Rotorun itkisi ve harcadığı güç hava yoğunluğuna bağlıdır. Soğuk saatlerde hava daha yoğundur, aynı helikopter daha az güçle uçar. Ingenuity ekibi de uçuşları planlarken hava koşullarını hesaba katıyordu.</p>
+  </section>
+</main>
+<script type="module">
+import { egit, hesapla } from './atmosfer.js';
+import { GEZEGENLER } from './gezegenler.js';
+import { rotorGucu } from './fizik.js';
+
+const $ = s => document.querySelector(s);
+const say = (v, b = 2) => (Number.isFinite(v) ? v.toLocaleString('tr-TR', { minimumFractionDigits: b, maximumFractionDigits: b }) : '—');
+const saatYaz = h => { const d = Math.round(((h % 24) + 24) % 24 * 60) % 1440; return `${String(Math.floor(d / 60)).padStart(2, '0')}:${String(d % 60).padStart(2, '0')}`; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let GOREV = null;
+try { ({ GOREV } = await import('./ayarlar.js')); } catch { /* ayarlar.js bozuksa atölye yine çalışır */ }
+
+// ---- gezegen seçimi (yalnızca havası olanlar)
+$('#gezegen').innerHTML = Object.entries(GEZEGENLER).filter(([, g]) => g.gazSabiti_J_kgK > 0)
+  .map(([k, g]) => `<option value="${k}" ${k === (GOREV?.gezegen ?? 'mars') ? 'selected' : ''}>${g.ad}</option>`).join('');
+
+// ================================================================ okuma
+const BUYUKLUKLER = {
+  basinc: { ad: 'Basınç', birimler: { Pa: 1, hPa: 100, mbar: 100, kPa: 1000 } },
+  sicaklik: { ad: 'Sıcaklık', birimler: { K: 'K', '°C': 'C' } },
+  ruzgarHiz: { ad: 'Rüzgâr hızı', birimler: { 'm/s': 1, 'km/h': 1 / 3.6 } },
+  ruzgarYon: { ad: 'Rüzgâr yönü', birimler: { 'derece (geldiği yön)': 'gel', 'derece (gittiği yön)': 'git' } },
+};
+let dosyalar = [];   // {ad, sutunlar, satirlar, eslesme:{saat, kayma, basinc:{sutun,birim}, ...}, alistirma}
+
+function ayrisir(ad, metin) {
+  let satirlar = metin.split(/\r?\n/);
+  const son = satirlar.findIndex(s => /-END HEADER-/i.test(s));   // NASA POWER başlık bloğu
+  if (son >= 0) satirlar = satirlar.slice(son + 1);
+  satirlar = satirlar.filter(s => s.trim() && !s.trim().startsWith('#'));
+  if (satirlar.length < 3) throw new Error('Dosyada yeterli satır yok.');
+  const ilk = satirlar[0];
+  const ayrac = [',', ';', '\t'].map(a => [a, ilk.split(a).length]).sort((a, b) => b[1] - a[1])[0];
+  const bol = ayrac[1] > 1 ? s => s.split(ayrac[0]).map(x => x.trim().replace(/^"|"$/g, '')) : s => s.trim().split(/\s+/);
+  const ilkHucreler = bol(ilk);
+  const baslikVar = ilkHucreler.filter(h => h !== '' && Number.isNaN(Number(h))).length > ilkHucreler.length / 2;
+  const sutunlar = baslikVar ? ilkHucreler : ilkHucreler.map((_, i) => `sütun ${i + 1}`);
+  const veri = (baslikVar ? satirlar.slice(1) : satirlar).map(bol);
+  const tahmin = re => sutunlar.findIndex(s => re.test(s));
+  const eslesme = { saat: Math.max(0, tahmin(/LTST|LOCAL.?TRUE|^HR$|HOUR|SAAT/i)), kayma: 0 };
+  const bul = (re, birim) => { const i = tahmin(re); return i >= 0 ? { sutun: i, birim } : { sutun: -1, birim }; };
+  eslesme.basinc = bul(/PRESS|^PS$|BASIN/i, /^PS$/i.test(sutunlar[tahmin(/PRESS|^PS$|BASIN/i)] ?? '') ? 'kPa' : 'Pa');
+  eslesme.sicaklik = bul(/ATS|AIR.?TEMP|^T2M$|TEMP|SICAK/i, /T2M/i.test(sutunlar.join()) ? '°C' : 'K');
+  eslesme.ruzgarHiz = bul(/WIND.?SPEED|HORIZONTAL.?WIND|^WS10M$|^WS$|HIZ/i, 'm/s');
+  eslesme.ruzgarYon = bul(/WIND.?DIR|^WD10M$|^WD$|YON/i, 'derece (geldiği yön)');
+  return { ad, sutunlar, veri, eslesme };
+}
+
+function saatCoz(v) {
+  const m = [...String(v).matchAll(/(\d{1,2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?/g)].at(-1);
+  if (m) return +m[1] + +m[2] / 60 + (+(m[3] ?? 0)) / 3600;
+  const n = Number(v); if (!Number.isFinite(n)) return NaN;
+  return n <= 24 ? n : n <= 86400 ? n / 3600 : NaN;
+}
+const sayiCoz = v => { const n = Number(String(v).replace(',', '.')); return Number.isFinite(n) && n > -900 ? n : NaN; };
+
+function dosyaCiz() {
+  $('#dosyalar').innerHTML = dosyalar.map((d, i) => `
+    <div class="dosya">
+      <div class="bas"><span>${d.alistirma ? '🧪 ' : '📄 '}${esc(d.ad)}</span><small>${d.veri.length.toLocaleString('tr-TR')} satır · ${d.sutunlar.length} sütun</small></div>
+      ${d.alistirma ? '<div class="not kirmizi">ALIŞTIRMA VERİSİ: gerçek ölçüm değildir, aracı denemek için uydurulmuştur. Gerçek modeli MEDA verisiyle eğitin.</div>' : ''}
+      <div class="eslesme">
+        <label>Saat sütunu<select data-i="${i}" data-alan="saat">${d.sutunlar.map((s, j) => `<option value="${j}" ${d.eslesme.saat === j ? 'selected' : ''}>${esc(s)} — örn. ${esc(d.veri[0]?.[j] ?? '')}</option>`).join('')}</select></label>
+        <label>Saat kayması (saat)<input type="number" step="0.5" value="${d.eslesme.kayma}" data-i="${i}" data-alan="kayma"></label>
+        ${Object.entries(BUYUKLUKLER).map(([k, b]) => `<label>${b.ad}
+          <select data-i="${i}" data-alan="${k}"><option value="-1">yok</option>${d.sutunlar.map((s, j) => `<option value="${j}" ${d.eslesme[k].sutun === j ? 'selected' : ''}>${esc(s)} — örn. ${esc(d.veri[0]?.[j] ?? '')}</option>`).join('')}</select>
+          <select data-i="${i}" data-birim="${k}">${Object.keys(b.birimler).map(u => `<option ${d.eslesme[k].birim === u ? 'selected' : ''}>${u}</option>`).join('')}</select></label>`).join('')}
+      </div>
+    </div>`).join('');
+}
+$('#dosyalar').addEventListener('change', e => {
+  const t = e.target, d = dosyalar[t.dataset.i]; if (!d) return;
+  if (t.dataset.alan === 'saat') d.eslesme.saat = +t.value;
+  else if (t.dataset.alan === 'kayma') d.eslesme.kayma = +t.value || 0;
+  else if (t.dataset.alan) d.eslesme[t.dataset.alan].sutun = +t.value;
+  else if (t.dataset.birim) d.eslesme[t.dataset.birim].birim = t.value;
+});
+$('#dosyaSec').addEventListener('change', async e => {
+  for (const f of e.target.files) {
+    try { dosyalar.push(ayrisir(f.name, await f.text())); }
+    catch (h) { alert(`${f.name} okunamadı: ${h.message}`); }
+  }
+  e.target.value = ''; dosyaCiz();
+});
+$('#temizle').onclick = () => { dosyalar = []; dosyaCiz(); $('#grafikler').innerHTML = ''; $('#egitimSonuc').innerHTML = ''; $('#disaAktar').innerHTML = '<p style="color:var(--soluk)">Önce modeli eğit.</p>'; };
+
+// Alıştırma: gerçek DEĞİL, aracın işleyişini görmek için uydurulmuş Mars benzeri veri
+$('#alistirma').onclick = () => {
+  let tohum = 7; const r = () => ((tohum = (tohum * 16807) % 2147483647) / 2147483647);
+  const sutunlar = ['LTST', 'PRESSURE', 'AIR_TEMPERATURE', 'WIND_SPEED', 'WIND_DIRECTION'], veri = [];
+  for (let sol = 0; sol < 3; sol++) for (let m = 0; m < 24 * 60; m += 2) {
+    const t = m / 60, w = 2 * Math.PI * t / 24;
+    const p = 735 + 9 * Math.cos(w - 0.9) + 4 * Math.cos(2 * w + 0.5) + (r() - 0.5) * 3;
+    const T = 228 + 26 * Math.cos(w - 3.6) + 5 * Math.cos(2 * w - 1) + (r() - 0.5) * 4;
+    const ws = Math.max(0, 4 + 3 * Math.cos(w - 3.4) + (r() - 0.5) * 2), wd = (140 + 60 * Math.sin(w) + (r() - 0.5) * 30 + 360) % 360;
+    veri.push([`${String(Math.floor(t)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:00`, p.toFixed(2), T.toFixed(2), ws.toFixed(2), wd.toFixed(1)]);
+  }
+  dosyalar.push({ ad: 'alistirma-verisi.csv (uydurma)', sutunlar, veri, alistirma: true,
+    eslesme: { saat: 0, kayma: 0, basinc: { sutun: 1, birim: 'Pa' }, sicaklik: { sutun: 2, birim: 'K' }, ruzgarHiz: { sutun: 3, birim: 'm/s' }, ruzgarYon: { sutun: 4, birim: 'derece (geldiği yön)' } } });
+  dosyaCiz();
+};
+
+// ================================================================ eğitim
+const BOLME = 0.1;   // 6 dakikalık kutularda ortala (1 saniyelik veri çok büyük)
+function seriler() {
+  const s = { basinc: [], sicaklik: [], ruzgarDogu: [], ruzgarKuzey: [] }, kutu = {};
+  const ekle = (ad, saat, deger) => { const k = `${ad}|${Math.floor(saat / BOLME)}`; (kutu[k] ??= { ad, saat: (Math.floor(saat / BOLME) + 0.5) * BOLME, top: 0, n: 0 }); kutu[k].top += deger; kutu[k].n++; };
+  for (const d of dosyalar) {
+    const e = d.eslesme;
+    for (const satir of d.veri) {
+      let saat = saatCoz(satir[e.saat]); if (!Number.isFinite(saat)) continue;
+      saat = (((saat + e.kayma) % 24) + 24) % 24;
+      if (e.basinc.sutun >= 0) { const v = sayiCoz(satir[e.basinc.sutun]); if (Number.isFinite(v)) ekle('basinc', saat, v * BUYUKLUKLER.basinc.birimler[e.basinc.birim]); }
+      if (e.sicaklik.sutun >= 0) { const v = sayiCoz(satir[e.sicaklik.sutun]); if (Number.isFinite(v)) ekle('sicaklik', saat, e.sicaklik.birim === '°C' ? v + 273.15 : v); }
+      if (e.ruzgarHiz.sutun >= 0 && e.ruzgarYon.sutun >= 0) {
+        const h = sayiCoz(satir[e.ruzgarHiz.sutun]) * BUYUKLUKLER.ruzgarHiz.birimler[e.ruzgarHiz.birim], y = sayiCoz(satir[e.ruzgarYon.sutun]);
+        if (Number.isFinite(h) && Number.isFinite(y)) {
+          // meteorolojide yön, rüzgârın GELDİĞİ yöndür: gittiği yön = geldiği + 180°
+          const git = (e.ruzgarYon.birim.includes('geldiği') ? y + 180 : y) * Math.PI / 180;
+          ekle('ruzgarDogu', saat, h * Math.sin(git)); ekle('ruzgarKuzey', saat, h * Math.cos(git));
+        }
+      }
+    }
+  }
+  for (const k of Object.values(kutu)) s[k.ad].push([k.saat, k.top / k.n]);
+  for (const a in s) s[a].sort((x, y) => x[0] - y[0]);
+  return s;
+}
+
+function grafik(baslik, birim, noktalar, egri, renk = '#6cc3ff', not = '') {
+  const kap = document.createElement('div'); kap.className = 'grafik';
+  kap.innerHTML = `<div class="ust"><b>${baslik}</b><span>${not}</span></div><canvas width="880" height="420"></canvas>`;
+  const c = kap.querySelector('canvas'), x = c.getContext('2d'), W = 880, H = 420, sl = 70, sa = 40, ust = 14, sag = 14;
+  const tum = [...noktalar.map(p => p[1]), ...egri.map(p => p[1])];
+  let lo = Math.min(...tum), hi = Math.max(...tum); const pay = (hi - lo) * 0.08 || 1; lo -= pay; hi += pay;
+  const X = t => sl + (t / 24) * (W - sl - sag), Y = v => ust + (1 - (v - lo) / (hi - lo)) * (H - ust - sa);
+  x.strokeStyle = '#ffffff22'; x.fillStyle = '#a6b0bf'; x.font = '18px system-ui'; x.lineWidth = 1;
+  for (let t = 0; t <= 24; t += 3) { x.beginPath(); x.moveTo(X(t), ust); x.lineTo(X(t), H - sa); x.stroke(); x.textAlign = 'center'; x.fillText(String(t).padStart(2, '0'), X(t), H - 12); }
+  for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4; x.beginPath(); x.moveTo(sl, Y(v)); x.lineTo(W - sag, Y(v)); x.stroke(); x.textAlign = 'right'; x.fillText(say(v, Math.abs(hi - lo) < 1 ? 3 : Math.abs(hi - lo) < 20 ? 1 : 0), sl - 8, Y(v) + 6); }
+  x.save(); x.translate(16, H / 2); x.rotate(-Math.PI / 2); x.textAlign = 'center'; x.fillText(birim, 0, 0); x.restore();
+  x.fillStyle = renk + '88'; for (const [t, v] of noktalar) { x.beginPath(); x.arc(X(t), Y(v), 2.6, 0, 7); x.fill(); }
+  x.strokeStyle = '#ff9a52'; x.lineWidth = 3; x.beginPath(); egri.forEach(([t, v], i) => (i ? x.lineTo(X(t), Y(v)) : x.moveTo(X(t), Y(v)))); x.stroke();
+  return kap;
+}
+const egriUret = f => Array.from({ length: 241 }, (_, i) => [i / 10, f(i / 10)]);
+
+let sonModel = null;
+$('#egit').onclick = () => {
+  $('#grafikler').innerHTML = ''; $('#egitimSonuc').innerHTML = '';
+  try {
+    if (!dosyalar.length) throw new Error('Önce dosya yükle ya da alıştırma verisini dene.');
+    const h = +$('#harmonik').value, gz = GEZEGENLER[$('#gezegen').value], R = gz.gazSabiti_J_kgK, s = seriler();
+    if (s.basinc.length < 10 || s.sicaklik.length < 10) throw new Error('Hava yoğunluğu için hem basınç hem sıcaklık gerekli. Sütun eşleştirmesini kontrol et (birim seçimi dahil).');
+    const m = {};
+    for (const [ad, birim] of [['basinc', 'Pa'], ['sicaklik', 'K'], ['ruzgarDogu', 'm/s'], ['ruzgarKuzey', 'm/s']]) {
+      if (s[ad].length < 10) continue;
+      m[ad] = egit(s[ad].map(p => p[0]), s[ad].map(p => p[1]), h); m[ad].birim = birim;
+    }
+    const f = (ad, t) => (m[ad] ? hesapla(m[ad].k, t) : 0);
+    const rho = t => f('basinc', t) / (R * f('sicaklik', t));
+    const bas = (ad, ad2, birim, renk) => $('#grafikler').append(grafik(ad2, birim, s[ad], egriUret(t => f(ad, t)), renk, `RMSE ${say(m[ad].rmse, 2)} ${birim} · R² ${say(m[ad].r2, 3)} · ${m[ad].n} nokta`));
+    bas('basinc', 'Basınç', 'Pa', '#6cc3ff'); bas('sicaklik', 'Sıcaklık', 'K', '#ff7b7b');
+    if (m.ruzgarDogu) { bas('ruzgarDogu', 'Rüzgâr: doğuya doğru bileşen', 'm/s', '#6fdc8c'); bas('ruzgarKuzey', 'Rüzgâr: kuzeye doğru bileşen', 'm/s', '#6fdc8c'); }
+    const rhoEgri = egriUret(rho);
+    const enYogun = rhoEgri.reduce((a, b) => (b[1] > a[1] ? b : a)), enSeyrek = rhoEgri.reduce((a, b) => (b[1] < a[1] ? b : a));
+    $('#grafikler').append(grafik('Hava yoğunluğu ρ = p ÷ (R·T)  (modelden)', 'kg/m³', [], rhoEgri, '#ffd34d', `en yoğun ${saatYaz(enYogun[0])} civarı · en seyrek ${saatYaz(enSeyrek[0])} civarı`));
+    let gucNot = '';
+    if (GOREV?.arac?.tip === 'rotor' && GOREV.gezegen === $('#gezegen').value) {
+      const W = GOREV.arac.kutle_kg * (GOREV.yercekimi_m_s2 ?? gz.yercekimi_m_s2);
+      const guc = egriUret(t => rotorGucu(GOREV.arac, W, rho(t), 0));
+      const enAz = guc.reduce((a, b) => (b[1] < a[1] ? b : a)), enCok = guc.reduce((a, b) => (b[1] > a[1] ? b : a));
+      $('#grafikler').append(grafik(`Askıda kalma gücü: ${GOREV.arac.ad}`, 'W', [], guc, '#c9a2ff', `en az ${say(enAz[1], 0)} W (${saatYaz(enAz[0])}) · en çok ${say(enCok[1], 0)} W (${saatYaz(enCok[0])})`));
+      gucNot = ` Aracınız askıda kalmak için en az gücü saat <b>${saatYaz(enAz[0])}</b> civarında harcıyor (${say(enAz[1], 0)} W); en çok gücü <b>${saatYaz(enCok[0])}</b> civarında (${say(enCok[1], 0)} W).`;
+    }
+    $('#egitimSonuc').innerHTML = `<div class="sonuc">✓ Model eğitildi (${h} harmonik). Hava en yoğun saat ${saatYaz(enYogun[0])} civarında (${say(enYogun[1], 4)} kg/m³), en seyrek ${saatYaz(enSeyrek[0])} civarında (${say(enSeyrek[1], 4)} kg/m³).${gucNot}</div>
+      <div class="not mavi">🔎 Grafiklerde noktalar ölçümler (6 dakikalık ortalamalar), turuncu eğri modelin tahmini. RMSE küçük ve R² 1'e yakınsa model veriyi iyi yakalamıştır. Harmonik sayısını değiştirip yeniden eğit: hangisi en iyi? Neden çok büyük harmonik iyi olmayabilir?</div>`;
+    const alistirma = dosyalar.some(d => d.alistirma);
+    sonModel = { m, h, gezegen: $('#gezegen').value, R, alistirma, olcumSayisi: Object.values(m).reduce((t, x) => t + x.n, 0) };
+    disaAktarCiz();
+  } catch (e) { $('#egitimSonuc').innerHTML = `<div class="hata">⚠ ${esc(e.message)}</div>`; }
+};
+
+// ================================================================ dışa aktar
+function disaAktarCiz() {
+  const sm = sonModel, varsayilanAd = sm.gezegen === 'mars' ? 'jezero-atmosfer' : `${sm.gezegen}-atmosfer`;
+  const kaynak = sm.alistirma ? 'ALIŞTIRMA VERİSİ — gerçek ölçüm değil' : sm.gezegen === 'mars' ? `NASA PDS, Mars 2020 MEDA (${dosyalar.map(d => d.ad).join(', ')})` : `NASA POWER (${dosyalar.map(d => d.ad).join(', ')})`;
+  $('#disaAktar').innerHTML = `
+    <div class="eslesme">
+      <label>Model adı<input type="text" id="modelAd" value="${varsayilanAd}"></label>
+      <label>Kaynak (dosyaların nereden geldiği)<input type="text" id="modelKaynak" value="${esc(kaynak)}"></label>
+      <label>Görevin başlayacağı yerel saat (0–24)<input type="number" id="modelSaat" min="0" max="23.9" step="0.5" value="10"></label>
+    </div>
+    <div class="dugmeler"><button class="dugme ana" id="indir">⬇ Modeli indir (.json)</button><button class="dugme ikinci" id="satirKopyala">📋 ayarlar.js satırını kopyala</button></div>
+    <ol style="font-size:15px">
+      <li>İndirdiğin dosyayı kit klasöründeki <code>veri/</code> klasörüne koy.</li>
+      <li><code>ayarlar.js</code>'teki <code>// atmosfer: ...</code> satırını aşağıdakiyle değiştir (başında <code>//</code> olmasın):</li>
+    </ol>
+    <pre class="kod" id="satir"></pre>
+    <ol start="3" style="font-size:15px">
+      <li>Oyunu yenile: giriş ekranında "Atmosfer: 🛰 veri modeli" ve o saatteki basınç, sıcaklık, rüzgâr görünür. 🧮 Hesaplar sayfası da artık bu yoğunluğu kullanır.</li>
+      <li>Deney yap: <code>saat</code> değerini değiştirip (ör. 7, 10, 13, 16) askıda kalma gücünü ve süresini karşılaştır. Sonuçları <code>FIZIK-HESAPLARI.md</code>'ye yaz.</li>
+    </ol>
+    ${sm.alistirma ? '<div class="not kirmizi">Bu model alıştırma verisiyle eğitildi. Oyun bunu giriş ekranında uyarı olarak gösterir. Projede gerçek MEDA verisiyle eğitilmiş modeli kullanın.</div>' : ''}`;
+  const guncelle = () => { $('#satir').textContent = `  atmosfer: { model: 'veri/${$('#modelAd').value.replace(/[^\w.-]/g, '-')}.json', saat: ${+$('#modelSaat').value || 0} },`; };
+  $('#modelAd').oninput = guncelle; $('#modelSaat').oninput = guncelle; guncelle();
+  $('#satirKopyala').onclick = async () => { try { await navigator.clipboard.writeText($('#satir').textContent.trim()); $('#satirKopyala').textContent = 'Kopyalandı ✓'; } catch { } };
+  $('#indir').onclick = () => {
+    const ad = $('#modelAd').value.replace(/[^\w.-]/g, '-');
+    const json = {
+      ad, gezegen: sm.gezegen, kaynak: $('#modelKaynak').value, olusturma: new Date().toISOString().slice(0, 10),
+      aciklama: 'Gün içi döngü modeli: f(t) = a0 + Σ [ak·cos(2πkt/24) + bk·sin(2πkt/24)], t = yerel güneş saati. Katsayılar k = [a0, a1, b1, a2, b2, ...]. Görev Kiti Veri Atölyesi ile en küçük kareler yöntemiyle eğitildi.',
+      harmonik: sm.h, gazSabiti_J_kgK: sm.R, olcumSayisi: sm.olcumSayisi,
+      dosyalar: dosyalar.map(d => d.ad),
+      basinc_Pa: { k: sm.m.basinc.k }, sicaklik_K: { k: sm.m.sicaklik.k },
+      ...(sm.m.ruzgarDogu ? { ruzgarDogu_m_s: { k: sm.m.ruzgarDogu.k }, ruzgarKuzey_m_s: { k: sm.m.ruzgarKuzey.k } } : {}),
+      hata: Object.fromEntries(Object.entries(sm.m).map(([a, v]) => [a, { rmse: +v.rmse.toPrecision(4), r2: +v.r2.toFixed(4), n: v.n }])),
+    };
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' })); a.download = `${ad}.json`; a.click();
+  };
+}
+</script>
+</body>
+</html>

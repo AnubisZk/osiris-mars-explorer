@@ -145,3 +145,36 @@ test('transparency: every prepared prompt has a stable code; agents must log pro
   assert.match(KOMUTLAR.find(k => k.kod === 'K0.1').metin, /KOMUT-KAYDI\.md'ye kelimesi kelimesine kaydet/);
   assert.match(readFileSync(new URL('../gorev-kiti/KOMUT-KAYDI.md', import.meta.url), 'utf8'), /## Kayıtlar/);
 });
+
+test('atmosfer.js: least squares recovers a known daily cycle; ρ = p/(R·T); the game physics uses the model', async () => {
+  const { egit, hesapla, atmosferModeli, atmosferiBagla } = await import('../gorev-kiti/atmosfer.js');
+  const gercek = t => 730 + 10 * Math.cos(2 * Math.PI * t / 24) - 4 * Math.sin(4 * Math.PI * t / 24);
+  const saat = Array.from({ length: 480 }, (_, i) => i * 0.05);
+  const m = egit(saat, saat.map(gercek), 2);
+  assert.ok(Math.abs(m.k[0] - 730) < 1e-6 && Math.abs(m.k[1] - 10) < 1e-6 && Math.abs(m.k[4] + 4) < 1e-6);
+  assert.ok(m.rmse < 1e-6 && m.r2 > 0.999999);
+  assert.ok(Math.abs(hesapla(m.k, 6) - gercek(6)) < 1e-9);
+  assert.throws(() => egit([1, 2, 3], [1, 2, 3], 2), /az ölçüm/);
+
+  // Constant model p = 700 Pa, T = 200 K on Mars → ρ = 700 / (191.8 × 200)
+  const sabit = v => ({ k: [v, 0, 0] });
+  const json = { ad: 'test', gezegen: 'mars', kaynak: 'test', basinc_Pa: sabit(700), sicaklik_K: sabit(200), ruzgarDogu_m_s: sabit(3), ruzgarKuzey_m_s: sabit(0) };
+  const model = atmosferModeli(json, GEZEGENLER.mars.gazSabiti_J_kgK);
+  assert.ok(Math.abs(model(10).rho - 700 / (191.8 * 200)) < 1e-12);
+
+  const g = structuredClone(GOREVLER.jezero); g.atmosfer = { model: 'veri/test.json', saat: 9 };
+  await atmosferiBagla(g, async () => json, GEZEGENLER.mars.gazSabiti_J_kgK);
+  assert.ok(Math.abs(ortam(g).rho0 - 700 / (191.8 * 200)) < 1e-12);
+  assert.ok(Math.abs(aracOzeti(g).maksItki_N / aracOzeti(GOREVLER.jezero).maksItki_N - ortam(g).rho0 / 0.020) < 1e-9);
+  const d = otopilot(g);
+  assert.equal(d.sonuc?.tur, 'basari', d.sonuc?.mesaj);
+  const json2 = { ...json, gezegen: 'titan' };
+  await assert.rejects(atmosferiBagla(structuredClone(g), async () => json2, 191.8), /titan/);
+});
+
+test('ayarlar.js generator writes the optional atmosfer line, commented by default', async () => {
+  assert.match(ayarlarDosyasi(GOREVLER.jezero), /\/\/ atmosfer: \{ model: 'veri\/jezero-atmosfer\.json', saat: 10 \},/);
+  const g = { ...GOREVLER.jezero, atmosfer: { model: 'veri/x.json', saat: 7.5 } };
+  const { GOREV } = await import('data:text/javascript;base64,' + Buffer.from(ayarlarDosyasi(g)).toString('base64'));
+  assert.deepEqual(GOREV.atmosfer, { model: 'veri/x.json', saat: 7.5 });
+});

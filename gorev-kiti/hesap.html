@@ -34,7 +34,8 @@
   // sonuçlarınızı buradakilerle karşılaştırın.
   const $ = s => document.querySelector(s);
   try {
-    const [{ GOREV }, { GOREVLER }, { hesapRaporu }] = await Promise.all([import('./ayarlar.js'), import('./gorevler.js'), import('./hesap.js')]);
+    const [{ GOREV }, { GOREVLER }, { hesapRaporu }, { atmosferiBagla }, { GEZEGENLER }] = await Promise.all([import('./ayarlar.js'), import('./gorevler.js'), import('./hesap.js'), import('./atmosfer.js'), import('./gezegenler.js')]);
+    await atmosferiBagla(GOREV, async yol => { const r = await fetch(yol, { cache: 'no-store' }); if (!r.ok) throw new Error(`Atmosfer modeli bulunamadı: ${yol}`); return r.json(); }, GEZEGENLER[GOREV.gezegen]?.gazSabiti_J_kgK);
     const ek = new URLSearchParams(location.search).get('gorev');
     $('#secim').innerHTML = `<option value="">ayarlar.js (sizin göreviniz)</option>` + Object.values(GOREVLER).map(g => `<option value="${g.kimlik}" ${ek === g.kimlik ? 'selected' : ''}>Hazır görev: ${g.baslik}</option>`).join('');
     $('#secim').onchange = e => { location.search = e.target.value ? `?gorev=${e.target.value}` : ''; };

@@ -263,3 +263,11 @@ closed until the teacher sets `ATOLYE_KODU` (class code) in the Netlify environm
 (scope: Functions); optional `GUNLUK_SINIR` (daily request cap, default 300) and
 `YZ_MODEL_CLAUDE` / `YZ_MODEL_CHATGPT` / `YZ_MODEL_GEMINI`. Per-IP rate limit: 20 requests/min.
 Prompts and answers are not stored server-side; only a daily request counter (Netlify Blobs).
+
+### Dijital ikiz (bonus): real NASA data → atmosphere model
+
+`gorev-kiti/veri-atolyesi.html` lets students load MEDA (Perseverance) or NASA POWER CSV files,
+map columns, and fit a daily-cycle Fourier model (least squares, `atmosfer.js`) for pressure,
+temperature and wind; ρ = p/(R·T). The exported JSON goes into `veri/` and one line in
+`ayarlar.js` (`atmosfer: { model, saat }`) makes the game, `hesap.html` and `hesapla.mjs` use
+the modelled density and wind at the chosen local solar time. Student guide: `VERI-IKIZI.md`.
