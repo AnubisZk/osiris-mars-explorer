@@ -48,24 +48,26 @@ Veri Atölyesi sayfasının (oyunun klasöründe `veri-atolyesi.html`) 1. adım�
 3. Her dosya için seçin:
    - **Saat sütunu:** yerel güneş saati. MEDA'da genellikle adında `LTST` geçer (Local True Solar Time).
    - **Basınç**, **sıcaklık**, **rüzgâr hızı** ve **rüzgâr yönü** sütunları ve **birimleri**. Bir dosyada olmayanı "yok" bırakın.
-4. Önce aracın nasıl çalıştığını görmek isterseniz **"🧪 Alıştırma verisiyle dene"** düğmesi var. Ama bu veri **uydurmadır**, projede kullanılmaz.
+4. **Bir solu test için ayırın:** O solun dosyalarında "Bu dosya ne için?" kutusundan **🧪 test** seçin. Model test dosyalarını hiç görmez; doğruluğu orada ölçülür. (En az 2 sol eğitim, 1 sol test.)
+5. Önce aracın nasıl çalıştığını görmek isterseniz **"🧪 Alıştırma verisiyle dene"** düğmesi var. Ama bu veri **uydurmadır**, projede kullanılmaz.
 
 ## Adım 3 — Modeli eğitin (Bilim danışmanı + tüm takım, 20 dk)
 
 1. Gezegeni seçin, **harmonik sayısını** 2 bırakıp **"Modeli eğit"**e basın.
 2. Grafiklere bakın: noktalar ölçümler, turuncu eğri modelin tahmini.
-3. **RMSE** ve **R²** değerlerini aşağıdaki tabloya yazın.
-4. Harmonik sayısını 1, 3 ve 4 yapıp yeniden eğitin. Tabloyu doldurun.
-5. Tartışın: Hangi harmonik sayısı en iyi? Harmonik arttıkça RMSE hep azalıyor mu? Bu, modelin daha **iyi** olduğu anlamına mı gelir? (İpucu: aşırı öğrenme)
+3. Atölye, 1–4 harmonik için **eğitim** ve **test** hatalarını otomatik bir tabloda gösterir. Değerleri aşağıya yazın.
+4. Tartışın: Harmonik arttıkça **eğitim** hatası hep azalıyor mu? **Test** hatası da azalıyor mu? İkisi ayrıldığında ne oluyor? (İpucu: aşırı öğrenme)
+5. **Modelimizin doğruluğu**, seçtiğiniz harmonikteki **test** RMSE ve R²'sidir. Sunumda bunu söyleyin, eğitim hatasını değil.
 
-| Harmonik | Basınç RMSE (Pa) | Basınç R² | Sıcaklık RMSE (K) | Sıcaklık R² |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
+| Harmonik | Basınç RMSE eğitim / test (Pa) | Basınç R² test | Sıcaklık RMSE eğitim / test (K) | Sıcaklık R² test | Rüzgâr R² test |
+|---|---|---|---|---|---|
+| 1 | / | | / | | |
+| 2 | / | | / | | |
+| 3 | / | | / | | |
+| 4 | / | | / | | |
 
-**Seçtiğimiz harmonik sayısı ve nedeni:** [ ... ]
+**Seçtiğimiz harmonik sayısı ve nedeni (test hatasına göre):** [ ... ]
+**Modelimizin doğruluğu (test):** basınç RMSE [ ... ] Pa, sıcaklık RMSE [ ... ] K, rüzgâr R² [ ... ]
 
 ## Adım 4 — Simülatöre bağlayın (Kodcu, 10 dk)
 
@@ -116,6 +118,7 @@ sonra her saat için bir test uçuşu yapıp uçuş raporunu da ekleyin.
 - **En küçük kareler:** Model ile ölçüm arasındaki farkların karelerinin toplamını en küçük yapan yöntem.
 - **RMSE:** Modelin ölçümlerden ortalama sapması (birimi ölçümün birimi).
 - **R²:** Verideki değişimin modelce açıklanan oranı (1 = tamamı).
+- **Eğitim / test verisi:** Model eğitim verisinden öğrenir; doğruluğu, hiç görmediği test verisinde ölçülür.
 - **Aşırı öğrenme:** Modelin gürültüyü de ezberlemesi; eğitim verisinde iyi, yeni veride kötü.
 - **Dijital ikiz:** Gerçek bir sistemin, gerçek verilerle güncellenen bilgisayar modeli.
 

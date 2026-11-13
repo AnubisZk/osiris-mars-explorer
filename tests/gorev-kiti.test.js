@@ -178,3 +178,17 @@ test('ayarlar.js generator writes the optional atmosfer line, commented by defau
   const { GOREV } = await import('data:text/javascript;base64,' + Buffer.from(ayarlarDosyasi(g)).toString('base64'));
   assert.deepEqual(GOREV.atmosfer, { model: 'veri/x.json', saat: 7.5 });
 });
+
+test('atmosfer.js: held-out evaluation exposes overfitting that the training error hides', async () => {
+  const { egit, degerlendir } = await import('../gorev-kiti/atmosfer.js');
+  let t = 3; const r = () => ((t = (t * 16807) % 2147483647) / 2147483647) - 0.5;
+  const gercek = h => 730 + 10 * Math.cos(2 * Math.PI * h / 24);
+  const egitimSaat = Array.from({ length: 40 }, () => (r() + 0.5) * 24), testSaat = Array.from({ length: 400 }, (_, i) => i * 0.06);
+  const egitimY = egitimSaat.map(h => gercek(h) + r() * 6), testY = testSaat.map(h => gercek(h) + r() * 6);
+  const az = egit(egitimSaat, egitimY, 1), cok = egit(egitimSaat, egitimY, 4);
+  assert.ok(cok.rmse <= az.rmse, 'more harmonics never raise the training error');
+  const tAz = degerlendir(az.k, testSaat, testY), tCok = degerlendir(cok.k, testSaat, testY);
+  assert.ok(tCok.rmse > cok.rmse, 'test error is worse than training error for the flexible model');
+  assert.ok(tAz.rmse < tCok.rmse, 'on unseen data the simpler (correct) model wins');
+  assert.ok(tAz.n === 400 && Number.isFinite(tAz.r2));
+});

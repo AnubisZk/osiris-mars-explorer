@@ -59,6 +59,20 @@ export function egit(saatler, degerler, harmonik = 2) {
   return { k, rmse: Math.sqrt(ss / m), r2: st > 0 ? 1 - ss / st : 1, n: m };
 }
 
+// Modeli, eğitimde HİÇ GÖRMEDİĞİ ölçümlerde sınar (test). Gerçek doğruluk budur:
+// eğitim verisindeki hata, modelin ezberini de ölçer; test verisindeki hata ise genelleme gücünü.
+export function degerlendir(k, saatler, degerler) {
+  let ss = 0, st = 0, ort = 0, m = 0;
+  for (let i = 0; i < saatler.length; i++) if (Number.isFinite(degerler[i]) && Number.isFinite(saatler[i])) { ort += degerler[i]; m++; }
+  if (!m) return { rmse: NaN, r2: NaN, n: 0 };
+  ort /= m;
+  for (let i = 0; i < saatler.length; i++) {
+    if (!Number.isFinite(degerler[i]) || !Number.isFinite(saatler[i])) continue;
+    const e = degerler[i] - hesapla(k, saatler[i]); ss += e * e; st += (degerler[i] - ort) ** 2;
+  }
+  return { rmse: Math.sqrt(ss / m), r2: st > 0 ? 1 - ss / st : NaN, n: m };
+}
+
 export function hesapla(k, saat) {
   const x = ozellikler(saat, (k.length - 1) / 2);
   return x.reduce((t, v, i) => t + v * k[i], 0);
