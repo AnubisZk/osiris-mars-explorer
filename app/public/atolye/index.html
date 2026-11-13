@@ -92,6 +92,39 @@
   footer{padding:40px 0 60px;color:var(--soluk);font-size:13px}
   #bildirim{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2533;border:1px solid var(--cizgi);padding:8px 14px;border-radius:10px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
   #bildirim.on{opacity:1}
+
+  /* asistan */
+  #asistanAc{position:fixed;right:18px;bottom:18px;z-index:25;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:99px;border:0;background:linear-gradient(90deg,#ff9a52,#ffd34d);color:#1d1005;font:700 15px system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 30px #0008}
+  #asistan{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);z-index:40;background:#0f131b;border-left:1px solid var(--cizgi);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .25s;box-shadow:-20px 0 60px #0009}
+  #asistan.acik{transform:none}
+  #asistan header{padding:14px 16px;border-bottom:1px solid var(--cizgi);display:grid;gap:10px}
+  #asistan header .ust{display:flex;align-items:center;gap:10px}#asistan header .ust b{flex:1;font-size:17px}
+  #asistan .kapat{background:none;border:0;color:var(--soluk);font-size:24px;cursor:pointer;line-height:1}
+  .modelSec{display:flex;gap:6px;flex-wrap:wrap}
+  .modelSec button{border:1px solid var(--cizgi);background:#ffffff0d;color:var(--yazi);border-radius:99px;padding:6px 12px;font:600 13px system-ui,sans-serif;cursor:pointer}
+  .modelSec button.secili{background:var(--turuncu);color:#1d1005;border-color:var(--turuncu)}
+  .modelSec button:disabled{opacity:.35;cursor:not-allowed}
+  .kodSatir{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--soluk)}
+  .kodSatir input{flex:1;background:#0b0f16;color:var(--yazi);border:1px solid var(--cizgi);border-radius:8px;padding:6px 9px;font:inherit}
+  #asistanDurum{font-size:12px;color:var(--soluk)}
+  #mesajlar{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+  .msj{border-radius:12px;padding:10px 12px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
+  .msj.ben{background:#1d2a3a;align-self:flex-end;max-width:92%;white-space:pre-wrap}
+  .msj.yz{background:#161c27;border:1px solid var(--cizgi)}
+  .msj .kim{font-size:12px;font-weight:700;color:var(--turuncu);margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+  .msj .kim span{color:var(--soluk);font-weight:500}
+  .msj p{margin:6px 0}.msj ul{margin:6px 0;padding-left:20px}.msj h4{margin:10px 0 4px;font-size:14px;color:var(--mavi)}
+  .msj pre{position:relative;background:#0b0f16;border:1px solid var(--cizgi);border-radius:8px;padding:10px;overflow-x:auto;font:12.5px/1.5 ui-monospace,Consolas,monospace;white-space:pre}
+  .msj pre button{position:absolute;top:6px;right:6px;font:11px system-ui;background:#ffffff1a;color:var(--yazi);border:1px solid var(--cizgi);border-radius:6px;padding:2px 7px;cursor:pointer}
+  .msj.hata{background:#3b1717;color:#ffd0d0}
+  .karsilastir{display:grid;grid-template-columns:1fr;gap:10px}
+  .yaziyor::after{content:'▍';animation:yanip .9s steps(1) infinite;color:var(--turuncu)}@keyframes yanip{50%{opacity:0}}
+  #asistan footer{border-top:1px solid var(--cizgi);padding:12px 16px;display:grid;gap:8px}
+  #girdi{width:100%;min-height:90px;max-height:40vh;resize:vertical;background:#0b0f16;color:var(--yazi);border:1px solid var(--cizgi);border-radius:10px;padding:10px;font:14px/1.5 system-ui,sans-serif}
+  #asistan footer .satir{display:flex;gap:8px;align-items:center;flex-wrap:wrap}#asistan footer .satir .bosluk{flex:1}
+  #asistan .uyari{font-size:12px;color:var(--soluk)}
+  #girdiIpucu{font-size:12.5px;color:#ffd8a8;display:none}
+  @media print{#asistanAc,#asistan{display:none!important}}
   @media (max-width:760px){.hesap{grid-template-columns:1fr}nav.ust .gizle{display:none}}
   @media print{
     body{background:#fff;color:#000;font-size:12px}nav.ust,.dugme,.dugmeler,#bildirim{display:none!important}
@@ -186,8 +219,8 @@
       <h3>Hangi işe hangi araç?</h3>
       <table>
         <tr><th>İş</th><th>Araç türü</th></tr>
-        <tr><td>Bilgi bulma, açıklama, hikâye</td><td>Sohbet asistanı (ör. Claude, ChatGPT, Gemini)</td></tr>
-        <tr><td>Kod yazma, hata ayıklama</td><td>Sohbet asistanı ya da kod asistanı</td></tr>
+        <tr><td>Bilgi bulma, açıklama, hikâye</td><td>🤖 Görev Asistanı (Claude, ChatGPT, Gemini)</td></tr>
+        <tr><td>Kod yazma, hata ayıklama</td><td>🤖 Görev Asistanı; uzun kodlarda karşılaştırma modu</td></tr>
         <tr><td>Kapak görseli, simge</td><td>Görsel üretme aracı</td></tr>
         <tr><td>Sayıları doğrulama</td><td><b>Yapay zekâ değil:</b> NASA, ESA, TÜBİTAK kaynakları</td></tr>
       </table>
@@ -204,9 +237,18 @@
       </ul>
     </div>
   </div>
+  <div class="kart" style="margin-top:16px;border-color:#ff9a5266">
+    <h3>🤖 Görev Asistanı: üç yapay zekâ tek yerde</h3>
+    <p style="color:#d4dbe5;margin:6px 0">Bu sayfada <b>Claude</b> (Anthropic), <b>ChatGPT</b> (OpenAI) ve <b>Gemini</b> (Google) hazır. Sağ alttaki <b>🤖 Asistan</b> düğmesine bas ya da herhangi bir komut kartında <b>"Asistana sor"</b>u seç. Komut, seçtiğin görevle doldurulmuş olarak asistana gelir; köşeli parantezli yerleri doldurup gönder.</p>
+    <ul style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:6px 0">
+      <li><b>Bir model seç</b> ve onunla sohbet et: cevaba göre yeni sorular sorabilirsin.</li>
+      <li><b>"Üçünü karşılaştır"</b>: aynı soru üç modele birden gider, cevaplar alt alta gelir. Farklı cevaplar mı verdiler? Hangisi kaynağa uyuyor? Bu, yapay zekâ avının en hızlı yolu!</li>
+      <li>Asistanı kullanmak için öğretmeninin verdiği <b>sınıf kodu</b> gerekir. Her soru bu tarayıcıda otomatik olarak günlüğe yazılır; <b>⬇ Günlük</b> ile <code>YZ-GUNLUGU.md</code> biçiminde indirip "Nasıl kontrol ettin?" sütununu doldur.</li>
+    </ul>
+  </div>
   <div class="kart" style="margin-top:16px">
     <h3>🔎 Isınma oyunu: Yapay zekâ avı (10 dk)</h3>
-    <p style="color:#d4dbe5;margin:6px 0">Takımca bir yapay zekâ aracına sorun: <i>"Mars'ın yüzeyindeki yerçekimi ivmesi, hava yoğunluğu ve Dünya'dan ışık gecikmesi nedir? Kaynak ver."</i> Gelen cevabı aşağıdaki tabloyla ve NASA'nın Mars sayfasıyla karşılaştırın. Farklı olan bir şey var mı? Verdiği kaynak gerçekten var mı ve o sayıyı söylüyor mu? Bulduklarınızı günlüğe yazın.</p>
+    <p style="color:#d4dbe5;margin:6px 0">Asistanda <b>"Üçünü karşılaştır"</b>ı seçip sorun: <i>"Mars'ın yüzeyindeki yerçekimi ivmesi, hava yoğunluğu ve Dünya'dan ışık gecikmesi nedir? Kaynak ver."</i> Üç cevabı birbiriyle, aşağıdaki tabloyla ve NASA'nın Mars sayfasıyla karşılaştırın. Farklı olan bir şey var mı? Verdiği kaynak gerçekten var mı ve o sayıyı söylüyor mu? Bulduklarınızı günlüğe yazın.</p>
   </div>
   <h3 style="margin-top:26px">Tüm komutlar</h3>
   <p class="alt" style="margin-bottom:12px">Aşamalara göre gruplanmış hazır komutlar. Seçili görev: <b id="yzSecili">yok</b> — <a href="#gorevler">görev seç</a>.</p>
@@ -295,6 +337,12 @@
     <div class="kart"><h3>Yayınlama seçenekleri</h3>
       <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Hızlı:</b> Netlify → <i>Add new project → Deploy manually</i>, takımın <code>gorev-kiti</code> klasörünü sürükle-bırak. Her takıma ayrı proje adı verin (ör. <code>gorev-takim-3</code>).</p>
       <p style="font-size:14px;color:#d4dbe5;margin:6px 0"><b>Sürekli:</b> Her takıma bir GitHub reposu, Netlify o repoya bağlı. Takım her push'ta siteyi günceller; commit geçmişi süreç değerlendirmesi için kanıt olur. <code>netlify.toml</code> hazırdır.</p></div>
+    <div class="kart"><h3>🤖 Asistanı açmak</h3><ol style="font-size:14px;color:#d4dbe5;padding-left:18px;margin:6px 0">
+      <li>Netlify → projenin <i>Project configuration → Environment variables</i> sayfasında <code>ATOLYE_KODU</code> adında bir değişken ekle (kapsam: <b>Functions</b>). Değeri sınıf kodudur, ör. <code>jezero-2026</code>. Bu kod tanımlanmadan asistan kapalı kalır.</li>
+      <li>İsteğe bağlı: <code>GUNLUK_SINIR</code> (günlük istek sınırı, varsayılan 300).</li>
+      <li>Değişkenden sonra <i>Deploys → Trigger deploy</i> ile yeniden yayınla.</li>
+      <li>Kodu öğrencilere tahtaya yaz; etkinlikten sonra değiştir.</li></ol>
+      <p style="font-size:13px;color:var(--soluk);margin:6px 0">Modeller Netlify AI Gateway üzerinden çağrılır: ayrıca API anahtarı gerekmez, kullanım Netlify kredilerinden düşer. Aynı IP'den dakikada en çok 20 istek kabul edilir. Soru ve cevaplar sunucuda saklanmaz; yalnızca günlük istek sayısı tutulur.</p></div>
     <div class="kart"><h3>Gizlilik ve güvenlik</h3><ul style="font-size:14px;color:#d4dbe5;padding-left:18px;margin:6px 0">
       <li>Yapay zekâ ve barındırma hesapları öğretmenindir; öğrenciler kendi hesaplarını açmaz.</li>
       <li>Yapay zekâ araçlarının çoğunun yaş sınırı vardır; bu yüzden kullanım öğretmen gözetiminde olur.</li>
@@ -308,6 +356,28 @@
   <br><a href="../">← Dünya ve Mars simülatörlerine dön</a>
 </footer>
 <div id="bildirim" role="status"></div>
+<button id="asistanAc" title="Yapay zekâ asistanı">🤖 Asistan</button>
+<aside id="asistan" aria-label="Yapay zekâ asistanı">
+  <header>
+    <div class="ust"><b>🤖 Görev Asistanı</b><button class="kapat" id="asistanKapat" aria-label="Kapat">×</button></div>
+    <div class="modelSec" id="modelSec"></div>
+    <div class="kodSatir"><span>🔑 Sınıf kodu</span><input id="sinifKodu" type="password" autocomplete="off" placeholder="öğretmenin verdiği kod"></div>
+    <div id="asistanDurum">Asistan kontrol ediliyor…</div>
+  </header>
+  <div id="mesajlar"></div>
+  <footer>
+    <div id="girdiIpucu">✏️ Köşeli parantezli <b>[ ... ]</b> yerleri kendi bilgilerinle doldurmayı unutma.</div>
+    <textarea id="girdi" placeholder="Sorunu yaz… (Gönder: Ctrl+Enter)"></textarea>
+    <div class="satir">
+      <button class="dugme ana kucuk" id="gonder">Gönder ➤</button>
+      <button class="dugme ikinci kucuk" id="yeniSohbet">Yeni sohbet</button>
+      <span class="bosluk"></span>
+      <button class="dugme ikinci kucuk" id="gunlukIndir" title="Bu tarayıcıdaki tüm asistan kullanımlarını YZ-GUNLUGU.md biçiminde indir">⬇ Günlük (<span id="gunlukSayi">0</span>)</button>
+    </div>
+    <div class="uyari">Yapay zekâ yanılabilir: sayıları kaynaktan kontrol et, kodu anlamadan kullanma. Kişisel bilgi (ad soyad, numara, adres, fotoğraf) yazma. Her soru otomatik olarak günlüğe eklenir.</div>
+  </footer>
+</aside>
+
 
 <script type="module">
 import { GOREVLER, ayarlarDosyasi } from './kit/gorevler.js';
@@ -336,7 +406,7 @@ $('#sayilar').innerHTML = [[Object.keys(GOREVLER).length, 'hazır görev'], [4, 
 const REHBER = {
   1: { amac: 'Görevinizi seçin ve o dünyayı tanıyın. Henüz kod yok!',
        kim: { 'Tüm takım': 'Görev kartlarını okuyup birini seçer ya da kendi görevini uydurur.', 'Bilim danışmanı': 'Gezegenin yerçekimi, havası ve ışık gecikmesini kaynağıyla bulur.', 'Tasarımcı': 'O dünyaya gitmiş gerçek araçları araştırır.', 'Sunucu': 'YZ-GUNLUGU.md\'yi açar, ilk kayıtları tutar.' },
-       yap: ['Takım olarak 3–4 kişiyle oturun, rolleri dağıtın', 'Görev kartlarını okuyun ve birini seçin ("Bu görevi seç")', 'Seçtiğiniz görevi "Dene" ile bir kez oynayın', '"Gezegeni tanı" komutunu kullanın ve cevabı gezegenler.js ile karşılaştırın', '"Gerçek görevleri öğren" komutunu kullanın, ilham alacağınız aracı seçin', 'Yapay zekâ kullanımlarını günlüğe yazın'],
+       yap: ['Takım olarak 3–4 kişiyle oturun, rolleri dağıtın', 'Görev kartlarını okuyun ve birini seçin ("Bu görevi seç")', 'Seçtiğiniz görevi "Dene" ile bir kez oynayın', '"Gezegeni tanı" komutunu asistanda "Üçünü karşılaştır" ile sorun; cevapları birbiriyle ve gezegenler.js ile karşılaştırın', '"Gerçek görevleri öğren" komutunu kullanın, ilham alacağınız aracı seçin', 'Asistanın günlüğünü indirip YZ-GUNLUGU.md\'ye ekleyin, "Nasıl kontrol ettin?" sütununu doldurun'],
        cikti: 'Seçilmiş görev · dolu ROLLER.md · günlükte en az 2 kayıt',
        takildin: 'Karar veremiyor musunuz? Zorluğu ★ olan bir görevle başlayın; sonra kendinize ait bir değişiklik eklersiniz.' },
   2: { amac: 'Görevi kâğıt üzerinde tasarlayın. Gerçek uzay ajansları da önce tasarlar, sonra üretir.',
@@ -397,6 +467,7 @@ document.addEventListener('click', e => {
   const s = e.target.closest('[data-sec]'); if (s) { secili = s.dataset.sec; depo.koy('secili', secili); hepsiniCiz(); bildir(`Seçildi: ${GOREVLER[secili].baslik}. Komutlar bu göreve göre doldu.`); }
   const i = e.target.closest('[data-indir]'); if (i) { indir('ayarlar.js', ayarlarDosyasi(GOREVLER[i.dataset.indir])); bildir('ayarlar.js indirildi: kit klasöründeki dosyanın yerine koy.'); }
   const k = e.target.closest('[data-kopyala]'); if (k) kopyala(k.closest('.komut').querySelector('pre').textContent);
+  const q = e.target.closest('[data-sor]'); if (q) asistanaGonderHazirla(q.closest('.komut').querySelector('pre').textContent, q.closest('.komut').querySelector('.kb b').textContent);
 });
 
 // ---------------------------------------------------------------- roller
@@ -416,7 +487,7 @@ function gorevBaglami() {
 }
 function komutKarti(k, n) {
   const { gorev, gezegenAdi } = gorevBaglami();
-  return `<div class="komut"><div class="kb"><span class="rozet">${k.rol}</span><b>${k.baslik}</b><button class="dugme ana kucuk" data-kopyala>📋 Kopyala</button></div><pre>${esc(komutuDoldur(k.metin, gorev, gezegenAdi))}</pre><div class="ipucu">💡 ${esc(k.ipucu)}</div></div>`;
+  return `<div class="komut"><div class="kb"><span class="rozet">${k.rol}</span><b>${k.baslik}</b><button class="dugme ikinci kucuk" data-sor>🤖 Asistana sor</button><button class="dugme ana kucuk" data-kopyala>📋 Kopyala</button></div><pre>${esc(komutuDoldur(k.metin, gorev, gezegenAdi))}</pre><div class="ipucu">💡 ${esc(k.ipucu)}</div></div>`;
 }
 
 // ---------------------------------------------------------------- rehber
@@ -546,7 +617,7 @@ const SOZLUK = [
 $('#sozlukTablo').innerHTML = SOZLUK.map(([a, b]) => `<tr><td style="white-space:nowrap"><b>${a}</b></td><td>${b}</td></tr>`).join('');
 
 // ---------------------------------------------------------------- öğretmen listesi
-const OGRETMEN = ['Netlify hesabında takım sayısı kadar proje adı belirle', 'Yapay zekâ araçlarına öğretmen hesabıyla giriş yapılmış tarayıcı profilleri hazırla', 'Bilgisayarlara VS Code ve Live Server eklentisini kur', 'Kiti indir, bir bilgisayarda açıp çalıştığını dene (internet erişimi: cdn.jsdelivr.net açık olmalı)', 'Görev kartlarını yazdır ya da projeksiyona hazırla', 'Takımları ve rol dağılımını belirle', 'Sunum için süre tutucu ve jüri listesi hazırla'];
+const OGRETMEN = ['Netlify hesabında takım sayısı kadar proje adı belirle', 'Netlify\'da ATOLYE_KODU sınıf kodunu tanımla ve asistanı bir soruyla dene', 'Bilgisayarlara VS Code ve Live Server eklentisini kur', 'Kiti indir, bir bilgisayarda açıp çalıştığını dene (internet erişimi: cdn.jsdelivr.net açık olmalı)', 'Görev kartlarını yazdır ya da projeksiyona hazırla', 'Takımları ve rol dağılımını belirle', 'Sunum için süre tutucu ve jüri listesi hazırla'];
 const ogrIsaret = depo.al('ogretmen', {});
 $('#ogretmenListe').innerHTML = OGRETMEN.map((y, i) => `<label class="${ogrIsaret[i] ? 'tamam' : ''}"><input type="checkbox" data-ogr="${i}" ${ogrIsaret[i] ? 'checked' : ''}><span>${y}</span></label>`).join('');
 $('#ogretmenListe').addEventListener('change', e => { const i = e.target.dataset.ogr; ogrIsaret[i] = e.target.checked; depo.koy('ogretmen', ogrIsaret); e.target.closest('label').classList.toggle('tamam', e.target.checked); });
@@ -557,6 +628,177 @@ function hepsiniCiz() {
   kartlar(); adimlar(); tumKomutlar();
 }
 hepsiniCiz(); hesapGirdi(); hesapla();
+
+// ================================================================ GÖREV ASİSTANI (/api/yz)
+const MODEL_SIRASI = ['claude', 'chatgpt', 'gemini'];
+let durum = { modeller: {}, kodTanimli: false, erisilebilir: false };
+let seciliModel = depo.al('yzModel', 'claude');           // 'claude' | 'chatgpt' | 'gemini' | 'hepsi'
+let sohbet = [];                                           // [{rol:'kullanici'|'asistan', metin, model}]
+let gonderiliyor = false;
+$('#sinifKodu').value = depo.al('sinifKodu', '');
+$('#sinifKodu').addEventListener('change', e => depo.koy('sinifKodu', e.target.value.trim()));
+
+const asistanAc = () => { $('#asistan').classList.add('acik'); $('#asistanAc').style.display = 'none'; };
+const asistanKapat = () => { $('#asistan').classList.remove('acik'); $('#asistanAc').style.display = ''; };
+$('#asistanAc').onclick = () => { asistanAc(); $('#girdi').focus(); };
+$('#asistanKapat').onclick = asistanKapat;
+addEventListener('keydown', e => { if (e.key === 'Escape' && $('#asistan').classList.contains('acik')) asistanKapat(); });
+
+function modelDugmeleri() {
+  const hazirlar = MODEL_SIRASI.filter(k => durum.modeller[k]?.hazir);
+  if (seciliModel !== 'hepsi' && !hazirlar.includes(seciliModel)) seciliModel = hazirlar[0] ?? 'claude';
+  $('#modelSec').innerHTML = MODEL_SIRASI.map(k => {
+    const m = durum.modeller[k] ?? { ad: { claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini' }[k] };
+    return `<button data-model="${k}" class="${seciliModel === k ? 'secili' : ''}" ${m.hazir ? '' : 'disabled'} title="${esc(m.sirket ?? '')} ${esc(m.model ?? '')}">${esc(m.ad)}</button>`;
+  }).join('') + `<button data-model="hepsi" class="${seciliModel === 'hepsi' ? 'secili' : ''}" ${hazirlar.length > 1 ? '' : 'disabled'} title="Aynı soruyu hazır olan bütün modellere sor">⚖ Üçünü karşılaştır</button>`;
+}
+$('#modelSec').addEventListener('click', e => {
+  const b = e.target.closest('[data-model]'); if (!b || b.disabled) return;
+  seciliModel = b.dataset.model; depo.koy('yzModel', seciliModel); modelDugmeleri();
+  bildir(seciliModel === 'hepsi' ? 'Karşılaştırma modu: her soru hazır olan bütün modellere gider.' : `${durum.modeller[seciliModel]?.ad} seçildi.`);
+});
+
+async function asistanDurumu() {
+  try {
+    const r = await fetch('/api/yz', { headers: { accept: 'application/json' } });
+    if (!r.ok || !(r.headers.get('content-type') ?? '').includes('json')) throw new Error(String(r.status));
+    durum = { ...(await r.json()), erisilebilir: true };
+  } catch { durum = { modeller: {}, kodTanimli: false, erisilebilir: false }; }
+  const hazir = MODEL_SIRASI.filter(k => durum.modeller[k]?.hazir).map(k => durum.modeller[k].ad);
+  $('#asistanDurum').textContent = !durum.erisilebilir ? '⚠ Asistan bu ortamda çalışmıyor (yalnızca yayındaki sitede çalışır).'
+    : !durum.kodTanimli ? '⚠ Asistan kapalı: öğretmen henüz sınıf kodunu tanımlamadı (Öğretmen için → Asistanı açmak).'
+    : hazir.length ? `✓ Hazır: ${hazir.join(', ')}` : '⚠ Hiçbir model hazır değil: Netlify AI Gateway etkin değil.';
+  modelDugmeleri();
+}
+
+// Küçük, güvenli bir Markdown çizici: önce her şeyi kaçışlar, sonra biçimler
+function md(metin) {
+  const parcalar = metin.split(/```/);
+  return parcalar.map((p, i) => {
+    if (i % 2) { const kod = p.replace(/^[\w+-]*\n/, ''); return `<pre><button data-kodkopyala>Kopyala</button>${esc(kod.replace(/\n$/, ''))}</pre>`; }
+    const satirlar = esc(p).split('\n'); let html = '', liste = false;
+    for (let s of satirlar) {
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+      const madde = s.match(/^\s*[-*•]\s+(.*)/);
+      if (madde) { if (!liste) { html += '<ul>'; liste = true; } html += `<li>${madde[1]}</li>`; continue; }
+      if (liste) { html += '</ul>'; liste = false; }
+      const baslik = s.match(/^#{1,4}\s+(.*)/);
+      if (baslik) html += `<h4>${baslik[1]}</h4>`; else if (s.trim()) html += `<p>${s}</p>`;
+    }
+    return html + (liste ? '</ul>' : '');
+  }).join('');
+}
+$('#mesajlar').addEventListener('click', e => { const b = e.target.closest('[data-kodkopyala]'); if (b) kopyala(b.parentElement.textContent.replace(/^Kopyala/, '')); });
+
+function balon(sinif, ust, govde) {
+  const d = document.createElement('div'); d.className = `msj ${sinif}`;
+  d.innerHTML = (ust ? `<div class="kim">${ust}</div>` : '') + `<div class="icerik"></div>`;
+  if (govde != null) d.querySelector('.icerik').textContent = govde;
+  return d;
+}
+const asagiKaydir = () => { const m = $('#mesajlar'); m.scrollTop = m.scrollHeight; };
+
+function gorevOzeti() {
+  if (!secili) return null;
+  const g = GOREVLER[secili]; return { baslik: g.baslik, gezegen: ortam(g).ad, arac: g.arac.ad };
+}
+
+// Tek bir modelden akışla cevap al ve verilen balona yaz
+async function sor(model, mesajlar, kutu) {
+  const ad = durum.modeller[model]?.ad ?? model, icerik = kutu.querySelector('.icerik');
+  kutu.querySelector('.kim').innerHTML = `${esc(ad)}<span>yazıyor…</span>`;
+  icerik.classList.add('yaziyor');
+  let metin = '', kalan = null;
+  try {
+    const r = await fetch('/api/yz', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model, kod: $('#sinifKodu').value.trim(), gorev: gorevOzeti(), mesajlar: mesajlar.map(({ rol, metin }) => ({ rol, metin })) }) });
+    if (!r.ok) {
+      let h = `Bir sorun oluştu (${r.status}).`;
+      try { h = (await r.json()).hata ?? h; } catch {}
+      if (r.status === 429 && !h.includes('sınır')) h = 'Çok hızlı soruyorsun: bir dakika bekleyip yeniden dene.';
+      kutu.classList.add('hata'); icerik.textContent = '⚠ ' + h; return null;
+    }
+    kalan = r.headers.get('x-yz-kalan');
+    const okuyucu = r.body.getReader(), cozucu = new TextDecoder();
+    let son = 0;
+    for (;;) {
+      const { value, done } = await okuyucu.read(); if (done) break;
+      metin += cozucu.decode(value, { stream: true });
+      if (performance.now() - son > 80) { icerik.innerHTML = md(metin); asagiKaydir(); son = performance.now(); }
+    }
+    icerik.innerHTML = md(metin || '(boş cevap)');
+    return metin;
+  } catch {
+    kutu.classList.add('hata'); icerik.textContent = '⚠ Bağlantı kurulamadı. İnternetini kontrol et ve yeniden dene.'; return null;
+  } finally {
+    icerik.classList.remove('yaziyor');
+    kutu.querySelector('.kim span')?.replaceWith(Object.assign(document.createElement('span'), { textContent: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) + (kalan ? ` · bugün ${kalan} istek kaldı` : '') }));
+    asagiKaydir();
+  }
+}
+
+// ---- günlük: her soru otomatik olarak kaydedilir
+let gunluk = depo.al('yzGunluk', []);
+const gunlukSay = () => { $('#gunlukSayi').textContent = gunluk.length; };
+function gunlugeEkle(model, soru, cevap) {
+  gunluk.push({ zaman: new Date().toISOString(), arac: durum.modeller[model]?.ad ?? model, gorev: secili ? GOREVLER[secili].baslik : '', soru: soru.slice(0, 400), cevap: (cevap ?? '').replace(/```[\s\S]*?```/g, '[kod]').replace(/\s+/g, ' ').slice(0, 300) });
+  if (gunluk.length > 300) gunluk = gunluk.slice(-300);
+  depo.koy('yzGunluk', gunluk); gunlukSay();
+}
+$('#gunlukIndir').onclick = () => {
+  if (!gunluk.length) return bildir('Günlük henüz boş.');
+  const h = s => String(s).replace(/\|/g, '\\|').replace(/\n+/g, ' ');
+  const satirlar = gunluk.map((g, i) => `| ${i + 1} | ${new Date(g.zaman).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} |  | ${h(g.arac)} (Görev Asistanı) | ${h(g.soru)} | ${h(g.cevap)} |  |  |`);
+  const metin = `# Görev Asistanı günlüğü\n\n> Bu tablo atölye sayfasındaki asistan tarafından otomatik oluşturuldu. **"Kim"**, **"Nasıl kontrol ettin?"** ve **"Sonra ne yaptın?"** sütunlarını takımca doldurun, sonra satırları YZ-GUNLUGU.md dosyanıza ekleyin.\n\n| # | Saat | Kim (rol) | Hangi araç | Ne sordun? (komut) | Ne aldın? (özet) | Nasıl kontrol ettin? | Sonra ne yaptın? |\n|---|---|---|---|---|---|---|---|\n${satirlar.join('\n')}\n`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([metin], { type: 'text/markdown;charset=utf-8' })); a.download = 'asistan-gunlugu.md'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+gunlukSay();
+
+async function gonder() {
+  const metin = $('#girdi').value.trim();
+  if (!metin || gonderiliyor) return;
+  if (!$('#sinifKodu').value.trim()) { bildir('Önce sınıf kodunu yaz.'); $('#sinifKodu').focus(); return; }
+  if (/\[[^\]\n]{3,}\]/.test(metin) && !confirm('Mesajında hâlâ köşeli parantezli [ ... ] yerler var. Doldurmadan göndermek istiyor musun?')) return;
+  depo.koy('sinifKodu', $('#sinifKodu').value.trim());
+  gonderiliyor = true; $('#gonder').disabled = true;
+  $('#girdi').value = ''; $('#girdiIpucu').style.display = 'none';
+  $('#mesajlar').append(balon('ben', null, metin)); asagiKaydir();
+
+  if (seciliModel === 'hepsi') {
+    // Karşılaştırma: tek seferlik soru, hazır olan bütün modellere aynı anda
+    const hazirlar = MODEL_SIRASI.filter(k => durum.modeller[k]?.hazir);
+    const kap = document.createElement('div'); kap.className = 'karsilastir'; $('#mesajlar').append(kap);
+    await Promise.all(hazirlar.map(async k => {
+      const kutu = balon('yz', ' '); kap.append(kutu);
+      const cevap = await sor(k, [{ rol: 'kullanici', metin }], kutu);
+      gunlugeEkle(k, metin, cevap ?? '(hata)');
+    }));
+    sohbet = [];   // karşılaştırmadan sonra sohbet temiz başlar
+  } else {
+    sohbet.push({ rol: 'kullanici', metin });
+    const kutu = balon('yz', ' '); $('#mesajlar').append(kutu);
+    const cevap = await sor(seciliModel, sohbet, kutu);
+    if (cevap) sohbet.push({ rol: 'asistan', metin: cevap }); else sohbet.pop();
+    gunlugeEkle(seciliModel, metin, cevap ?? '(hata)');
+  }
+  gonderiliyor = false; $('#gonder').disabled = false; $('#girdi').focus();
+}
+$('#gonder').onclick = gonder;
+$('#girdi').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); gonder(); } });
+$('#yeniSohbet').onclick = () => { sohbet = []; $('#mesajlar').innerHTML = ''; bildir('Yeni sohbet başladı.'); };
+
+// Komut kartındaki "Asistana sor": komutu doldurulmuş hâliyle kutuya koy
+function asistanaGonderHazirla(metin, baslik) {
+  asistanAc();
+  if (sohbet.length) { sohbet = []; $('#mesajlar').innerHTML = ''; }
+  $('#girdi').value = metin;
+  $('#girdiIpucu').style.display = /\[[^\]\n]{3,}\]/.test(metin) ? 'block' : 'none';
+  $('#girdi').focus(); $('#girdi').setSelectionRange(0, 0); $('#girdi').scrollTop = 0;
+  bildir(`"${baslik}" komutu asistana kondu. Kontrol et ve gönder.`);
+}
+
+asistanDurumu();
 </script>
 </body>
 </html>

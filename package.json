@@ -25,7 +25,11 @@
     "kit": "node tools/build-kit.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "@dimforge/rapier3d-compat": "0.21.0",
+    "@google/genai": "^3.3.0",
+    "@netlify/blobs": "^11.1.9",
+    "openai": "^7.56.0",
     "three": "0.186.1"
   },
   "devDependencies": {

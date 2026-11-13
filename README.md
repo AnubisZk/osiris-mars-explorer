@@ -252,3 +252,14 @@ drag; `arazi.js` = labelled procedural terrain) plus design, roles, AI-log and r
 `npm run build` (via `tools/build-kit.mjs`) copies it to `/atolye/kit/` as a live demo and packs
 `/atolye/gorev-kiti.zip`. `tests/gorev-kiti.test.js` flies every mission card with a scripted
 autopilot.
+
+### Görev Asistanı (`/api/yz`)
+
+The workshop page has an assistant drawer that talks to **Claude, ChatGPT and Gemini** through
+`netlify/functions/yz.mjs` and Netlify AI Gateway (no provider keys in the repo or the browser).
+Any prompt card can be sent to one model, or to all three side by side ("Üçünü karşılaştır"), and
+every question is added to a downloadable AI log in the YZ-GUNLUGU.md format. The assistant stays
+closed until the teacher sets `ATOLYE_KODU` (class code) in the Netlify environment variables
+(scope: Functions); optional `GUNLUK_SINIR` (daily request cap, default 300) and
+`YZ_MODEL_CLAUDE` / `YZ_MODEL_CHATGPT` / `YZ_MODEL_GEMINI`. Per-IP rate limit: 20 requests/min.
+Prompts and answers are not stored server-side; only a daily request counter (Netlify Blobs).
