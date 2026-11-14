@@ -9,7 +9,14 @@ export const TARGETS=[
 ];
 function duneMaterial(x,z){const n=fbm(x*.36,z*.36),h=terrainHeight(x,z),v=rng((Math.floor(x*8)+1000)*13.33+Math.floor(z*9));const dust=Math.sin(x*.28+z*.33+fbm(x*.03,z*.03)*7)*.5+.5;const f=clamp(.84+.28*n+.08*(v-.5)+.12*dust-.045*Math.max(0,h),.63,1.16);return vary(lerpColor(P.rust,P.sand,.35+.23*dust),f);}
 function lerpColor(a,b,t){return a.map((v,i)=>lerp(v,b[i],t));}
-export function buildTerrain(renderer){const terrain=new MeshBuilder();const grid=166,span=212,step=span/grid;for(let z=0;z<grid;z++)for(let x=0;x<grid;x++){
+export const TERRAIN_GRID=166,TERRAIN_SPAN=212;
+// Görünen üçgen arazinin yüksekliği (v2.3): tekerlek izleri tam zemine otursun diye.
+export function terrainMeshHeight(x,z){const step=TERRAIN_SPAN/TERRAIN_GRID,half=TERRAIN_SPAN/2;
+ const gx=clamp((x+half)/step,0,TERRAIN_GRID-1e-6),gz=clamp((z+half)/step,0,TERRAIN_GRID-1e-6);const i=Math.floor(gx),j=Math.floor(gz),u=gx-i,v=gz-j;
+ const x0=-half+i*step,z0=-half+j*step,x1=x0+step,z1=z0+step;
+ const ha=terrainHeight(x0,z0),hb=terrainHeight(x1,z0),hc=terrainHeight(x1,z1),hd=terrainHeight(x0,z1);
+ return u+v<=1?ha+(hb-ha)*u+(hd-ha)*v:hc+(hd-hc)*(1-u)+(hb-hc)*(1-v);}
+export function buildTerrain(renderer){const terrain=new MeshBuilder();const grid=TERRAIN_GRID,span=TERRAIN_SPAN,step=span/grid;for(let z=0;z<grid;z++)for(let x=0;x<grid;x++){
  const x0=-span/2+x*step,x1=x0+step,z0=-span/2+z*step,z1=z0+step;
  const a=[x0,terrainHeight(x0,z0),z0],b=[x1,terrainHeight(x1,z0),z0],c=[x1,terrainHeight(x1,z1),z1],d=[x0,terrainHeight(x0,z1),z1];
  terrain.tri(a,d,b,duneMaterial(x0,z0));terrain.tri(b,d,c,duneMaterial(x1,z1));}
@@ -111,6 +118,8 @@ export function buildDrone(renderer){const b=new MeshBuilder();
  // Gövde 0,136 × 0,163 × 0,195 m, yerden 0,13 m yukarıda
  b.box(0,.2115,0,.136,.163,.195,P.gold);
  b.box(0,.2115,-.0985,.11,.12,.003,P.white);
+ // Burun lambası (v2.3): yön uzaktan okunabilsin
+ b.box(0,.145,-.103,.035,.018,.01,P.amber);
  b.cylinder(0,.115,-.04,.022,.022,.03,P.black,10);
  // İniş ayakları (dört adet, ≈0,38 m)
  for(const x of [-1,1])for(const z of [-1,1]){
@@ -140,5 +149,7 @@ export function buildDrone(renderer){const b=new MeshBuilder();
  return {body,top:rotor(true),bottom:rotor(false),shadow:shadow.build(renderer)};
 }
 export function buildExtra(renderer){const marker=new MeshBuilder();marker.ring(0,0,0,.30,.32,P.teal,40);marker.ring(0,0,0,.40,.41,P.amber,40);const pad=marker.build(renderer);
- const beacons=new MeshBuilder();for(let i=0;i<16;i++){const a=i*Math.PI*2/16,rad=4.5+i%3*.4,x=Math.cos(a)*rad,z=Math.sin(a)*rad;beacons.box(x,.025,z,.13,.05,.21,P.steel2);}return {pad,beacons:beacons.build(renderer)};
+ const beacons=new MeshBuilder();for(let i=0;i<16;i++){const a=i*Math.PI*2/16,rad=4.5+i%3*.4,x=Math.cos(a)*rad,z=Math.sin(a)*rad;beacons.box(x,.025,z,.13,.05,.21,P.steel2);}
+ const dust=new MeshBuilder();dust.sphere(0,0,0,1,.72,1,[.97,.74,.58],4,9);
+ return {pad,beacons:beacons.build(renderer),dust:dust.build(renderer),tracks:renderer.upload(new Float32Array(0))};
 }

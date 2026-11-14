@@ -16,3 +16,6 @@
 @media(max-width:1300px){#reportBtn,#csvBtn{display:none}}@media(max-width:1100px){#dataBtn{display:none}}
 @media(max-width:840px){.top-actions{gap:5px}.top-actions .subtle{padding:7px 8px;font-size:8px}#saveBtn,#loadBtn,#helpBtn{display:none}.touch-pad{bottom:70px}.storm-banner{top:56px;font-size:8px}}
 @media(max-width:1100px){.top-actions #warpBtn,.top-actions #pauseBtn{display:inline-block}}
+/* v2.3'ten: oyun kumandası kılavuzu ve rozeti */
+.help-pad{background:#162634;padding:16px 18px;margin:0 0 4px}.help-pad h3{color:#dfaa78;font-size:11px;letter-spacing:1px;margin:0 0 6px}.help-pad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.help-pad-grid b{display:block;font-size:10px;color:#9fb6bf;letter-spacing:1.2px;margin-top:6px}.help-pad-grid p{font-size:11.5px;color:#c3d1d7;margin:7px 0}.pad-not{font-size:10.5px;color:#8fa6b0;margin:8px 0 0}#padBadge{color:#9fe0c8;border-color:#71d3ad66}
+.help-dialog{max-height:94vh;overflow:auto}@media(max-width:840px){.help-pad-grid{grid-template-columns:1fr}}

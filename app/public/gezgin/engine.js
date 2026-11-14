@@ -17,6 +17,12 @@ export const RX=a=>{const c=Math.cos(a),s=Math.sin(a);return [1,0,0,0,0,c,s,0,0,
 export const RY=a=>{const c=Math.cos(a),s=Math.sin(a);return [c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1];};
 export const RZ=a=>{const c=Math.cos(a),s=Math.sin(a);return [c,s,0,0,-s,c,0,0,0,0,1,0,0,0,0,1];};
 export const TR=(x,y,z,yaw=0)=>matmul(T(x,y,z),RY(yaw));
+/* Yön kuralı (v2.2): RY(yaw) ile modelin burnu (yerel -Z) dünyada (-sin yaw, -cos yaw) yönüne bakar.
+   Sağ (yerel +X) = (cos yaw, -sin yaw). Sola dönüş yaw'ı artırır, sağa dönüş azaltır. */
+export const forwardOf=yaw=>[-Math.sin(yaw),-Math.cos(yaw)];
+export const rightOf=yaw=>[Math.cos(yaw),-Math.sin(yaw)];
+export const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+export const moveToward=(v,target,step)=>v<target?Math.min(target,v+step):Math.max(target,v-step);
 export const positionOf=m=>[m[12],m[13],m[14]];
 export function transformPoint(m,v){return [m[0]*v[0]+m[4]*v[1]+m[8]*v[2]+m[12],m[1]*v[0]+m[5]*v[1]+m[9]*v[2]+m[13],m[2]*v[0]+m[6]*v[1]+m[10]*v[2]+m[14]];}
 export function perspective(fov,aspect,n=.12,f=600){const t=1/Math.tan(fov/2);return [t/aspect,0,0,0,0,t,0,0,0,0,(f+n)/(n-f),-1,0,0,2*f*n/(n-f),0];}
@@ -103,6 +109,7 @@ export class Renderer {
   this.skyVao=g.createVertexArray();g.bindVertexArray(this.skyVao);const sky=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,sky);g.bufferData(g.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),g.STATIC_DRAW);g.enableVertexAttribArray(0);g.vertexAttribPointer(0,2,g.FLOAT,false,0,0);g.bindVertexArray(null);
   g.enable(g.DEPTH_TEST);g.depthFunc(g.LEQUAL);g.enable(g.BLEND);g.blendFunc(g.SRC_ALPHA,g.ONE_MINUS_SRC_ALPHA);this.meshes=[];this.time=0;this.evening=0;this.fog=.006;this.eye=[0,8,20];this.viewProj=I();}
   upload(data){const g=this.gl;const vao=g.createVertexArray();g.bindVertexArray(vao);const buffer=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,buffer);g.bufferData(g.ARRAY_BUFFER,data,g.STATIC_DRAW);const stride=9*4;for(let i=0;i<3;i++){g.enableVertexAttribArray(i);g.vertexAttribPointer(i,3,g.FLOAT,false,stride,i*3*4);}g.bindVertexArray(null);const mesh={vao,count:data.length/9,buffer};this.meshes.push(mesh);return mesh;}
+  update(mesh,data){const g=this.gl;g.bindVertexArray(null);g.bindBuffer(g.ARRAY_BUFFER,mesh.buffer);g.bufferData(g.ARRAY_BUFFER,data,g.DYNAMIC_DRAW);mesh.count=data.length/9;return mesh;}
   resize(){const rect=this.canvas.getBoundingClientRect();const pixelRatio=Math.min(window.devicePixelRatio||1,1.45);const w=Math.max(1,Math.floor(rect.width*pixelRatio)),h=Math.max(1,Math.floor(rect.height*pixelRatio));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}this.gl.viewport(0,0,w,h);return {width:rect.width,height:rect.height,aspect:w/h};}
   begin(eye,target,time){const g=this.gl;this.time=time;this.eye=eye;const r=this.resize();this.viewProj=matmul(perspective(Math.PI/3.7,r.aspect,.14,550),lookAt(eye,target));g.disable(g.DEPTH_TEST);g.depthMask(false);g.useProgram(this.skyP);g.bindVertexArray(this.skyVao);g.uniform1f(g.getUniformLocation(this.skyP,'uTime'),time);g.uniform1f(g.getUniformLocation(this.skyP,'uEvening'),this.evening);g.drawArrays(g.TRIANGLES,0,6);g.bindVertexArray(null);g.enable(g.DEPTH_TEST);g.depthMask(true);g.clear(g.DEPTH_BUFFER_BIT);g.useProgram(this.p);g.uniformMatrix4fv(this.u.uViewProj,false,new Float32Array(this.viewProj));g.uniform3fv(this.u.uEye,new Float32Array(eye));g.uniform3fv(this.u.uSun,new Float32Array([-.48,.92-this.evening*.69,-.3]));g.uniform3fv(this.u.uFogColor,new Float32Array([.72-.11*this.evening,.43-.12*this.evening,.32-.08*this.evening]));g.uniform1f(this.u.uFogDensity,this.fog);g.uniform1f(this.u.uTime,time);}
   draw(mesh,model=I(),opacity=1,glow=0){if(!mesh||!mesh.count)return;const g=this.gl;g.useProgram(this.p);g.bindVertexArray(mesh.vao);g.uniformMatrix4fv(this.u.uModel,false,new Float32Array(model));g.uniform1f(this.u.uOpacity,opacity);g.uniform1f(this.u.uGlow,glow);if(opacity<1)g.depthMask(false);g.drawArrays(g.TRIANGLES,0,mesh.count);if(opacity<1)g.depthMask(true);}
