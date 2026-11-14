@@ -50,7 +50,13 @@
       <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/meda_calibrated.tar.gz" rel="noopener">📦 Kalibre verinin tamamı (.tar.gz, büyük)</a>
       <a class="dugme ikinci" href="https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/PERSEVERANCE/meda.html" target="_blank" rel="noopener">ℹ MEDA veri sayfası ve belgeleri</a>
     </div>
-    <div class="not mavi">💡 <b>Önerilen yol:</b> Bütün arşivi indirmeyin, çok büyük. Klasörlerden aynı Mars mevsiminden <b>2–5 sol</b> seçin. Her sol için adında <b>PS</b> (basınç), <b>WS</b> (rüzgâr) ve <b>ATS</b> (hava sıcaklığı) geçen <code>.csv</code> dosyalarını indirin. Her dosyanın yanındaki aynı adlı <code>.xml</code> dosyası, sütunların ne olduğunu ve birimlerini anlatır. Aynı adlı dosyanın birkaç sürümü varsa en yüksek sürüm numaralısını alın.</div>
+    <div class="not mavi">💡 <b>Önerilen yol:</b> Bütün arşivi indirmeyin, çok büyük. Sol'ler <code>sol_0090_0179/sol_0105/</code> gibi aralık klasörlerinde durur. <b>Art arda 3 sol</b> seçin (ör. 105, 106, 107: ikisi eğitim, biri test). Her sol için:
+      <ul style="margin:6px 0">
+        <li><code>WE__0105…DER_PS…P01.CSV</code>: basınç. Sütunlar: <code>LTST</code> (saat), <code>PRESSURE</code> (Pa)</li>
+        <li><code>WE__0105…DER_WS…P03.CSV</code>: rüzgâr. Sütunlar: <code>LTST</code>, <code>HORIZONTAL_WIND_SPEED</code> (m/s), <code>WIND_DIRECTION</code> (derece), <code>ROVER_STILL</code></li>
+        <li>Hava sıcaklığı: kalibre klasöründe (<code>data_calibrated_env</code>) adında <b>ATS</b> geçen dosya</li>
+      </ul>
+      Aynı dosyanın birkaç sürümü (P01, P02, P03…) varsa en yüksek numaralısını alın. Yanındaki <code>.xml</code> dosyası sütunları ve birimleri anlatır. <code>DER_ANCILLARY</code> (konum ve geometri) ile <code>DER_TIRS</code> (kızılötesi ışınım) bu iş için gerekmez.</div>
     <p><b>Dünya (ör. Balıkesir):</b> NASA POWER sitesinden bir nokta için <b>saatlik</b> sıcaklık (T2M), yüzey basıncı (PS) ve rüzgâr (WS10M, WD10M) verisini CSV olarak indirebilirsiniz.</p>
     <div class="dugmeler"><a class="dugme ikinci" href="https://power.larc.nasa.gov/data-access-viewer/" target="_blank" rel="noopener">⬇ NASA POWER veri görüntüleyici</a></div>
     <div class="not">NASA POWER saatleri <b>UTC</b> verir. Aşağıda "saat kayması" kutusuna <b>+3</b> (Türkiye saati) yazın.</div>
@@ -143,6 +149,9 @@ function ayrisir(ad, metin) {
   eslesme.sicaklik = bul(/ATS|AIR.?TEMP|^T2M$|TEMP|SICAK/i, /T2M/i.test(sutunlar.join()) ? '°C' : 'K');
   eslesme.ruzgarHiz = bul(/WIND.?SPEED|HORIZONTAL.?WIND|^WS10M$|^WS$|HIZ/i, 'm/s');
   eslesme.ruzgarYon = bul(/WIND.?DIR|^WD10M$|^WD$|YON/i, 'derece (geldiği yön)');
+  // MEDA rüzgâr dosyalarında ROVER_STILL: 1 = gezgin duruyor. Hareket hâlinde ölçülen rüzgâr güvenilmezdir.
+  const dur = tahmin(/^ROVER_STILL$/i);
+  eslesme.filtre = { sutun: dur, acik: dur >= 0 };
   return { ad, sutunlar, veri, eslesme };
 }
 
@@ -163,6 +172,7 @@ function dosyaCiz() {
         <label>Bu dosya ne için?<select data-i="${i}" data-alan="rol"><option value="egitim" ${d.rol !== 'test' ? 'selected' : ''}>🧠 eğitim (model buradan öğrenir)</option><option value="test" ${d.rol === 'test' ? 'selected' : ''}>🧪 test (model bunu hiç görmez)</option></select></label>
         <label>Saat sütunu<select data-i="${i}" data-alan="saat">${d.sutunlar.map((s, j) => `<option value="${j}" ${d.eslesme.saat === j ? 'selected' : ''}>${esc(s)} — örn. ${esc(d.veri[0]?.[j] ?? '')}</option>`).join('')}</select></label>
         <label>Saat kayması (saat)<input type="number" step="0.5" value="${d.eslesme.kayma}" data-i="${i}" data-alan="kayma"></label>
+        ${d.eslesme.filtre?.sutun >= 0 ? `<label>Gezgin hareketi<span style="display:flex;gap:6px;align-items:center;color:var(--yazi)"><input type="checkbox" data-i="${i}" data-alan="filtre" ${d.eslesme.filtre.acik ? 'checked' : ''}> yalnızca gezgin dururken (ROVER_STILL = 1)</span></label>` : ''}
         ${Object.entries(BUYUKLUKLER).map(([k, b]) => `<label>${b.ad}
           <select data-i="${i}" data-alan="${k}"><option value="-1">yok</option>${d.sutunlar.map((s, j) => `<option value="${j}" ${d.eslesme[k].sutun === j ? 'selected' : ''}>${esc(s)} — örn. ${esc(d.veri[0]?.[j] ?? '')}</option>`).join('')}</select>
           <select data-i="${i}" data-birim="${k}">${Object.keys(b.birimler).map(u => `<option ${d.eslesme[k].birim === u ? 'selected' : ''}>${u}</option>`).join('')}</select></label>`).join('')}
@@ -172,6 +182,7 @@ function dosyaCiz() {
 $('#dosyalar').addEventListener('change', e => {
   const t = e.target, d = dosyalar[t.dataset.i]; if (!d) return;
   if (t.dataset.alan === 'rol') { d.rol = t.value; dosyaCiz(); return; }
+  if (t.dataset.alan === 'filtre') { d.eslesme.filtre.acik = t.checked; return; }
   if (t.dataset.alan === 'saat') d.eslesme.saat = +t.value;
   else if (t.dataset.alan === 'kayma') d.eslesme.kayma = +t.value || 0;
   else if (t.dataset.alan) d.eslesme[t.dataset.alan].sutun = +t.value;
@@ -211,6 +222,7 @@ function seriler(rol = 'egitim') {
   for (const d of dosyalar.filter(d => (d.rol ?? 'egitim') === rol)) {
     const e = d.eslesme;
     for (const satir of d.veri) {
+      if (e.filtre?.acik && String(satir[e.filtre.sutun]).trim() !== '1') continue;
       let saat = saatCoz(satir[e.saat]); if (!Number.isFinite(saat)) continue;
       saat = (((saat + e.kayma) % 24) + 24) % 24;
       if (e.basinc.sutun >= 0) { const v = sayiCoz(satir[e.basinc.sutun]); if (Number.isFinite(v)) ekle('basinc', saat, v * BUYUKLUKLER.basinc.birimler[e.basinc.birim]); }

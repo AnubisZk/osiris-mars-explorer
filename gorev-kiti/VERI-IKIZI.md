@@ -33,11 +33,21 @@ Veri Atölyesi sayfasının (oyunun klasöründe `veri-atolyesi.html`) 1. adım�
 | MEDA veri sayfası ve belgeleri | https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/PERSEVERANCE/meda.html |
 | (Dünya için) NASA POWER saatlik veri | https://power.larc.nasa.gov/data-access-viewer/ |
 
-1. Klasörlerden **aynı mevsimden 2–5 sol** seçin (sol = Mars günü; sol numaraları birbirine yakın olsun).
-2. Her sol için adında **PS** (basınç), **WS** (rüzgâr) ve **ATS** (hava sıcaklığı) geçen `.csv` dosyalarını indirin.
-3. Aynı adlı `.xml` dosyasını da açın: sütunların adlarını ve **birimlerini** orada bulursunuz. Bunları not alın.
-4. Aynı dosyanın birkaç sürümü varsa **en yüksek sürüm numaralısını** kullanın.
-5. Hangi dosyaları indirdiğinizi `YZ-GUNLUGU.md`'ye değil, aşağıdaki "Veri kaydı" tablosuna yazın.
+1. Sol'ler aralık klasörlerinde durur: ör. `data_derived_env/sol_0090_0179/sol_0105/`. **Art arda 3 sol** seçin (ör. 105, 106, 107): ikisi eğitim, biri test için. Sol 1 gibi görevin ilk günlerini seçmeyin; o günlerde rüzgâr dosyası yok.
+2. Her sol için şu dosyaları indirin (`.CSV` ve yanındaki `.xml`):
+
+   | Dosya (sol 105 örneği) | Ne ölçer | Kullanacağımız sütunlar |
+   |---|---|---|
+   | `WE__0105…DER_PS…P01.CSV` | basınç | `LTST` (yerel saat), `PRESSURE` (Pa) |
+   | `WE__0105…DER_WS…P03.CSV` | rüzgâr | `LTST`, `HORIZONTAL_WIND_SPEED` (m/s), `WIND_DIRECTION` (derece), `ROVER_STILL` |
+   | kalibre klasörde adında **ATS** geçen dosya | hava sıcaklığı | `LTST`, hava sıcaklığı sütunu (`.xml`'ye bakın) |
+
+3. Aynı adlı `.xml` dosyasını açın: sütunların adlarını ve **birimlerini** orada bulursunuz. Bunları not alın.
+4. Aynı dosyanın birkaç sürümü (P01, P02, P03…) varsa **en yüksek numaralısını** kullanın.
+5. Şunlar **gerekmez**: `DER_ANCILLARY` (gezginin konumu ve Güneş'in açısı), `DER_TIRS` (kızılötesi ışınım), `DER_RHS` (nem).
+   `DER_RHS`'teki `HUMIDITY_LOCAL_TEMP` nem sensörünün kendi sıcaklığıdır, hava sıcaklığı değildir. ATS yoksa yalnızca *yaklaşık* bir değer olarak kullanılabilir; bunu günlüğe yazın.
+6. Sol 105 için Mars'ın mevsimi (güneş boylamı, Ls) yaklaşık 55°'dir: Jezero'da kuzey ilkbaharı. Seçtiğiniz sol'lerin Ls değerini `.xml` dosyasının başındaki iki ondalıklı sayıdan okuyup not edin; modeliniz bu mevsim için geçerlidir.
+7. Hangi dosyaları indirdiğinizi `YZ-GUNLUGU.md`'ye değil, aşağıdaki "Veri kaydı" tablosuna yazın.
 
 > 💡 Dosyalar büyükse sorun değil: Veri Atölyesi her şeyi tarayıcıda işler, hiçbir şey dışarı gönderilmez.
 
@@ -48,6 +58,9 @@ Veri Atölyesi sayfasının (oyunun klasöründe `veri-atolyesi.html`) 1. adım�
 3. Her dosya için seçin:
    - **Saat sütunu:** yerel güneş saati. MEDA'da genellikle adında `LTST` geçer (Local True Solar Time).
    - **Basınç**, **sıcaklık**, **rüzgâr hızı** ve **rüzgâr yönü** sütunları ve **birimleri**. Bir dosyada olmayanı "yok" bırakın.
+     (Atölye MEDA sütunlarını çoğunlukla kendisi bulur; yine de kontrol edin.)
+   - Rüzgâr dosyalarında **"yalnızca gezgin dururken (ROVER_STILL = 1)"** kutusu açık kalsın: gezgin hareket ederken ölçülen rüzgâr güvenilir değildir.
+   - **Rüzgâr yönü:** MEDA belgelerinde (`document/` klasöründeki RDR SIS) yönün rüzgârın *geldiği* mi *gittiği* yön mü olduğuna bakın ve atölyede ona göre seçin. Hava yoğunluğu bu seçimden etkilenmez; yalnızca rüzgârın oyundaki yönü etkilenir.
 4. **Bir solu test için ayırın:** O solun dosyalarında "Bu dosya ne için?" kutusundan **🧪 test** seçin. Model test dosyalarını hiç görmez; doğruluğu orada ölçülür. (En az 2 sol eğitim, 1 sol test.)
 5. Önce aracın nasıl çalıştığını görmek isterseniz **"🧪 Alıştırma verisiyle dene"** düğmesi var. Ama bu veri **uydurmadır**, projede kullanılmaz.
 
