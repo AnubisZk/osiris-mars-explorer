@@ -1,100 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OSIRISZK | Mars Pathfinder — Gezgin + Drone</title>
-<meta name="description" content="OsirisZk Mars Pathfinder: Ingenuity benzeri drone ve güneş enerjili gezgin ile Jezero'da keşif oyunu. Türkçe / English.">
-<link rel="stylesheet" href="web/stil.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#080e15" />
+  <title>OSIRISZK — Mars Mission Control 3D</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header class="ust">
-  <div>
-    <h1 data-y="baslik">OSIRISZK / MARS PATHFINDER</h1>
-    <p class="alt" data-y="altBaslik"></p>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-symbol">O<span>✦</span></div><div><div class="brand-name">OSIRIS<span>ZK</span> <em>MISSION CONTROL</em></div><div class="brand-sub">MARS PATHFINDER · FLIGHT OPERATIONS CONSOLE</div></div></div>
+      <div class="top-stat"><span class="ping"></span> SİSTEM ÇEVRİMİÇİ <small>LOCAL / NO NETWORK</small></div>
+      <div class="top-actions"><div class="sol"><span>GÖREV ZAMANI</span><b id="missionClock">00:00:00</b></div><button class="btn subtle" id="pauseBtn">Ⅱ DURAKLAT</button><button class="btn subtle" id="sunBtn">◑ GÜN BATIMI</button><button class="btn subtle" id="reportBtn">↓ RAPOR AL</button><button class="btn subtle" id="helpBtn" title="Kontroller">? KILAVUZ</button><button class="btn amber" id="resetBtn">↻ YENİDEN BAŞLAT</button></div>
+    </header>
+    <main class="workspace">
+      <section class="viewer-panel">
+        <div class="viewer">
+          <canvas id="glcanvas" aria-label="Etkileşimli üç boyutlu Mars simülasyonu"></canvas>
+          <div class="viewer-vignette"></div>
+          <div class="viewer-top">
+            <div class="view-badge"><span class="live-dot"></span> LIVE 3D <span class="sep">/</span> JEZERO SEKTÖRÜ <span class="sep">/</span> <span id="viewModeLabel">SERBEST KAMERA</span></div>
+            <div class="view-telemetry"><span>CAM <b>01</b></span><span>FPS <b id="fps">—</b></span><span>WEBGL <b>2.0</b></span></div>
+          </div>
+          <div class="crosshair" id="crosshair"><span></span><span></span><span></span><span></span><i></i></div>
+          <div class="altitude-ruler" id="altRuler"><small>ALT</small><strong id="hudAlt">0.0</strong><small>METRE</small><div class="rule-ticks"></div></div>
+          <div class="world-label" id="rockA"><span class="target-icon">◇</span><span>KAYA 01<small>HEMATİT • HEDEF</small></span></div>
+          <div class="world-label" id="rockB"><span class="target-icon">◇</span><span>KAYA 02<small>SEDİMAN • HEDEF</small></span></div>
+          <div class="world-label" id="rockC"><span class="target-icon">◇</span><span>KAYA 03<small>BAZALT • HEDEF</small></span></div>
+          <div class="viewer-bottom">
+            <div class="coords"><div class="cordot">✚</div><div><small>ARAÇ KONUMU</small><strong id="coordsLabel">X 000.0 / Z 000.0</strong></div></div>
+            <div class="cam-buttons"><button class="camera-btn active" data-camera="cinematic">01 <span>SİNEMATİK</span></button><button class="camera-btn" data-camera="drone">02 <span>DRONE</span></button><button class="camera-btn" data-camera="rover">03 <span>GEZGİN</span></button><button class="camera-btn" data-camera="top">04 <span>HARİTA</span></button></div>
+          </div>
+          <div id="loading" class="loading"><div class="loading-mark">O✦</div><div class="loading-title">MARS SAHNESİ HAZIRLANIYOR</div><div class="loading-line"><div></div></div><small>3B arazi · Araç sistemleri · Uçuş dinamikleri · Yerel görev verileri</small></div>
+          <div id="webglError" class="webgl-error" hidden><strong>WebGL 2 desteklenmiyor.</strong><p>Chrome veya Edge'in güncel sürümünde donanım hızlandırmayı açıp tekrar deneyin.</p></div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+        <div class="viewer-controls">
+          <div class="vehicle-picker"><div class="picker-title">AKTİF ARAÇ</div><button id="selectDrone" class="vehicle-btn selected"><span class="vehicle-icon">✣</span><span><b>UD-07</b><small>MARS HELİKOPTERİ</small></span><span class="status-pill">ACTIVE</span></button><button id="selectRover" class="vehicle-btn"><span class="vehicle-icon rover-icon">▰</span><span><b>RV-01</b><small>KEŞİF GEZGİNİ</small></span></button></div>
+          <div class="control-buttons"><button class="action-btn primary" id="missionBtn"><span class="action-glyph">▶</span><span>OTONOM KEŞİF <small>3 HEDEFLİ UÇUŞ</small></span></button><button class="action-btn" id="takeoffBtn"><span class="action-glyph">↑</span><span>KALKIŞ <small>MANUEL MOD</small></span></button><button class="action-btn" id="scanBtn"><span class="action-glyph">◎</span><span>TARAMA <small>G / R</small></span></button><button class="action-btn" id="dockBtn"><span class="action-glyph">↓</span><span>KENETLEN <small>F</small></span></button><button class="action-btn" id="chargeBtn"><span class="action-glyph">ϟ</span><span>BATARYA <small>B</small></span></button><button class="action-btn" id="transmitBtn"><span class="action-glyph">⇧</span><span>VERİYİ GÖNDER <small>T</small></span></button></div>
+        </div>
+        <div class="lower-panels"><div class="module-pad"><div class="module-head"><span>◈</span> YÜZEY HARİTASI <small>REAL TIME</small></div><canvas id="minimap" width="520" height="180"></canvas><div class="legend"><span><i class="drone-dot"></i> Drone</span><span><i class="rover-dot"></i> Gezgin</span><span><i class="target-dot"></i> Numune</span></div></div><div class="module-pad journey"><div class="module-head"><span>◷</span> MİSYON ZAMAN ÇİZELGESİ <small>JZR-03</small></div><div class="mission-steps" id="missionSteps"></div><p class="mission-description" id="missionDescription">Hazır · Görevi başlatmak için OTONOM KEŞİF'e basın veya manuel kontrolleri kullanın.</p></div></div>
+      </section>
+      <aside class="sidebar">
+        <div class="sidebar-header"><div><span class="kicker">TELEMETRY / 01</span><h2>Uçuş kontrol merkezi</h2></div><div class="pulse-bars"><span></span><span></span><span></span><span></span><span></span></div></div>
+        <div class="mode-card"><div class="mode-card-head"><span>AKTİF OPERASYON</span><span id="flightBadge" class="mode-indicator">KENETLİ</span></div><div class="mode-title" id="operationText">Görev öncesi kontrol</div><div class="mode-sub" id="operationSub">Sistemler nominal • Kalkışa hazır</div></div>
+        <div class="stat-grid"><div class="stat-card"><div class="metric-label">İRTİFA <span>AGL</span></div><div class="metric-value"><strong id="altitude">0.00</strong> <small>m</small></div><div class="metric-track"><i id="altBar"></i></div></div><div class="stat-card"><div class="metric-label">YATAY HIZ <span>GS</span></div><div class="metric-value"><strong id="speed">0.00</strong> <small>m/s</small></div><div class="metric-track"><i id="speedBar"></i></div></div><div class="stat-card"><div class="metric-label">İTİŞ ORANI <span>T/W</span></div><div class="metric-value"><strong id="thrust">1.00</strong> <small>×</small></div><div class="metric-track"><i id="thrustBar"></i></div></div><div class="stat-card"><div class="metric-label">İLETİŞİM <span>RSSI</span></div><div class="metric-value"><strong id="signal">100</strong> <small>%</small></div><div class="metric-track"><i id="signalBar"></i></div></div></div>
+        <div class="sidebar-section"><div class="section-title">ENERJİ SİSTEMİ <span>POWER MONITOR</span></div><div class="battery-row"><div class="battery-name"><span class="little-icon">✣</span><div>UD-07 <small>HELIKOPTER BATARYASI</small></div></div><b id="droneBatteryText">100%</b></div><div class="progress"><div id="droneBatteryBar"></div></div><div class="battery-row rover-battery"><div class="battery-name"><span class="little-icon">▰</span><div>RV-01 <small>GEZGİN / GÜNEŞ ENERJİSİ</small></div></div><b id="roverBatteryText">90%</b></div><div class="progress teal"><div id="roverBatteryBar"></div></div></div>
+        <div class="sidebar-section"><div class="section-title">BİLİMSEL VERİLER <span>SCIENCE DATA</span></div><div class="science-readout"><div><small>TOPLANAN NUMUNE</small><strong id="samples">00 <em>/ 03</em></strong></div><div><small>İLETİLEN VERİ</small><strong id="sent">00 <em>PKT</em></strong></div></div><div class="science-plot"><canvas id="scienceChart" width="400" height="105"></canvas></div></div>
+        <div class="sidebar-section log-section"><div class="section-title">SİSTEM GÜNLÜĞÜ <span>EVENT LOG</span></div><div id="eventLog" class="event-log"></div></div>
+        <div class="sidebar-footer"><span class="green-led"></span> SİSTEM DURUMU: NOMİNAL <span id="flightTime">T+00:00:00</span></div>
+      </aside>
+    </main>
+    <footer class="footer"><span>OSIRISZK · MARS MISSION ARCHITECT <i>//</i> 3D SURFACE OPERATIONS</span><span><kbd>TAB</kbd> ARAÇ <kbd>W A S D</kbd> HAREKET <kbd>SPACE</kbd> YÜKSEL <kbd>SHIFT</kbd> ALÇAL <kbd>1 2 3 4</kbd> KAMERA <kbd>H</kbd> YARDIM</span><span>SIMULATION BUILD 2.0 · OFFLINE</span></footer>
   </div>
-  <div class="sag">
-    <span id="durumBaslik"></span>
-    <div class="dil" role="group" aria-label="Dil / Language">
-      <button data-dil="tr">TR</button><button data-dil="en">EN</button>
-    </div>
-  </div>
-</header>
-
-<main class="icerik">
-  <section class="sahne">
-    <canvas id="harita" aria-label="Oyun haritası / Game map"></canvas>
-    <div class="dokunmatik" aria-hidden="true">
-      <div class="yon">
-        <button data-tus="KeyW">▲</button>
-        <button data-tus="KeyA">◀</button><button data-tus="KeyS">▼</button><button data-tus="KeyD">▶</button>
-      </div>
-      <div class="dikey">
-        <button data-tus="ArrowUp" data-y="dokunmatik.yukari">Yüksel</button>
-        <button data-tus="ArrowDown" data-y="dokunmatik.asagi">Alçal</button>
-      </div>
-    </div>
-    <div id="yukleme">
-      <div>
-        <div class="donen"></div>
-        <p id="yukleMesaj" data-y="yukleniyor"></p>
-        <p class="kucuk" data-y="yuklemeAyrinti"></p>
-        <p class="kucuk" id="yukleDurum"></p>
-      </div>
-    </div>
-  </section>
-
-  <aside class="panel">
-    <nav class="sekmeler">
-      <button data-sekme="sDrone" class="secili" data-y="sekme.drone">DRONE</button>
-      <button data-sekme="sGezgin" data-y="sekme.gezgin">GEZGİN</button>
-      <button data-sekme="sGorev" data-y="sekme.gorev">GÖREV / VERİ</button>
-    </nav>
-    <div id="sDrone" class="sekmeIcerik">
-      <h2 data-y="droneBaslik"></h2><div id="dronePanel"></div><p class="ipucu" data-y="droneIpucu"></p>
-    </div>
-    <div id="sGezgin" class="sekmeIcerik" hidden>
-      <h2 data-y="gezginBaslik"></h2><div id="gezginPanel"></div><p class="ipucu" data-y="gezginIpucu"></p>
-    </div>
-    <div id="sGorev" class="sekmeIcerik" hidden>
-      <h2 data-y="gorevBaslik"></h2><div id="gorevPanel"></div>
-      <h2 data-y="sonOlay"></h2><p id="sonOlay" class="olay"></p>
-    </div>
-    <div class="eylemler">
-      <button data-eylem="tara" data-y="eylem.tara"></button><button data-eylem="arastir" data-y="eylem.arastir"></button>
-      <button data-eylem="kenetle" data-y="eylem.kenetle"></button><button data-eylem="pil" data-y="eylem.pil"></button>
-      <button data-eylem="aktarim" data-y="eylem.aktarim"></button><button data-eylem="kamera" data-y="eylem.kamera"></button>
-      <button data-eylem="isi" data-y="eylem.isi"></button><button data-eylem="gunes" data-y="eylem.gunes"></button>
-      <button data-eylem="galeri" class="genis" data-y="eylem.galeri"></button>
-    </div>
-  </aside>
-</main>
-
-<div class="arac">
-  <button data-eylem="duraklat" class="ana" data-y="eylem.duraklat"></button>
-  <button data-eylem="degistir" class="mavi" data-y="eylem.degistir"></button>
-  <button data-eylem="onar" data-y="eylem.onar"></button>
-  <button data-eylem="kaydet" data-y="eylem.kaydet"></button>
-  <button data-eylem="yukle" data-y="eylem.yukle"></button>
-  <button data-eylem="csv" data-y="eylem.csv"></button>
-  <button data-eylem="yeni" class="kirmizi" data-y="eylem.yeni"></button>
-  <input type="file" id="dosyaSec" accept=".json,application/json" hidden>
-</div>
-<p id="bildirim" aria-live="polite"></p>
-
-<footer>
-  <p data-y="durust"></p>
-  <p><a href="OsirisZK-Mars-Gorevi.zip" data-y="alt">Masaüstü sürümü ve kaynak kodu</a> ·
-     <a href="modeller/" data-y="modeller">Araç modelleri</a></p>
-</footer>
-
-<dialog id="galeri">
-  <h2 id="galeriBaslik"></h2>
-  <p id="galeriNot" class="kucuk"></p>
-  <div class="galeriIc"><div id="galeriListe"></div><div id="galeriOnizleme"></div></div>
-  <button id="galeriKapat"></button>
-</dialog>
-
-<script type="module" src="web/oyun.js"></script>
+  <div class="overlay" id="helpOverlay" hidden><div class="help-dialog"><div class="help-title"><div><small>OSIRISZK / FLIGHT MANUAL</small><h2>Kontrol kılavuzu</h2></div><button id="closeHelp" aria-label="Kapat">✕</button></div><div class="help-grid"><div><h3>HELIKOPTER / UD-07</h3><p><kbd>W A S D</kbd> Yatay hareket</p><p><kbd>SPACE</kbd> Yükselme</p><p><kbd>SHIFT</kbd> Alçalma</p><p><kbd>Q / E</kbd> Dönüş</p><p><kbd>G</kbd> Yakındaki kayayı tarama</p><p><kbd>F</kbd> Gezgine kenetlenme</p><p><kbd>B</kbd> Batarya değişimi</p></div><div><h3>GEZGİN / RV-01</h3><p><kbd>W / S</kbd> İleri / geri</p><p><kbd>A / D</kbd> Direksiyon</p><p><kbd>R</kbd> Kaya araştırma</p><p><kbd>T</kbd> Dünya'ya veri gönder</p><p><kbd>TAB</kbd> Araç değiştir</p><p><kbd>1–4</kbd> Kamera modları</p><p><kbd>P</kbd> Duraklat / devam et</p><p><kbd>FARE</kbd> Döndür / yaklaştır</p></div></div><div class="hint-box">Otonom keşif, üç kaya hedefini sırayla tarayıp helikopteri gezgine geri getirir. Eğitim simülasyonudur; uçuş modeli basitleştirilmiştir. Üç boyutlu sahne internet olmadan çalışır.</div><button id="helpDone" class="btn amber">GÖREVE DÖN →</button></div></div>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
