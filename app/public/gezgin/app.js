@@ -849,7 +849,7 @@ async function dunyaKur(q){
   assets.environment=buildEnvironment(renderer,{boulders:Q.boulders,rockLevel:Q.rockLevel});
   efektleriTemizle();
 }
-const kaliteDugmesi=()=>{$('qualityBtn').textContent=`◆ ${t('kalite.'+kalite)}`;};
+const kaliteDugmesi=()=>{$('qualityBtn').textContent=`◆ ${t('kalite.etiket',{k:t('kalite.'+kalite)})}`;};
 async function kaliteDegistir(){
   if(kaliteMesgul)return;kaliteMesgul=true;
   kalite=['low','medium','high'][(['low','medium','high'].indexOf(kalite)+1)%3];

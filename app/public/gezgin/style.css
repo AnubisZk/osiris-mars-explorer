@@ -22,3 +22,4 @@
 /* v2.4'ten: zemin karışım şeridi */
 .soil-bars{display:flex;height:7px;margin-top:9px;border-radius:2px;overflow:hidden;background:#101c26}.soil-bars span{min-width:0}
 a.btn{text-decoration:none;display:inline-block}
+@media(max-width:600px){.viewer-bottom .coords{display:none}}
