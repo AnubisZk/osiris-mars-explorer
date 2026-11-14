@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSIRISZK | Mars Pathfinder — Gezgin + Drone</title>
+<meta name="description" content="OsirisZk Mars Pathfinder: Ingenuity benzeri drone ve güneş enerjili gezgin ile Jezero'da keşif oyunu. Türkçe / English.">
+<link rel="stylesheet" href="web/stil.css">
+</head>
+<body>
+<header class="ust">
+  <div>
+    <h1 data-y="baslik">OSIRISZK / MARS PATHFINDER</h1>
+    <p class="alt" data-y="altBaslik"></p>
+  </div>
+  <div class="sag">
+    <span id="durumBaslik"></span>
+    <div class="dil" role="group" aria-label="Dil / Language">
+      <button data-dil="tr">TR</button><button data-dil="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<main class="icerik">
+  <section class="sahne">
+    <canvas id="harita" aria-label="Oyun haritası / Game map"></canvas>
+    <div class="dokunmatik" aria-hidden="true">
+      <div class="yon">
+        <button data-tus="KeyW">▲</button>
+        <button data-tus="KeyA">◀</button><button data-tus="KeyS">▼</button><button data-tus="KeyD">▶</button>
+      </div>
+      <div class="dikey">
+        <button data-tus="ArrowUp" data-y="dokunmatik.yukari">Yüksel</button>
+        <button data-tus="ArrowDown" data-y="dokunmatik.asagi">Alçal</button>
+      </div>
+    </div>
+    <div id="yukleme">
+      <div>
+        <div class="donen"></div>
+        <p id="yukleMesaj" data-y="yukleniyor"></p>
+        <p class="kucuk" data-y="yuklemeAyrinti"></p>
+        <p class="kucuk" id="yukleDurum"></p>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <nav class="sekmeler">
+      <button data-sekme="sDrone" class="secili" data-y="sekme.drone">DRONE</button>
+      <button data-sekme="sGezgin" data-y="sekme.gezgin">GEZGİN</button>
+      <button data-sekme="sGorev" data-y="sekme.gorev">GÖREV / VERİ</button>
+    </nav>
+    <div id="sDrone" class="sekmeIcerik">
+      <h2 data-y="droneBaslik"></h2><div id="dronePanel"></div><p class="ipucu" data-y="droneIpucu"></p>
+    </div>
+    <div id="sGezgin" class="sekmeIcerik" hidden>
+      <h2 data-y="gezginBaslik"></h2><div id="gezginPanel"></div><p class="ipucu" data-y="gezginIpucu"></p>
+    </div>
+    <div id="sGorev" class="sekmeIcerik" hidden>
+      <h2 data-y="gorevBaslik"></h2><div id="gorevPanel"></div>
+      <h2 data-y="sonOlay"></h2><p id="sonOlay" class="olay"></p>
+    </div>
+    <div class="eylemler">
+      <button data-eylem="tara" data-y="eylem.tara"></button><button data-eylem="arastir" data-y="eylem.arastir"></button>
+      <button data-eylem="kenetle" data-y="eylem.kenetle"></button><button data-eylem="pil" data-y="eylem.pil"></button>
+      <button data-eylem="aktarim" data-y="eylem.aktarim"></button><button data-eylem="kamera" data-y="eylem.kamera"></button>
+      <button data-eylem="isi" data-y="eylem.isi"></button><button data-eylem="gunes" data-y="eylem.gunes"></button>
+      <button data-eylem="galeri" class="genis" data-y="eylem.galeri"></button>
+    </div>
+  </aside>
+</main>
+
+<div class="arac">
+  <button data-eylem="duraklat" class="ana" data-y="eylem.duraklat"></button>
+  <button data-eylem="degistir" class="mavi" data-y="eylem.degistir"></button>
+  <button data-eylem="onar" data-y="eylem.onar"></button>
+  <button data-eylem="kaydet" data-y="eylem.kaydet"></button>
+  <button data-eylem="yukle" data-y="eylem.yukle"></button>
+  <button data-eylem="csv" data-y="eylem.csv"></button>
+  <button data-eylem="yeni" class="kirmizi" data-y="eylem.yeni"></button>
+  <input type="file" id="dosyaSec" accept=".json,application/json" hidden>
+</div>
+<p id="bildirim" aria-live="polite"></p>
+
+<footer>
+  <p data-y="durust"></p>
+  <p><a href="osiriszk-mars-gezgin-drone.zip" data-y="alt">Masaüstü sürümü ve kaynak kodu</a> ·
+     <a href="modeller/" data-y="modeller">Araç modelleri</a></p>
+</footer>
+
+<dialog id="galeri">
+  <h2 id="galeriBaslik"></h2>
+  <p id="galeriNot" class="kucuk"></p>
+  <div class="galeriIc"><div id="galeriListe"></div><div id="galeriOnizleme"></div></div>
+  <button id="galeriKapat"></button>
+</dialog>
+
+<script type="module" src="web/oyun.js"></script>
+</body>
+</html>

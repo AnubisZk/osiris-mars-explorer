@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSIRISZK | Araç modelleri / Vehicle models</title>
+<link rel="stylesheet" href="../web/stil.css">
+<style>
+  main{max-width:1100px;margin:0 auto;padding:10px 18px 40px}
+  figure{margin:16px 0;background:var(--panel);border-radius:10px;padding:10px}
+  figure img{width:100%;border-radius:6px;background:#fff}
+  figcaption{color:var(--soluk);font-size:13px;margin-top:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0 18px}
+  th,td{text-align:left;padding:5px 8px;border-bottom:1px solid #ffffff14}th{color:var(--soluk);font-weight:600}
+  .kullan{color:#7ee08a}.kullanma{color:var(--soluk)}
+</style>
+</head>
+<body>
+<header class="ust">
+  <div><h1 id="b">OSIRISZK — Araç modelleri</h1><p class="alt" id="a"></p></div>
+  <div class="sag"><a href="../" id="geri">← Oyun</a><div class="dil"><button data-dil="tr">TR</button><button data-dil="en">EN</button></div></div>
+</header>
+<main>
+  <div id="tablolar"></div>
+  <figure><img src="gezgin-drone-destek-sistemi.png" alt="Gezgin ve drone iniş/kenetleme sistemi"><figcaption id="f1"></figcaption></figure>
+  <figure><img src="gezgin-mimari.jpg" alt="Gezgin mimari çizimi"><figcaption id="f2"></figcaption></figure>
+  <figure><img src="drone-mimari.jpg" alt="Drone mimari çizimi"><figcaption id="f3"></figcaption></figure>
+</main>
+<script type="module">
+const Y = {
+  tr: { b: 'OSIRISZK — Araç modelleri', a: 'Oyun motorunun kullandığı mimari çizimler (v1.0) ve değerleri (modeller.json)', geri: '← Oyuna dön',
+    f1: 'Gezgin + drone iniş, kenetleme ve batarya değişim sistemi', f2: 'Mars gezgini (rover): ön, yan, üst görünüş', f3: 'Mars drone (Ingenuity esaslı): yan, ön, üst görünüş',
+    gezgin: 'Gezgin', drone: 'Drone', ozellik: 'Özellik', deger: 'Değer', kullanim: 'Oyunda kullanım', kullaniliyor: 'Oyunda kullanılan değerler', henuz: 'Henüz kullanılmayanlar' },
+  en: { b: 'OSIRISZK — Vehicle models', a: 'Architecture drawings (v1.0) and values (modeller.json) used by the game engine', geri: '← Back to the game',
+    f1: 'Rover + drone landing, docking and battery-swap system', f2: 'Mars rover: front, side, top views', f3: 'Mars drone (based on Ingenuity): side, front, top views',
+    gezgin: 'Rover', drone: 'Drone', ozellik: 'Property', deger: 'Value', kullanim: 'Use in the game', kullaniliyor: 'Values used in the game', henuz: 'Not used yet' },
+};
+const ETIKET = {
+  kutle_kg: ['Kütle (kg)', 'Mass (kg)'], boyut_m: ['Boyutlar (m)', 'Dimensions (m)'], teker_sayisi: ['Teker sayısı', 'Wheels'],
+  suspansiyon: ['Süspansiyon', 'Suspension'], teker_capi_m: ['Teker çapı (m)', 'Wheel diameter (m)'], teker_genisligi_m: ['Teker genişliği (m)', 'Wheel width (m)'],
+  aks_araligi_m: ['Aks aralığı (m)', 'Axle spacing (m)'], iz_genisligi_m: ['İz genişliği (m)', 'Track width (m)'], yerden_yukseklik_m: ['Yerden yükseklik (m)', 'Ground clearance (m)'],
+  engel_asma_m: ['Engel aşma (m)', 'Obstacle height (m)'], egim_tirmanma_derece: ['Eğim tırmanma (°)', 'Slope climbing (°)'], maks_hiz_m_s: ['En yüksek hız (m/s)', 'Max speed (m/s)'],
+  gunes_paneli_W: ['Güneş paneli (W)', 'Solar panel (W)'], batarya_Wh: ['Batarya (Wh)', 'Battery (Wh)'], batarya_araligi_kWh: ['Batarya aralığı (kWh)', 'Battery range (kWh)'],
+  calisma_sicakligi_C: ['Çalışma sıcaklığı (°C)', 'Operating temperature (°C)'], haberlesme: ['Haberleşme', 'Communications'], gorev_suresi: ['Görev süresi', 'Mission duration'],
+  inis_platformu_m: ['İniş platformu (m)', 'Landing pad (m)'], drone_sarj_gucu_W: ['Drone şarj gücü (W)', 'Drone charging power (W)'], drone_sarj_turu: ['Şarj türü', 'Charging type'],
+  batarya_degisim_suresi_dk: ['Batarya değişim süresi (dk)', 'Battery swap time (min)'], kenetlenme: ['Kenetlenme', 'Docking'], isi_kontrollu_bolme_C: ['Isı kontrollü bölme (°C)', 'Heated bay (°C)'],
+  taban: ['Taban tasarım', 'Based on'], rotor_capi_m: ['Rotor çapı (m)', 'Rotor diameter (m)'], rotor_sayisi: ['Rotor sayısı', 'Rotors'], rotor_duzeni: ['Rotor düzeni', 'Rotor layout'],
+  pala_sayisi: ['Pala sayısı', 'Blades'], toplam_yukseklik_m: ['Toplam yükseklik (m)', 'Total height (m)'], govde_m: ['Gövde (m)', 'Fuselage (m)'],
+  inis_ayagi_m: ['İniş ayağı (m)', 'Landing leg (m)'], rotor_devri_dev_dk: ['Rotor devri (dev/dk)', 'Rotor speed (rpm)'], guc: ['Güç kaynağı', 'Power source'],
+};
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const yaz = (v) => Array.isArray(v) ? v.join(' … ') : typeof v === 'object' ? Object.values(v).join(' × ') : v;
+const m = await (await fetch('modeller.json')).json();
+let dil = new URLSearchParams(location.search).get('dil') || (navigator.language.startsWith('tr') ? 'tr' : 'en');
+function ciz() {
+  const y = Y[dil];
+  for (const k of ['b', 'a', 'geri', 'f1', 'f2', 'f3']) document.getElementById(k).textContent = y[k];
+  document.getElementById('geri').href = `../?dil=${dil}`;
+  document.querySelectorAll('[data-dil]').forEach((b) => b.classList.toggle('secili', b.dataset.dil === dil));
+  const tablo = (ad, o) => `<h2>${esc(ad)}</h2><table><tr><th>${y.ozellik}</th><th>${y.deger}</th></tr>${Object.entries(o).map(([k, v]) => `<tr><td>${esc(ETIKET[k]?.[dil === 'tr' ? 0 : 1] ?? k)}</td><td>${esc(yaz(v))}</td></tr>`).join('')}</table>`;
+  document.getElementById('tablolar').innerHTML = `<p class="kucuk">${esc(dil === 'tr' ? m.aciklama : 'Values read from the OsirisZk Mars Exploration System architecture drawings. The game engine uses them; oyun/test_modeller.py checks they stay in sync. These are the team\'s DESIGN targets, not measured hardware values. Some text values are in Turkish.')}</p>` + tablo(y.gezgin, m.gezgin) + tablo(y.drone, m.drone)
+    + `<h2>${y.kullaniliyor}</h2><ul>${m.oyunda_kullanim.kullaniliyor.map((x) => `<li class="kullan">${esc(x)}</li>`).join('')}</ul>`
+    + `<h2>${y.henuz}</h2><ul>${m.oyunda_kullanim.henuz_kullanilmiyor.map((x) => `<li class="kullanma">${esc(x)}</li>`).join('')}</ul>`;
+}
+document.querySelectorAll('[data-dil]').forEach((b) => b.onclick = () => { dil = b.dataset.dil; ciz(); });
+ciz();
+</script>
+</body>
+</html>

@@ -82,6 +82,10 @@ export function showLanding(){
         h('span',{class:'wicon'},'🏭'),
         h('span',{class:'wtext'},h('small',{},t('workshopTag')),h('b',{},t('factoryTitle')),h('span',{},t('factoryText'))),
         h('span',{class:'go'},`${t('factoryGo')} →`)),
+      h('a',{class:'workshop',href:'gezgin/'},
+        h('span',{class:'wicon'},'🛰'),
+        h('span',{class:'wtext'},h('small',{},t('pathTag')),h('b',{},t('pathTitle')),h('span',{},t('pathText'))),
+        h('span',{class:'go'},`${t('pathGo')} →`)),
       h('p',{class:'foot'},t('landFoot')));
   };
   render();
