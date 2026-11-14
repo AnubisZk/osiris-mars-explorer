@@ -24,7 +24,8 @@ yeni bir gezegen, yeni bir araç, yeni hedefler, yeni bir hikâye.
 | `hesap.html`, `hesap.js`, `hesapla.mjs` | Görevin bütün hesaplarını oyunun motoruyla adım adım üretir | Bilim danışmanı | ❌ Değiştirmeyin, doğrulamak için kullanın |
 | `AGENTS.md`, `CLAUDE.md` | Depoda çalışan yapay zekâ ajanlarının kuralları | Takım kaptanı | ❌ Gerek yok |
 | `veri-atolyesi.html`, `atmosfer.js`, `veri/` | Gerçek NASA ölçümlerinden atmosfer modeli eğitip oyuna bağlama (dijital ikiz) | Bilim danışmanı + Kodcu | ✅ Bonus görev: `VERI-IKIZI.md` |
-| `fabrika.html` (+ `tasarim.js`, `malzemeler.js`, `otopilot.js`, `stres.js`, `optimize.js`, `fabrika.js`) | **Görev Fabrikası:** sistem tasarımı → cihaz tasarımı → yollama maliyeti → simülasyon → stres testi → oyun | Tüm takım | ✅ Sayfadan kullanın, rehber: `FABRIKA.md` |
+| `fabrika.html` (+ `tasarim.js`, `malzemeler.js`, `maliyet.js`, `otopilot.js`, `stres.js`, `optimize.js`, `fabrika.js`) | **Görev Fabrikası:** sistem tasarımı → cihaz tasarımı → yollama maliyeti → simülasyon → stres testi → oyun | Tüm takım | ✅ Sayfadan kullanın, rehber: `FABRIKA.md` |
+| `MALZEME-GUNLUGU.md` | Malzeme mühendisinin kaynaklı malzeme değerleri; Görev Fabrikası hesaba katar | Malzeme mühendisi | ✅ **Satır ekleyin, silmeyin** |
 | `KOMUT-KAYDI.md` | Ajanlara verilen her komutun kelimesi kelimesine kaydı: projenin şeffaflık belgesi | Ajan yazar, Sunucu kontrol eder | ✅ "Takımın kontrolü" satırlarını doldurun |
 | `GOREV-TASARIMI.md` | Takımınızın tasarım belgesi | Tüm takım | ✅ **Doldurmanız gerekiyor** |
 | `ROLLER.md` | Takımdaki görev dağılımı | Tüm takım | ✅ İsimleri yazın |

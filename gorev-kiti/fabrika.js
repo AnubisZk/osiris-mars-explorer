@@ -20,9 +20,11 @@ export function yzKomutu(gereksinim, tip) {
   const g = gereksinim.gorev, o = ortam(g), r = rota(g);
   const alanlar = Object.entries(ARALIK[tip]).map(([k, v]) =>
     `- ${k}: ${typeof v[0] === 'number' && k !== 'rotorSayisi' ? `${v[0]} ile ${v[1]} arası sayı` : `şunlardan biri: ${v.map(x => JSON.stringify(x)).join(', ')}`}`).join('\n');
-  const secenek = tip === 'rotor'
+  const yapi = `Yapı malzemeleri (yoğunluk kg/m³, çekme dayanımı MPa${o.enDusukSicaklik_C != null ? ', en düşük çalışma sıcaklığı' : ''}): ${Object.entries(YAPI_MALZEMELERI).map(([k, m]) => `${k}=${m.ad} (${m.yogunluk_kg_m3}, ${m.cekme_MPa}${m.enDusukSicaklik_C != null ? `, ${m.enDusukSicaklik_C} °C` : ''})`).join('; ')}.`;
+  const secenek = (tip === 'rotor'
     ? `Batarya tipleri (Wh/kg): ${Object.entries(BATARYALAR).map(([k, b]) => `${k}=${b.ozgulEnerji_Wh_kg}${b.deneysel ? ' (deneysel)' : ''}`).join(', ')}.`
-    : `Roket motorları: ${Object.entries(ROKET_MOTORLARI).map(([k, m]) => `${k}=Isp ${m.isp_s} s`).join(', ')}.`;
+    : `Roket motorları: ${Object.entries(ROKET_MOTORLARI).map(([k, m]) => `${k}=Isp ${m.isp_s} s`).join(', ')}.`)
+    + `\n${yapi}${o.enDusukSicaklik_C != null ? `\nGezegenin en düşük sıcaklığı: ${o.enDusukSicaklik_C} °C.` : ''}`;
   return `[Görev Fabrikası · tasarım önerisi]
 Bir öğrenci takımıyla ${o.ad} üzerinde çalışacak bir ${tip === 'rotor' ? 'rotorlu (helikopter/dron)' : 'roketli'} keşif aracı tasarlıyoruz.
 
@@ -96,10 +98,25 @@ export function tasarimRaporu(S) {
   if (S.yz) ekle('### Yapay zekâ önerisi', '', `- **Araç:** ${S.yz.arac}`, `- **Aralığa göre düzeltilen alanlar:** ${S.yz.duzeltilen.length ? S.yz.duzeltilen.join(', ') : 'yok'}`,
     `- **Eksik gelen alanlar:** ${S.yz.eksik.length ? S.yz.eksik.join(', ') : 'yok'}`, '', '**Gönderilen komutun tamamı:**', '', '````text', S.yz.komut, '````', '');
   if (S.optimizasyon?.length) ekle('### Otonom mühendis (optimizasyon) günlüğü', '', ...S.optimizasyon.map(s => `- ${s}`), '');
-  const f = S.maliyet;
-  ekle('## 3. Yollama maliyeti', '', `- Kütle: **${say(e.kutle_kg, 3)} kg**`,
-    f?.usd_kg ? `- Fiyat: ${para(f.usd_kg)}/kg (${f.ad}; kaynak: ${f.kaynak})` : '- Fiyat: seçilmedi',
-    f?.usd_kg ? `- **Yollama maliyeti ≈ ${para(e.kutle_kg * f.usd_kg)}** (yalnızca taşıma; iniş sistemi, yapım ve işletme hariç)` : null, '');
+  const m = S.maliyet;
+  if (m) {
+    const aralik = (a, b) => a == null && b == null ? 'referans yok' : a === b || a == null || b == null ? para(a ?? b) : `${para(a)} – ${para(b)}`;
+    ekle('## 3. Gerçekçi görev maliyeti', '',
+      '| Kalem | Tutar | Nasıl hesaplandı? |', '|---|---|---|',
+      `| Malzeme (ham madde) | ${para(m.malzeme.toplam_usd)}${m.malzeme.eksik ? ` (+${m.malzeme.eksik} parçanın fiyatı bilinmiyor)` : ''} | Parça kütlesi × malzeme günlüğündeki $/kg |`,
+      `| Geliştirme, yapım ve test | ${para(m.gelistirme_usd)} | ${m.gelistirmeNotu ?? 'Ingenuity referansı (80 milyon $)'} |`,
+      `| Taşıma (fırlatma + yolculuk + iniş) | ${aralik(m.tasima.alt, m.tasima.ust)} | ${say(e.kutle_kg, 3)} kg × ${aralik(m.tasima.alt_usd_kg, m.tasima.ust_usd_kg)}/kg${m.tasima.kendi ? ' (takımın kendi değeri: ' + (m.tasimaKaynagi || 'KAYNAK YOK') + ')' : ''} |`,
+      `| Operasyon | ${para(m.operasyon_usd)} | Ingenuity: 1 aylık operasyon ~5 milyon $ × ay sayısı |`,
+      `| **Toplam** | **${aralik(m.toplam.alt, m.toplam.ust)}** | |`, '',
+      `- Taşıma referansı: ${m.tasima.aciklama} Kaynak: ${m.tasima.kaynak}.`,
+      m.malzemePayi != null ? `- Ham malzeme, toplam maliyetin yalnızca **%${(m.malzemePayi * 100).toLocaleString('tr-TR', { maximumFractionDigits: 4 })}**'i. Uzay araçlarını pahalı yapan malzeme değil; tasarım, test ve taşımadır.` : null, '');
+    if (m.malzeme.satirlar.length) ekle('| Parça | Malzeme | Kütle (kg) | Fiyat ($/kg) | Tutar | Fiyatın kaynağı |', '|---|---|---|---|---|---|',
+      ...m.malzeme.satirlar.map(r => `| ${r.parca} | ${r.malzeme} | ${say(r.kg, 3)} | ${r.fiyat_usd_kg == null ? '— (günlüğe ekleyin)' : say(r.fiyat_usd_kg)} | ${r.usd == null ? '—' : para(r.usd)} | ${r.fiyat_usd_kg == null ? '—' : r.kaynak ?? '—'} |`), '');
+  }
+  if (S.malzemeRaporu?.length) {
+    ekle('### Malzeme günlüğünden gelen kayıtlar', '', '| # | Kimlik | Tür | Durum | Uyarı / sorun | Kaynak |', '|---|---|---|---|---|---|',
+      ...S.malzemeRaporu.map(r => `| ${r.sira} | ${r.kimlik} | ${r.tur} | ${r.durum}${r.guncelleme ? ' (hazır malzemeyi güncelledi: ' + (r.alanlar ?? []).join(', ') + ')' : ''} | ${[...r.sorunlar, ...r.uyarilar.map(u => '⚠ ' + u)].join('; ') || '—'} | ${String(r.kayit.kaynak ?? '').replace(/\|/g, '/') || '⚠ yok'} |`), '');
+  }
   if (S.sim) ekle('## 4. Simülasyon (otopilot, tek uçuş)', '', `- Sonuç: **${S.sim.mesaj}**`, `- Süre: ${say(S.sim.zaman / 60, 1)} dk, kalan enerji/yakıt: ${yuzde(S.sim.kalan)}, puan: ${S.sim.puan}`, '');
   if (S.stres) {
     const s = S.stres;

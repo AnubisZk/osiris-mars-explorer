@@ -24,16 +24,17 @@ export const ARALIK = {
     yaricap_m: [0.15, 1.2],
     ucHizi_m_s: [60, 240],
     batarya_Wh: [5, 400],
-    bataryaTipi: Object.keys(BATARYALAR),
-    yapiMalzemesi: Object.keys(YAPI_MALZEMELERI),
-    kanatMalzemesi: ['karbon', 'cam', 'aluminyum'],
+    // malzeme günlüğünden eklenen malzemeler de seçeneklere girer (getter: her seferinde güncel)
+    get bataryaTipi() { return Object.keys(BATARYALAR); },
+    get yapiMalzemesi() { return Object.keys(YAPI_MALZEMELERI); },
+    get kanatMalzemesi() { return Object.keys(YAPI_MALZEMELERI).filter(k => !YAPI_MALZEMELERI[k].soguktaKirilgan && YAPI_MALZEMELERI[k].cekme_MPa >= 100); },
     maksEgim_derece: [10, 30],   // çok eğik araç rüzgârda yere değerken devrilir
   },
   roket: {
     yakit_kg: [0.2, 800],
     maksItki_N: [2, 20000],
     motorTipi: Object.keys(ROKET_MOTORLARI),
-    yapiMalzemesi: Object.keys(YAPI_MALZEMELERI),
+    get yapiMalzemesi() { return Object.keys(YAPI_MALZEMELERI); },
   },
 };
 

@@ -147,6 +147,21 @@ Her adımı ayrı göster. Sonucu ben de hesap makinesiyle kontrol edeceğim.
 
 💡 Sonucu hesap makinesiyle kendiniz de bulun. Sonra oyunun giriş ekranındaki "Kütle → ağırlık" değeriyle karşılaştırın.
 
+### K2.4 · Malzeme araştır · *Malzeme mühendisi*
+
+```
+[Hazır komut K2.4 · Malzeme araştır · Görev Atölyesi]
+Ben bir öğrenciyim. Takımımla, tarayıcıda çalışan bir uzay görevi simülasyon oyunu yapıyoruz. Oyunumuz three.js ile yazılmış "Görev Kiti" adlı hazır bir projeye dayanıyor. Aracımız {gezegen} üzerinde çalışacak. Aracın gövdesi ve pervaneleri için bir malzeme seçmemiz gerekiyor.
+Aday malzememiz: [MALZEMENİN ADI, ör. Alüminyum 6061-T6]
+1. Bu malzemenin yoğunluğunu (kg/m³), çekme dayanımını (MPa) ve güvenle kullanılabildiği en düşük sıcaklığı (°C) bir tablo hâlinde ver.
+2. Her değer için hangi tür kaynakta (malzeme veri tabanı, üretici veri sayfası, el kitabı) bulabileceğimizi söyle. Kaynak uydurma; emin olmadığın değeri "emin değilim" diye işaretle.
+3. "Özgül dayanım" (çekme dayanımı ÷ yoğunluk) nedir, neden bir uçan araç için önemlidir? Karbon fiberle karşılaştır.
+4. {gezegen}'in soğuğunda bu malzemenin bir sorunu olur mu?
+Değerleri MALZEME-GUNLUGU.md'ye biz yazacağız; sen yalnızca açıkla.
+```
+
+💡 Yapay zekânın verdiği sayıları gerçek bir kaynakta (ör. MatWeb) bulun ve MALZEME-GUNLUGU.md'ye o kaynakla yazın. Fabrika sizin yazdığınız değerleri hesaba katar, yapay zekânınkini değil.
+
 ## Aşama 3 — Kur (20 dk)
 
 ### K3.1 · Kiti anla · *Kodcu*

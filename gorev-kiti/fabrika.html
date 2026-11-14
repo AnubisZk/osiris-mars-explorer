@@ -45,7 +45,7 @@
 <body><main>
   <div class="ust"><a href="./">← Oyun</a><a href="hesap.html">🧮 Hesaplar</a><a href="veri-atolyesi.html">📈 Veri Atölyesi</a><a href="FABRIKA.md">📘 Rehber</a></div>
   <h1>🏭 Görev Fabrikası</h1>
-  <p>Bir görevden başlayıp aracını tasarla, yollama maliyetini hesapla, simülasyonda uçur, aşırı koşullarda dene ve sonunda <b>oynanabilir bir oyun</b> üret. Her adım oyunun kendi fizik motorunu (fizik.js) kullanır.</p>
+  <p>Bir görevden başlayıp aracını tasarla, malzeme günlüğünle gerçekçi görev maliyetini hesapla, simülasyonda uçur, aşırı koşullarda dene ve sonunda <b>oynanabilir bir oyun</b> üret. Her adım oyunun kendi fizik motorunu (fizik.js) kullanır.</p>
   <div class="ipucu">🛡 Çalışmanız korunur: her kaydedilen tasarım tarayıcıdaki arşive <b>eklenir</b>, hiçbir tasarım ya da günlük kaydı otomatik silinmez; ayarlar.js dosyanıza bu sayfa hiçbir zaman doğrudan yazmaz.</div>
   <div id="hata"></div>
 
@@ -91,6 +91,26 @@
       <div><div class="buyuk sayi" id="kutle">—</div><div style="font-size:13px;color:#aeb8c7">toplam kütle</div></div>
       <ul class="kontrol" id="kontroller"></ul>
     </div>
+    <h3>🧪 Malzeme günlüğü (malzeme mühendisi)</h3>
+    <p style="font-size:14px;color:#aeb8c7">Takımın <code>MALZEME-GUNLUGU.md</code> dosyasına ve aşağıdaki forma yazdığı malzemeler hesaba katılır: yeni malzemeler seçeneklere eklenir, hazır malzemelerin değerleri güncellenir, fiyatlar maliyete, sıcaklık sınırları soğuk kontrolüne girer.</p>
+    <div id="gunlukTablo"></div>
+    <details id="gunlukForm"><summary>➕ Malzeme günlüğüne ekle</summary>
+      <div class="ızgara" style="margin-top:8px">
+        <label>Tür<select data-g="tur"><option value="yapı">yapı</option><option value="batarya">batarya</option></select></label>
+        <label>Kimlik (hazır: karbon, aluminyum, liion…)<input data-g="kimlik" placeholder="ör. al6061"></label>
+        <label>Malzeme adı<input data-g="ad" placeholder="ör. Alüminyum 6061-T6"></label>
+        <label>Yoğunluk (kg/m³)<input data-g="yogunluk_kg_m3" inputmode="decimal"></label>
+        <label>Çekme dayanımı (MPa)<input data-g="cekme_MPa" inputmode="decimal"></label>
+        <label>Özgül enerji (Wh/kg, batarya)<input data-g="ozgulEnerji_Wh_kg" inputmode="decimal"></label>
+        <label>Fiyat ($/kg)<input data-g="fiyat_usd_kg" inputmode="decimal"></label>
+        <label>En düşük çalışma sıcaklığı (°C)<input data-g="enDusukSicaklik_C" inputmode="decimal"></label>
+        <label>Kaynak (site, sayfa ya da bağlantı)<input data-g="kaynak"></label>
+        <label>Rol<input data-g="rol" value="Malzeme mühendisi"></label>
+        <label>Not<input data-g="not"></label>
+      </div>
+      <div class="dugmeler"><button class="d ana" id="gunlugeEkle">➕ Ekle</button><button class="d" id="gunlukKopyala">📋 Tarayıcıdaki satırları kopyala (MALZEME-GUNLUGU.md'ye yapıştırın)</button></div>
+      <p class="ipucu">Eklenen satırlar bu tarayıcıda saklanır ve hiçbiri silinmez. Bir değeri düzeltmek için aynı kimlikle yeni satır ekleyin: en son satır kullanılır. Kalıcı olması için satırları kopyalayıp MALZEME-GUNLUGU.md'ye yapıştırın ve commit edin.</p>
+    </details>
     <details><summary>Bu sayılar nereden geliyor?</summary>
       <p>Batarya kütlesi = enerji ÷ özgül enerji. Motor kütlesi = en büyük itkideki güç ÷ 2000 W/kg. Gövde kütlesi, iç parçaların %25'i (karbon fiber için); özgül dayanımı düşük malzemede orantılı olarak artar. Araç ağırlaştıkça motor büyür, motor büyüdükçe araç ağırlaşır: hesap kütle değişmeyene kadar tekrarlanır. Ayrıntılar ve katsayılar <code>tasarim.js</code> içinde; bunlar öğretim amaçlı basitleştirilmiş varsayımlardır.</p>
     </details>
@@ -98,11 +118,13 @@
 
   <!-- 3 -->
   <section id="a3">
-    <h2>3 · Yollama maliyeti</h2>
-    <p>Uzaya her kilogramı taşımak para ister: araç ne kadar hafifse görev o kadar ucuzdur.</p>
+    <h2>3 · Gerçekçi görev maliyeti</h2>
+    <p>Gerçek bir görevin maliyeti dört kalemden oluşur: <b>malzeme</b>, <b>geliştirme–yapım–test</b>, <b>taşıma</b> (fırlatma, yolculuk, iniş) ve <b>operasyon</b>. Sayılar gerçek görevlerden (Perseverance, Ingenuity, Dragonfly, Ay iniş sözleşmeleri) gelir; taşıma için bir alt ve bir üst sınır hesaplanır.</p>
     <div class="ızgara">
-      <label>Fiyat kaynağı<select id="fiyat"></select></label>
-      <label>Kendi değeriniz ($/kg)<input id="kendiFiyat" type="number" min="0" step="1000" placeholder="kaynağıyla birlikte"></label>
+      <label>Geliştirme, yapım ve test (milyon $)<input id="gelistirme" type="number" min="0" step="1" value="80"></label>
+      <label>Operasyon süresi (ay)<input id="opAy" type="number" min="0" step="1" value="1"></label>
+      <label>Kendi taşıma değeriniz ($/kg, isteğe bağlı)<input id="kendiFiyat" type="number" min="0" step="1000" placeholder="boş: gerçek görev referansı"></label>
+      <label>Kendi değerinizin kaynağı<input id="kendiKaynak" placeholder="kaynak yazın"></label>
     </div>
     <div id="maliyet" style="margin-top:8px"></div>
   </section>
@@ -151,13 +173,13 @@ const yuzde = v => (Number.isFinite(v) ? `%${Math.round(v * 100)}` : '—');
 function hataGoster(e) { $('#hata').style.display = 'block'; $('#hata').textContent = '⚠ ' + (e?.message ?? e); console.error(e); }
 
 try {
-const [{ GOREV: AYAR }, { GOREVLER, ayarlarDosyasi }, T, O, S, F, M, { otopilotlaUc, gorevArazisi }, { ortam, puan }, { atmosferiBagla }, { GEZEGENLER }, { rota }] = await Promise.all([
+const [{ GOREV: AYAR }, { GOREVLER, ayarlarDosyasi }, T, O, S, F, M, { otopilotlaUc, gorevArazisi }, { ortam, puan }, { atmosferiBagla }, { GEZEGENLER }, { rota }, C] = await Promise.all([
   import('./ayarlar.js'), import('./gorevler.js'), import('./tasarim.js'), import('./optimize.js'), import('./stres.js'), import('./fabrika.js'),
-  import('./malzemeler.js'), import('./otopilot.js'), import('./fizik.js'), import('./atmosfer.js'), import('./gezegenler.js'), import('./hesap.js')]);
+  import('./malzemeler.js'), import('./otopilot.js'), import('./fizik.js'), import('./atmosfer.js'), import('./gezegenler.js'), import('./hesap.js'), import('./maliyet.js')]);
 
 const yukle = async yol => { const r = await fetch(yol, { cache: 'no-store' }); if (!r.ok) throw new Error(`Atmosfer modeli bulunamadı: ${yol}`); return r.json(); };
-const durum = { taban: null, gereksinim: null, tasarim: null, degerlendirme: null, kaynak: null, yz: null, optimizasyon: [], maliyet: null, sim: null, stres: null };
-const ADIMLAR = ['Sistem tasarımı', 'Cihaz tasarımı', 'Yollama maliyeti', 'Simülasyon', 'Stres testi', 'Oyun'];
+const durum = { malzemeRaporu: [], taban: null, gereksinim: null, tasarim: null, degerlendirme: null, kaynak: null, yz: null, optimizasyon: [], maliyet: null, sim: null, stres: null };
+const ADIMLAR = ['Sistem tasarımı', 'Cihaz tasarımı', 'Görev maliyeti', 'Simülasyon', 'Stres testi', 'Oyun'];
 $('#boru').innerHTML = ADIMLAR.map((a, i) => `<button data-a="${i + 1}"><b>${i + 1}. adım</b>${a}</button>`).join('');
 $('#boru').onclick = e => { const b = e.target.closest('button'); if (b) $('#a' + b.dataset.a).scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 const adimTamam = (i, v = true) => $(`#boru [data-a="${i}"]`).classList.toggle('tamam', v);
@@ -188,16 +210,16 @@ function gereksinimGuncelle() {
 }
 
 // ---------------------------------------------------------------- 2. cihaz
-const ETIKET = {
+const etiket = () => ({
   rotorSayisi: ['Rotor sayısı', { 2: '2 (eş eksenli, Ingenuity gibi)', 4: '4 (dört rotorlu dron)' }],
   yaricap_m: ['Rotor yarıçapı (m)'], ucHizi_m_s: ['Rotor uç hızı (m/s)'], batarya_Wh: ['Batarya enerjisi (Wh)'],
-  bataryaTipi: ['Batarya tipi', Object.fromEntries(Object.entries(M.BATARYALAR).map(([k, b]) => [k, `${b.ad} (${b.ozgulEnerji_Wh_kg} Wh/kg)`]))],
-  yapiMalzemesi: ['Gövde malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, m.ad]))],
-  kanatMalzemesi: ['Pervane malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, m.ad]))],
+  bataryaTipi: ['Batarya tipi', Object.fromEntries(Object.entries(M.BATARYALAR).map(([k, b]) => [k, `${b.ogrenci ? '🧪 ' : ''}${b.ad} (${b.ozgulEnerji_Wh_kg} Wh/kg)`]))],
+  yapiMalzemesi: ['Gövde malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, `${m.ogrenci ? '🧪 ' : ''}${m.ad}`]))],
+  kanatMalzemesi: ['Pervane malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, `${m.ogrenci ? '🧪 ' : ''}${m.ad}`]))],
   maksEgim_derece: ['En fazla eğim (°)'],
   yakit_kg: ['Yakıt (kg)'], maksItki_N: ['En büyük itki (N)'],
   motorTipi: ['Roket motoru', Object.fromEntries(Object.entries(M.ROKET_MOTORLARI).map(([k, m]) => [k, `${m.ad} (Isp ${m.isp_s} s)`]))],
-};
+});
 function varsayilanTasarim(tip) {
   return tip === 'rotor'
     ? { tip, rotorSayisi: 2, yaricap_m: 0.6, ucHizi_m_s: 150, batarya_Wh: 30, bataryaTipi: 'liion', yapiMalzemesi: 'karbon', kanatMalzemesi: 'karbon', maksEgim_derece: 20 }
@@ -206,7 +228,7 @@ function varsayilanTasarim(tip) {
 function degiskenleriCiz(tip, d) {
   durum.tasarim = O.sinirla(tip, d);
   $('#degiskenler').innerHTML = Object.entries(O.ARALIK[tip]).map(([k, v]) => {
-    const [ad, secenek] = ETIKET[k] ?? [k];
+    const [ad, secenek] = etiket()[k] ?? [k];
     if (typeof v[0] === 'number' && k !== 'rotorSayisi') {
       const adim = (v[1] - v[0]) / 200;
       return `<label>${ad} <input type="number" data-k="${k}" min="${v[0]}" max="${v[1]}" step="${+adim.toPrecision(1)}" value="${+(+durum.tasarim[k]).toPrecision(4)}"><input type="range" data-r="${k}" min="${v[0]}" max="${v[1]}" step="${+adim.toPrecision(1)}" value="${durum.tasarim[k]}"></label>`;
@@ -242,7 +264,7 @@ function hesapla() {
     k(e.hesap.butceOrani <= gr.maksButce, `Görev enerjinin/yakıtın ${yuzde(e.hesap.butceOrani)}'ini harcar (en çok ${yuzde(gr.maksButce)})`),
     Number.isFinite(o.ruzgarDayanimi) ? k(o.ruzgarDayanimi >= (gr.minRuzgarDayanimi ?? 1.2), `${gr.tasarimRuzgari_m_s} m/s rüzgâra dayanım ${say(o.ruzgarDayanimi)} (en az ${gr.minRuzgarDayanimi ?? 1.2})`) : '',
     `<li>Askıda kalma süresi ${say(o.askidaKalmaSuresi_s / 60, 1)} dk</li>`,
-    ...e.sorunlar.filter(s => /eğilince|süre/.test(s)).map(s => k(false, esc(s))),
+    ...e.sorunlar.filter(s => /eğilince|süre|dayanıyor/.test(s)).map(s => k(false, esc(s))),
     !roket && M.BATARYALAR[durum.tasarim.bataryaTipi]?.deneysel ? '<li class="uyari">⚠ Seçilen batarya deneysel: gerçek bir görevde risklidir.</li>' : '',
     M.YAPI_MALZEMELERI[durum.tasarim.yapiMalzemesi]?.soguktaKirilgan ? '<li class="uyari">⚠ PLA plastik soğukta kırılganlaşır: Mars gecesi −80 °C\'ye iner.</li>' : '',
   ].join('');
@@ -306,21 +328,70 @@ $('#otonom').onclick = async () => {
 };
 
 // ---------------------------------------------------------------- 3. maliyet
-$('#fiyat').innerHTML = Object.entries(M.YOLLAMA_FIYATLARI).map(([k, f]) => `<option value="${k}">${esc(f.ad)}${f.usd_kg ? ` — ${f.usd_kg.toLocaleString('tr-TR')} $/kg` : ''}</option>`).join('');
+const para = v => (Number.isFinite(v) ? (v >= 1e9 ? `${say(v / 1e9, 2)} milyar $` : v >= 1e6 ? `${say(v / 1e6, 1)} milyon $` : `${Math.round(v).toLocaleString('tr-TR')} $`) : '—');
+const aralik = (a, b) => (a == null && b == null ? 'referans yok' : a == null || b == null || Math.abs(a - b) < 1 ? para(a ?? b) : `${para(a)} – ${para(b)}`);
 function maliyetCiz() {
   const e = durum.degerlendirme; if (!e) return;
-  const k = $('#fiyat').value, f = { ...M.YOLLAMA_FIYATLARI[k] };
-  if (k === 'kendi') f.usd_kg = +$('#kendiFiyat').value || null;
-  $('#kendiFiyat').disabled = k !== 'kendi';
-  durum.maliyet = f;
-  const usd = f.usd_kg ? e.kutle_kg * f.usd_kg : null;
-  $('#maliyet').innerHTML = usd == null ? '<p>Kendi değerinizi ve kaynağını yazın.</p>' : `
-    <div class="buyuk sayi">${Math.round(usd).toLocaleString('tr-TR')} $</div>
-    <p>${say(e.kutle_kg, 3)} kg × ${f.usd_kg.toLocaleString('tr-TR')} $/kg. <span style="color:#aeb8c7">Kaynak: ${esc(f.kaynak)}.</span></p>
-    <p class="ipucu">Bu yalnızca <b>taşıma</b>. Kıyas: Ingenuity'nin yapımı yaklaşık ${(M.INGENUITY_YAPIM_USD / 1e6).toLocaleString('tr-TR')} milyon $ tuttu. Aracı 100 g hafifletmek ${f.usd_kg ? Math.round(0.1 * f.usd_kg).toLocaleString('tr-TR') : '—'} $ kazandırır.</p>`;
-  adimTamam(3, usd != null);
+  const kendi = $('#kendiFiyat').value === '' ? null : +$('#kendiFiyat').value;
+  const m = C.gorevMaliyeti({ gezegen: durum.taban.gezegen, kutle_kg: e.kutle_kg, parcalar: e.parcalar, parcaMalzemesi: e.parcaMalzemesi,
+    gelistirme_usd: Math.max(0, +$('#gelistirme').value || 0) * 1e6, operasyonSuresi_ay: Math.max(0, +$('#opAy').value || 0), tasimaKendi_usd_kg: kendi });
+  m.tasimaKaynagi = $('#kendiKaynak').value.trim();
+  m.gelistirmeNotu = +$('#gelistirme').value === 80 ? 'Ingenuity referansı: yapımı yaklaşık 80 milyon $ (Planetary Society)' : `takımın değeri (${$('#gelistirme').value} milyon $); Ingenuity referansı 80 milyon $`;
+  durum.maliyet = m;
+  const t = m.tasima, ust = m.toplam.ust ?? m.toplam.alt;
+  const pay = (v, renk, ad) => v && ust ? `<span title="${ad}" style="width:${Math.max(0.5, v / ust * 100)}%;background:${renk}"></span>` : '';
+  $('#maliyet').innerHTML = `
+    <div class="buyuk sayi">${aralik(m.toplam.alt, m.toplam.ust)}</div>
+    <div class="cubuk">${pay(m.malzeme.toplam_usd, '#7ee08a', 'Malzeme')}${pay(m.gelistirme_usd, '#6cc3ff', 'Geliştirme')}${pay(t.ust ?? t.alt, '#ff9a52', 'Taşıma (üst)')}${pay(m.operasyon_usd, '#c59bff', 'Operasyon')}</div>
+    <div class="lejant"><span><i style="background:#7ee08a"></i>Malzeme</span><span><i style="background:#6cc3ff"></i>Geliştirme–yapım–test</span><span><i style="background:#ff9a52"></i>Taşıma</span><span><i style="background:#c59bff"></i>Operasyon</span></div>
+    <table style="margin-top:8px"><tr><th>Kalem</th><th>Tutar</th><th>Nasıl?</th></tr>
+      <tr><td>Malzeme (ham madde)</td><td class="sayi">${para(m.malzeme.toplam_usd)}${m.malzeme.eksik ? ` <span class="uyari">(${m.malzeme.eksik} parçanın fiyatı yok)</span>` : ''}</td><td>Parça kütlesi × malzeme günlüğündeki fiyat</td></tr>
+      <tr><td>Geliştirme, yapım, test</td><td class="sayi">${para(m.gelistirme_usd)}</td><td>${esc(m.gelistirmeNotu)}</td></tr>
+      <tr><td>Taşıma</td><td class="sayi">${aralik(t.alt, t.ust)}</td><td>${say(e.kutle_kg, 3)} kg × ${aralik(t.alt_usd_kg, t.ust_usd_kg)}/kg${t.kendi ? ` (takımın değeri; kaynak: ${esc(m.tasimaKaynagi || 'YAZILMADI ⚠')})` : ''}</td></tr>
+      <tr><td>Operasyon</td><td class="sayi">${para(m.operasyon_usd)}</td><td>Ingenuity: 1 ay ≈ 5 milyon $ × ${esc($('#opAy').value)} ay</td></tr>
+    </table>
+    <p class="ipucu">🚀 <b>Taşıma referansı:</b> ${esc(t.aciklama)}<br><span style="font-size:13px">Kaynak: ${esc(t.kaynak)}</span></p>
+    ${m.malzeme.satirlar.length ? `<details><summary>Malzeme maliyeti ayrıntısı</summary><table><tr><th>Parça</th><th>Malzeme</th><th>Kütle</th><th>$/kg</th><th>Tutar</th></tr>${m.malzeme.satirlar.map(r => `<tr><td>${esc(r.parca)}</td><td>${esc(r.malzeme)}</td><td class="sayi">${say(r.kg, 3)} kg</td><td class="sayi">${r.fiyat_usd_kg == null ? '<span class="uyari">günlüğe ekleyin</span>' : say(r.fiyat_usd_kg)}</td><td class="sayi">${r.usd == null ? '—' : para(r.usd)}</td></tr>`).join('')}</table></details>` : ''}
+    ${m.malzemePayi != null && m.malzeme.toplam_usd > 0 ? `<p class="ipucu">💡 Ham malzeme toplamın yalnızca <b>%${(m.malzemePayi * 100).toLocaleString('tr-TR', { maximumSignificantDigits: 2 })}</b>'i. Uzay araçlarını pahalı yapan malzeme değil; tasarım, test ve taşımadır. Yine de her kilogram taşıma maliyetini ${aralik(t.alt_usd_kg, t.ust_usd_kg)} artırır.</p>` : ''}`;
+  adimTamam(3, m.toplam.alt != null || m.toplam.ust != null);
 }
-$('#fiyat').onchange = maliyetCiz; $('#kendiFiyat').oninput = maliyetCiz;
+for (const id of ['#gelistirme', '#opAy', '#kendiFiyat', '#kendiKaynak']) $(id).addEventListener('input', maliyetCiz);
+
+// ---------------------------------------------------------------- malzeme günlüğü
+const GUNLUK_ANAHTARI = 'gorevKiti:malzemeGunlugu';
+const tarayiciGunlugu = () => { try { return JSON.parse(localStorage.getItem(GUNLUK_ANAHTARI)) ?? []; } catch { return []; } };
+let dosyaGunlugu = [];
+async function gunlukYukle() {
+  try { const r = await fetch('MALZEME-GUNLUGU.md', { cache: 'no-store' }); if (r.ok) dosyaGunlugu = M.gunlukOku(await r.text(), 'MALZEME-GUNLUGU.md'); } catch {}
+}
+function katalogYenile() {
+  const kayitlar = [...dosyaGunlugu, ...tarayiciGunlugu().map(k => ({ ...k, dosya: 'bu tarayıcı' }))];
+  const k = M.katalogKur(kayitlar); M.katalogUygula(k); durum.malzemeRaporu = k.rapor;
+  $('#gunlukTablo').innerHTML = !k.rapor.length ? '<p style="color:#aeb8c7;font-size:14px">Henüz kayıt yok. MALZEME-GUNLUGU.md\'ye ya da aşağıdaki forma ilk malzemenizi ekleyin.</p>'
+    : `<table><tr><th>#</th><th>Nereden</th><th>Kimlik</th><th>Malzeme</th><th>Değerler</th><th>Durum</th></tr>${k.rapor.map(r => {
+        const x = r.kayit, d = [['ρ', x.yogunluk_kg_m3, 'kg/m³'], ['σ', x.cekme_MPa, 'MPa'], ['e', x.ozgulEnerji_Wh_kg, 'Wh/kg'], ['$', x.fiyat_usd_kg, '/kg'], ['T', x.enDusukSicaklik_C, '°C']].filter(v => String(v[1] ?? '').trim()).map(v => `${v[0]} ${esc(v[1])} ${v[2]}`).join(', ');
+        const ok = r.durum === 'kullanılıyor';
+        return `<tr><td>${r.sira}</td><td>${esc(x.dosya)}</td><td>${esc(r.kimlik)}</td><td>${esc(x.ad || '')}${r.guncelleme ? ' <span style="color:#aeb8c7">(hazır malzemeyi günceller)</span>' : ''}</td><td class="sayi">${d || '—'}</td><td class="${ok ? 'iyi' : r.durum.startsWith('önceki') ? '' : 'kotu'}">${ok ? '✓' : r.durum.startsWith('önceki') ? '↺' : '✗'} ${esc(r.durum)}${[...r.sorunlar, ...r.uyarilar.map(u => '⚠ ' + u)].length ? `<br><span class="${r.sorunlar.length ? 'kotu' : 'uyari'}" style="font-size:12px">${esc([...r.sorunlar, ...r.uyarilar.map(u => '⚠ ' + u)].join('; '))}</span>` : ''}</td></tr>`;
+      }).join('')}</table>`;
+  if (durum.tasarim) degiskenleriCiz(durum.tasarim.tip, durum.tasarim);
+  hesapla();
+}
+$('#gunlugeEkle').onclick = () => {
+  const k = { tarih: new Date().toLocaleDateString('tr-TR') };
+  document.querySelectorAll('[data-g]').forEach(i => { k[i.dataset.g] = i.value.trim(); });
+  if (!k.kimlik && !k.ad) { alert('Kimlik ya da malzeme adı yazın.'); return; }
+  if (!k.kaynak && !confirm('Kaynak yazmadınız. Kaynaksız değer raporda ⚠ ile görünür. Yine de eklensin mi?')) return;
+  const l = tarayiciGunlugu(); l.push(k);
+  try { localStorage.setItem(GUNLUK_ANAHTARI, JSON.stringify(l)); } catch { alert('Tarayıcı deposu dolu: satırları kopyalayıp MALZEME-GUNLUGU.md\'ye yapıştırın. Hiçbir kayıt silinmedi.'); return; }
+  document.querySelectorAll('[data-g]').forEach(i => { if (!['tur', 'rol'].includes(i.dataset.g)) i.value = ''; });
+  katalogYenile();
+};
+$('#gunlukKopyala').onclick = async () => {
+  const h = v => String(v ?? '').replace(/\|/g, '/');
+  const satir = tarayiciGunlugu().map(k => `| ${h(k.tarih)} | ${h(k.rol)} | ${h(k.tur)} | ${h(k.kimlik)} | ${h(k.ad)} | ${h(k.yogunluk_kg_m3)} | ${h(k.cekme_MPa)} | ${h(k.ozgulEnerji_Wh_kg)} | ${h(k.fiyat_usd_kg)} | ${h(k.enDusukSicaklik_C)} | ${h(k.kaynak)} | ${h(k.not)} |`).join('\n');
+  if (!satir) return alert('Bu tarayıcıda eklenmiş satır yok.');
+  try { await navigator.clipboard.writeText(satir); $('#gunlukKopyala').textContent = 'Kopyalandı ✓ — MALZEME-GUNLUGU.md\'deki tablonun sonuna yapıştırın'; } catch { prompt('Kopyalayın:', satir); }
+};
 
 // ---------------------------------------------------------------- 4. simülasyon
 $('#uc').onclick = () => {
@@ -407,7 +478,9 @@ $('#raporIndir').onclick = () => { if (durum.degerlendirme) indir('TASARIM-RAPOR
 // ---------------------------------------------------------------- başlat
 for (const id of ['#yuk', '#avk', '#avg', '#hedefB']) $(id).addEventListener('input', gereksinimGuncelle);
 $('#taban').onchange = () => { durum.yz = null; durum.optimizasyon = []; durum.kaynak = null; $('#yzCevap').innerHTML = ''; $('#optGunluk').hidden = true; tabanKur(); };
+await gunlukYukle();
 await tabanKur();
+katalogYenile();
 arsivCiz();
 } catch (e) { hataGoster(e); }
 </script>

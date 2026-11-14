@@ -5,8 +5,8 @@ oyun üretmenizi sağlar. Açmak için oyunun üst çubuğundaki **🏭 Fabrika*
 `fabrika.html` sayfasını açın.
 
 ```
-Sistem tasarımı → Cihaz tasarımı → Yollama maliyeti → Simülasyon → Stres testi → OYUN
- (ne istiyoruz?)   (aracı kur)       (kaç para?)        (bir uçuş)    (kötü günler)  (oyna!)
+Sistem tasarımı → Cihaz tasarımı → Görev maliyeti → Simülasyon → Stres testi → OYUN
+ (ne istiyoruz?)   (aracı kur)       (kaç para?)          (bir uçuş)    (kötü günler)  (oyna!)
 ```
 
 > 🛡 **Çalışmanız korunur.** Fabrika'da kaydettiğiniz her tasarım tarayıcıdaki arşive *eklenir*;
@@ -50,10 +50,38 @@ mühendislerin de kullandığı yöntemdir.
 > güvenmeyin: yapay zekânın gerekçelerini kendi hesabınızla, algoritmanın sonucunu stres testiyle
 > kontrol edin.
 
-## 3. Yollama maliyeti
-Maliyet = kütle × kilogram başına fiyat. Fiyat tablosu kaba "tipik" değerlerdir ve yalnızca
-taşımayı kapsar (iniş sistemi, yapım ve işletme hariç). Daha iyi bir kaynak bulursanız
-"Kendi bulduğunuz değer"i seçip kaynağıyla birlikte yazın.
+## 3. Gerçekçi görev maliyeti
+Bir uzay aracının maliyeti yalnızca "kütle × fırlatma fiyatı" değildir. Sayfa dört kalemi gerçek
+görevlerin sayılarıyla hesaplar:
+
+| Kalem | Nasıl hesaplanır? | Kaynak |
+|---|---|---|
+| Malzeme | Parça kütlesi × **malzeme günlüğünüzdeki** $/kg | Sizin bulduğunuz fiyatlar |
+| Geliştirme, yapım, test | Ingenuity referansı: ~80 milyon $ (değiştirebilirsiniz) | The Planetary Society |
+| Taşıma (fırlatma + yolculuk + iniş) | Kütle × gerçek görevden kg başına **alt–üst sınır** | Mars: Perseverance (roket 243 milyon $, uzay aracı 2,2 milyar $, yüzeye inen 1025 kg). Ay: ticari iniş sözleşmeleri. Titan: Dragonfly (3,35 milyar $, ~450 kg) |
+| Operasyon | Ingenuity: 1 aylık görev ~5 milyon $ × ay sayısı | The Planetary Society |
+
+- **Mars'ta taşıma** kg başına yaklaşık 237 bin $ (yalnızca roket) ile 2,4 milyon $ (roket + bütün
+  uzay aracı) arasındadır. Gerçek değer arada bir yerdedir; sonuç bu yüzden bir **aralık** olarak verilir.
+- **Europa** yüzeyine henüz hiçbir araç inmedi: gerçek bir referans yok. Sayfa sayı uydurmaz; kendi
+  kaynağınızı bulup "Kendi taşıma değeriniz" kutusuna yazın.
+- Ders: ham malzeme toplamın binde birinden bile azdır. Uzay araçlarını pahalı yapan; tasarım, test ve
+  taşımadır. Ama her kilogram taşımayı yüz binlerce dolar artırır: hafiflik bu yüzden önemlidir.
+
+## 🧪 Malzeme günlüğü (malzeme mühendisi)
+Takımın malzeme mühendisi araştırdığı malzemeleri **kaynağıyla** `MALZEME-GUNLUGU.md`'ye (ya da 2.
+adımdaki forma) yazar. Fabrika bu kayıtları **hesaba katar**:
+
+- **Yeni malzeme** (ör. `al6061`): gövde/pervane/batarya seçeneklerine 🧪 işaretiyle eklenir; otonom
+  mühendis de onu dener. Yoğunluk ve dayanım kütle hesabını, özgül enerji batarya kütlesini değiştirir.
+- **Hazır malzemeyi güncelleme** (kimlik `karbon`, `aluminyum`, `liion`...): yalnızca doldurduğunuz
+  sütunlar değişir (ör. yalnızca fiyat).
+- **Fiyat** malzeme maliyetine girer. **En düşük çalışma sıcaklığı** gezegenin en soğuk değeriyle
+  karşılaştırılır; dayanmıyorsa tasarım "uygun değil" olur.
+- Olağan dışı bir sayı (ör. yoğunluk 2 700 000) hesaba katılmaz ve nedeni gösterilir. Kaynaksız satır
+  kullanılır ama raporda ⚠ ile görünür.
+- Hiçbir satır silinmez: aynı kimlikle yeni satır yazarsanız en son satır kullanılır, eskisi raporda
+  "önceki ölçüm" olarak kalır.
 
 ## 4. Simülasyon
 Otonom pilot görevi bir kez uçar: 25 m'ye tırmanır, her hedefe gider, alçalıp gözlem yapar ve üsse
@@ -92,6 +120,7 @@ gerçek değerin büyük olasılıkla nerede olduğunu söyler (Wilson yöntemi)
 |---|---|
 | Takım kaptanı | Gereksinimleri takımla birlikte yazar, son tasarıma karar verir |
 | Bilim danışmanı | Kütle dökümünü ve kontrolleri kaynaklarla karşılaştırır, stres testi sonuçlarını yorumlar |
+| Malzeme mühendisi | Malzeme günlüğünü kaynaklarla doldurur, malzeme seçimini ve maliyet tablosunu yorumlar |
 | Kodcu | ayarlar.js'i depoya koyar, `hesapla.mjs` ile doğrular, commit eder |
 | Tasarımcı | Görev adı, hikâye ve araç rengi; oyunun görünüşü |
 | Sunucu | Tasarım raporunu ve yapay zekâ kullanımını sunuma dönüştürür |
@@ -99,7 +128,8 @@ gerçek değerin büyük olasılıkla nerede olduğunu söyler (Wilson yöntemi)
 ## Bilinen sınırlar (dürüst olalım)
 - Kütle modeli **basitleştirilmiştir**: katsayılar (`tasarim.js` → `KATSAYI`) Ingenuity benzeri bir
   tasarımı ~1,6 kg verecek şekilde seçildi. Gerçek bir araçta her parça ayrı mühendislik ister.
-- Malzeme, batarya ve fiyat değerleri `malzemeler.js` içinde "tipik değer" olarak işaretlidir.
+- Hazır malzeme ve batarya değerleri `malzemeler.js` içinde "tipik değer" olarak işaretlidir; malzeme
+  günlüğünüz bunları kaynaklı değerlerle günceller. Geliştirme maliyeti tek bir referansa (Ingenuity) dayanır.
 - Stres testi otonom pilotla yapılır; bir insan pilot daha iyi ya da daha kötü uçabilir.
 - Görevin enerji tahmini (hesap.js) askıda kalma tüketimiyle yapılan **temkinli** bir üst sınırdır;
   simülasyonda genellikle daha az enerji harcanır.

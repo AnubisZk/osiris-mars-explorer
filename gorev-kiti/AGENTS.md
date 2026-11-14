@@ -21,7 +21,8 @@ yapay zekâ (Claude Code, Codex, GitHub Copilot ajanı vb.) aşağıdaki kuralla
 | `KOMUT-KAYDI.md` | Sana verilen komutların kelimesi kelimesine kaydı | **Her komutta zorunlu** (aşağıya bak). |
 | `YZ-GUNLUGU.md` | Yapay zekâ kullanım günlüğü | Yaptığın her işi buraya bir satır olarak ekle. |
 | `atmosfer.js`, `veri-atolyesi.html` | Gerçek veriden atmosfer modeli (dijital ikiz) | Değiştirme. Model dosyaları `veri/` klasörüne konur; ayarlar.js'te `atmosfer` satırıyla bağlanır. Model dosyasındaki katsayıları elle değiştirme. |
-| `fabrika.html`, `tasarim.js`, `malzemeler.js`, `otopilot.js`, `stres.js`, `optimize.js`, `fabrika.js` | Görev Fabrikası: araç tasarımı, maliyet, otopilot, stres testi, optimizasyon (bkz. `FABRIKA.md`) | Değiştirme; tasarımı sayfadan yap. `malzemeler.js` değerleri "tipik"tir: takım kaynakla düzeltebilir, kaynağını yazar. |
+| `fabrika.html`, `tasarim.js`, `malzemeler.js`, `maliyet.js`, `otopilot.js`, `stres.js`, `optimize.js`, `fabrika.js` | Görev Fabrikası: araç tasarımı, gerçekçi maliyet, otopilot, stres testi, optimizasyon (bkz. `FABRIKA.md`) | Değiştirme; tasarımı sayfadan yap. `malzemeler.js` değerleri "tipik"tir: takım kaynakla düzeltebilir, kaynağını yazar. |
+| `MALZEME-GUNLUGU.md` | Malzeme mühendisinin kaynaklı malzeme değerleri; Fabrika bunları hesaba katar | Takım yazar. Sen yalnızca takım isterse ve kaynağıyla **satır eklersin**; mevcut satırları değiştirme, silme. |
 | `oyun.js`, `index.html`, `arazi.js` | Ekran, kontroller, arazi | "ÖĞRENCİ:" ile işaretli yerler değiştirilebilir. |
 
 ## Şeffaflık: komut kaydı (ZORUNLU, her komutta)
@@ -56,7 +57,7 @@ Takım kaptanı seni bu depoda şu işler için çalıştırır. Sırayla yap:
 8. **Kaydı tamamla:** `KOMUT-KAYDI.md`'deki kaydın "Ajanın yaptıkları", "Commit'ler" ve "Ajanın emin olmadıkları" satırlarını doldur.
 
 ## Kesin kurallar
-- **Öğrencilerin çalışmasını silme.** Takımın yazdığı hiçbir dosyayı, satırı, kaydı (KOMUT-KAYDI.md, YZ-GUNLUGU.md, FIZIK-HESAPLARI.md, GOREV-TASARIMI.md, TASARIM-RAPORU.md, `veri/` dosyaları) silme, kısaltma ya da üzerine yazma. Değişiklik gerekiyorsa **ekle** ya da eskisini koruyarak düzelt. `ayarlar.js`'i değiştirmeden önce mevcut hâlinin commit edildiğinden emin ol. `git reset --hard`, `git push --force`, `git clean`, dosya silme gibi geri alınamaz komutları çalıştırma; gerekiyorsa takıma ve öğretmene sor.
+- **Öğrencilerin çalışmasını silme.** Takımın yazdığı hiçbir dosyayı, satırı, kaydı (KOMUT-KAYDI.md, YZ-GUNLUGU.md, MALZEME-GUNLUGU.md, FIZIK-HESAPLARI.md, GOREV-TASARIMI.md, TASARIM-RAPORU.md, `veri/` dosyaları) silme, kısaltma ya da üzerine yazma. Değişiklik gerekiyorsa **ekle** ya da eskisini koruyarak düzelt. `ayarlar.js`'i değiştirmeden önce mevcut hâlinin commit edildiğinden emin ol. `git reset --hard`, `git push --force`, `git clean`, dosya silme gibi geri alınamaz komutları çalıştırma; gerekiyorsa takıma ve öğretmene sor.
 - **Sayı uydurma.** Bilimsel bir değer verdiysen kaynağını yaz. Emin değilsen "emin değilim" de.
 - **Öğrencinin yerine öğrenme.** Hesapları açık yaz ki takım her adımı takip edip kendi hesap makinesiyle tekrarlayabilsin.
 - **Kişisel bilgi yok.** Ad soyad, okul numarası, adres, telefon, fotoğraf yazma ve isteme. Takım üyelerini rolleriyle an.

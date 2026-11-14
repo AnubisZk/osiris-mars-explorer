@@ -95,6 +95,13 @@ export function roketliArac(gereksinim, d) {
 const yuvarla = v => (typeof v === 'number' && Number.isFinite(v) ? +v.toPrecision(4) : v);
 export function aracKur(gereksinim, d) {
   const k = d.tip === 'roket' ? roketliArac(gereksinim, d) : rotorluArac(gereksinim, d);
+  // Hangi parça hangi malzemeden? (malzeme maliyeti için)
+  k.parcaMalzemesi = {};
+  for (const p of Object.keys(k.parcalar)) {
+    if (p.startsWith('Gövde')) k.parcaMalzemesi[p] = YAPI_MALZEMELERI[d.yapiMalzemesi] ?? YAPI_MALZEMELERI.karbon;
+    else if (p === 'Pervaneler') k.parcaMalzemesi[p] = YAPI_MALZEMELERI[d.kanatMalzemesi] ?? YAPI_MALZEMELERI.karbon;
+    else if (p === 'Batarya') k.parcaMalzemesi[p] = BATARYALAR[d.bataryaTipi] ?? BATARYALAR.liion;
+  }
   for (const a of Object.keys(k.arac)) k.arac[a] = yuvarla(k.arac[a]);
   k.kutle_kg = k.arac.tip === 'roket' ? k.arac.kuruKutle_kg + k.arac.yakit_kg : k.arac.kutle_kg;
   return k;
@@ -121,6 +128,13 @@ export function degerlendir(gereksinim, d) {
   o.ruzgarDayanimi = suruklenme > 0 ? o.agirlik_N * Math.tan(egim) / suruklenme : Infinity;
   if (o.ruzgarDayanimi < (gereksinim.minRuzgarDayanimi ?? 1.2)) sorunlar.push(`${v.toFixed(0)} m/s rüzgâra dayanım ${o.ruzgarDayanimi.toFixed(2)} < ${gereksinim.minRuzgarDayanimi ?? 1.2}`);
   if (a.tip === 'rotor' && o.itkiAgirlikOrani < 1.2 / Math.cos(egim)) sorunlar.push(`${(a.maksEgim_derece ?? 25).toFixed(0)}° eğilince itki yetmez (itki/ağırlık ≥ ${(1.2 / Math.cos(egim)).toFixed(2)} olmalı)`);
+  // Soğuğa dayanım: malzeme günlüğünde bir alt sıcaklık sınırı yazılmışsa gezegenin en soğuk değeriyle karşılaştırılır
+  const kullanilan = [d.yapiMalzemesi, d.kanatMalzemesi].filter(Boolean).map(k => YAPI_MALZEMELERI[k]).filter(Boolean);
+  if (d.bataryaTipi && BATARYALAR[d.bataryaTipi]) kullanilan.push(BATARYALAR[d.bataryaTipi]);
+  for (const m of new Set(kullanilan)) {
+    if (m.enDusukSicaklik_C != null && ort.enDusukSicaklik_C != null && m.enDusukSicaklik_C > ort.enDusukSicaklik_C)
+      sorunlar.push(`${m.ad} en fazla ${m.enDusukSicaklik_C} °C'ye dayanıyor, ${ort.ad} ${ort.enDusukSicaklik_C} °C'ye iniyor (malzeme günlüğü)`);
+  }
   return { ...kurulan, gorev, ozet: o, hesap: h, sorunlar, uygun: sorunlar.length === 0 };
 }
 
