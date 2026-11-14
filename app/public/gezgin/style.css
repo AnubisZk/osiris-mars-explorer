@@ -2,3 +2,17 @@
 
 /* Mission-control expansion */
 .top-actions{gap:7px}.top-actions .btn{padding:9px 10px;font-size:9px}.viewer canvas{background:#874f37}.cam-buttons{flex-wrap:wrap;justify-content:flex-end}@media(max-width:1300px){#reportBtn,#sunBtn{display:none}}@media(max-width:1100px){#pauseBtn{display:none}}
+/* v3.0 — yeni paneller, dil seçici, dokunmatik kontrol, fırtına şeridi, galeri */
+.kv{display:grid;gap:5px;margin-top:10px;font:10px/1.45 Consolas,monospace}.kv>div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed #22333f;padding-bottom:4px}.kv span{color:#8aa1ad}.kv b{color:#e4ecee;font-weight:600;text-align:right}.kv .uyari b{color:#f0a37a}
+.sidebar-section .kv:first-child{margin-top:0}.science-plot{height:105px}
+.dil-secici{display:flex;border:1px solid #34495c;border-radius:5px;overflow:hidden}.dil-secici button{background:#121f2b;color:#9fb2bc;border:0;padding:8px 9px;font-size:10px;font-weight:800;letter-spacing:1px}.dil-secici button.active{background:#cb8550;color:#0b141d}
+#warpBtn.amber{background:#cb8550;color:#0b141d;border-color:#e1a46e}#transmitBtn.on{border-color:#7dcdbc;background:#183a3a;box-shadow:0 0 12px #7dcdbc55}
+.storm-banner{position:absolute;top:62px;left:50%;transform:translateX(-50%);background:#5a2b16e6;border:1px solid #f0a36e;color:#ffe2c6;padding:7px 14px;font-size:10px;font-weight:800;letter-spacing:1.2px;border-radius:3px;pointer-events:none;z-index:5;animation:pulse 1.4s ease-in-out infinite alternate}
+.touch-pad{display:none;position:absolute;left:14px;bottom:78px;gap:14px;z-index:6;align-items:end}.touch-pad button{width:46px;height:46px;border-radius:50%;border:1px solid #ffffff40;background:#0f1d2acc;color:#f2e6da;font-size:17px;touch-action:none;user-select:none;-webkit-user-select:none}
+.tp-dir{display:grid;grid-template-columns:46px 46px 46px;grid-template-rows:46px 46px;gap:4px}.tp-dir button:nth-child(1){grid-column:2;grid-row:1}.tp-dir button:nth-child(2){grid-column:1;grid-row:2}.tp-dir button:nth-child(3){grid-column:2;grid-row:2}.tp-dir button:nth-child(4){grid-column:3;grid-row:2}.tp-alt{display:flex;flex-direction:column;gap:4px}
+@media (pointer:coarse){.touch-pad{display:flex}.top-actions .subtle{display:inline-block}}
+.gallery-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;max-height:62vh;overflow:auto;margin-top:12px}.gallery-body figure{margin:0;background:#162634;padding:6px}.gallery-body img{width:100%;display:block}.gallery-body figcaption{font:9px/1.6 Consolas,monospace;color:#a9bcc4;margin-top:4px}.gallery-body a{color:#e6aa6c}.gallery-body p{color:#a9bcc4}
+.top-actions{flex-wrap:wrap;justify-content:flex-end}.topbar{height:auto;min-height:78px;padding-top:8px;padding-bottom:8px}
+@media(max-width:1300px){#reportBtn,#csvBtn{display:none}}@media(max-width:1100px){#dataBtn{display:none}}
+@media(max-width:840px){.top-actions{gap:5px}.top-actions .subtle{padding:7px 8px;font-size:8px}#saveBtn,#loadBtn,#helpBtn{display:none}.touch-pad{bottom:70px}.storm-banner{top:56px;font-size:8px}}
+@media(max-width:1100px){.top-actions #warpBtn,.top-actions #pauseBtn{display:inline-block}}
