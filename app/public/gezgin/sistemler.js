@@ -18,6 +18,7 @@
  *       0,10 m/s, 120 W güneş, 1,2 kWh, 100 W indüktif şarj, 2–3 dk pil değişimi, 0,30 m engel,
  *       30° eğim; drone 1,8 kg, Ø1,20 m eş eksenli rotor, 2400 dev/dk.
  * ========================================================================== */
+import {wheelContact,traction} from './terramechanics.js';
 
 export const SABIT = Object.freeze({
   g: 3.71,                    // m/s² [K3]
@@ -160,4 +161,27 @@ export function firtinaDurumu(gorevS, tohum = 7) {
 export function tahminiKalanUcusS(enerjiWh, gucW, rezervOrani = 0.3, kapasiteWh = 44.4) {
   const kullanilabilir = Math.max(0, enerjiWh - rezervOrani * kapasiteWh);
   return gucW > 0 ? (kullanilabilir * 3600) / gucW : Infinity;
+}
+
+// ---------------------------------------------------------------------------
+// Zeminde sürüş (v3.2) — 3D Pro v2.4'ün terramekanik modeliyle (Bekker batma, Mohr-Coulomb,
+// Janosi-Hanamoto). Gezgin çok yavaş gittiği için ivmelenme ihmal edilir (yarı-statik denge):
+// kayma oranı s, çekişin sıkıştırma direnci + eğim bileşenine eşit olduğu değerdir.
+//   gerçek hız = teker çevre hızı × (1 − s).  Denge yoksa (çekiş yetmiyorsa) gezgin saplanır.
+// VARSAYIM: v2.4 modeli düz (tırnaksız) teker içindir ve küçük tekerde çekişi düşük verir. Gerçek gezgin
+// tekerlerindeki tırnakların (grouser) yumuşak zemindeki katkısı tek bir çarpanla temsil edilir; kayada etkisizdir.
+export const TIRNAK_CARPANI=2.2;
+/** zeminler: her teker için blendSoil() çıktısı. tekerHizi: teker çevre hızı (m/s, + ileri). egimRad: + yokuş yukarı (ileri yöne göre). */
+export function zeminSurusu({zeminler,kutleKg,tekerHizi,egimRad=0,capM,genislikM}){
+  const n=zeminler.length,Wn=kutleKg*SABIT.g*Math.cos(egimRad)/n,yon=Math.sign(tekerHizi);
+  const denge=s=>{let Rc=0,H=0,z=0;for(const zm of zeminler){const c=wheelContact(zm,Wn,capM,genislikM,s);Rc+=c.Rc;H+=Math.abs(traction(c,s))*(1+(TIRNAK_CARPANI-1)*(1-c.rf));z+=c.z;}
+    return{gerek:Rc+yon*kutleKg*SABIT.g*Math.sin(egimRad),cekis:H,batma:z/n,direnc:Rc};};
+  const d0=denge(0);
+  if(!yon)return{hiz:0,kayma:0,batmaM:d0.batma,direncN:0,cekisN:0,saplandi:false};
+  if(d0.gerek<=0)return{hiz:tekerHizi,kayma:0,batmaM:d0.batma,direncN:0,cekisN:0,saplandi:false};   // yokuş aşağı: motor freni tutar
+  const d1=denge(1);
+  if(d1.cekis<d1.gerek)return{hiz:0,kayma:1,batmaM:d1.batma,direncN:d1.gerek,cekisN:d1.cekis,saplandi:true};
+  let a=0,b=1;for(let i=0;i<22;i++){const m=(a+b)/2,d=denge(m);if(d.cekis<d.gerek)a=m;else b=m;}
+  const d=denge(b);
+  return{hiz:tekerHizi*(1-b),kayma:b,batmaM:d.batma,direncN:d.gerek,cekisN:d.cekis,saplandi:false};
 }

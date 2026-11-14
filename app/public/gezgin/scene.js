@@ -1,4 +1,5 @@
-import {MeshBuilder,I,T,S,RX,RY,RZ,matmul,TR,terrainHeight,gradientTerrain,fbm,noise2,normalize,clamp,palette,lerp} from './engine.js';
+import {MeshBuilder,I,T,S,RX,RY,RZ,matmul,TR,terrainHeight,gradientTerrain,fbm,noise2,normalize,clamp,palette,lerp,cross,sub} from './engine.js';
+import {weightsCore,applyMapToWeights,materialWeights} from './materials.js';
 const P=palette;
 const vary=(c,f)=>c.map(v=>clamp(v*f,0,1));
 const rng=(n)=>{let x=Math.sin(n*127.32+12.73)*43758.5453;return x-Math.floor(x);};
@@ -7,48 +8,78 @@ export const TARGETS=[
  {name:'SEDİMAN',label:'KAYA 02',x:17.0,z:-24.5,tag:'Antik tortul katman'},
  {name:'BAZALT',label:'KAYA 03',x:-8,z:-43.0,tag:'Volkanik kayaç'},
 ];
-function duneMaterial(x,z){const n=fbm(x*.36,z*.36),h=terrainHeight(x,z),v=rng((Math.floor(x*8)+1000)*13.33+Math.floor(z*9));const dust=Math.sin(x*.28+z*.33+fbm(x*.03,z*.03)*7)*.5+.5;const f=clamp(.84+.28*n+.08*(v-.5)+.12*dust-.045*Math.max(0,h),.63,1.16);return vary(lerpColor(P.rust,P.sand,.35+.23*dust),f);}
 function lerpColor(a,b,t){return a.map((v,i)=>lerp(v,b[i],t));}
-export const TERRAIN_GRID=166,TERRAIN_SPAN=212;
-// Görünen üçgen arazinin yüksekliği (v2.3): tekerlek izleri tam zemine otursun diye.
+export let TERRAIN_GRID=166;export const TERRAIN_SPAN=212;
+export function setTerrainGrid(n){TERRAIN_GRID=n;}
+// Height of the actual triangulated terrain mesh (used so tire tracks lie exactly on the visible ground).
 export function terrainMeshHeight(x,z){const step=TERRAIN_SPAN/TERRAIN_GRID,half=TERRAIN_SPAN/2;
  const gx=clamp((x+half)/step,0,TERRAIN_GRID-1e-6),gz=clamp((z+half)/step,0,TERRAIN_GRID-1e-6);const i=Math.floor(gx),j=Math.floor(gz),u=gx-i,v=gz-j;
  const x0=-half+i*step,z0=-half+j*step,x1=x0+step,z1=z0+step;
  const ha=terrainHeight(x0,z0),hb=terrainHeight(x1,z0),hc=terrainHeight(x1,z1),hd=terrainHeight(x0,z1);
  return u+v<=1?ha+(hb-ha)*u+(hd-ha)*v:hc+(hd-hc)*(1-u)+(hb-hc)*(1-v);}
-export function buildTerrain(renderer){const terrain=new MeshBuilder();const grid=TERRAIN_GRID,span=TERRAIN_SPAN,step=span/grid;for(let z=0;z<grid;z++)for(let x=0;x<grid;x++){
- const x0=-span/2+x*step,x1=x0+step,z0=-span/2+z*step,z1=z0+step;
- const a=[x0,terrainHeight(x0,z0),z0],b=[x1,terrainHeight(x1,z0),z0],c=[x1,terrainHeight(x1,z1),z1],d=[x0,terrainHeight(x0,z1),z1];
- terrain.tri(a,d,b,duneMaterial(x0,z0));terrain.tri(b,d,c,duneMaterial(x1,z1));}
- return terrain.build(renderer);}
+/** Arazi ağı: yumuşak normaller, köşe başına malzeme ağırlıkları ve oyuk gölgesi (AO). Köşe: konum3 normal3 renk3 ağırlık4. */
+export function buildTerrain(renderer,grid=TERRAIN_GRID){setTerrainGrid(grid);
+ const N=grid+1,step=TERRAIN_SPAN/grid,half=TERRAIN_SPAN/2,H=new Float32Array(N*N);
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++)H[j*N+i]=terrainHeight(-half+i*step,-half+j*step);
+ const hAt=(i,j)=>H[clamp(j,0,grid)*N+clamp(i,0,grid)],k=Math.max(1,Math.round(5/step));
+ const NRM=new Float32Array(N*N*3),AO=new Float32Array(N*N),W=new Float32Array(N*N*4),w=new Float32Array(4);
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=-half+i*step,z=-half+j*step,h=hAt(i,j),id=j*N+i;
+  const dx=(hAt(i+1,j)-hAt(i-1,j))/(2*step),dz=(hAt(i,j+1)-hAt(i,j-1))/(2*step),nl=Math.hypot(dx,1,dz);
+  NRM[id*3]=-dx/nl;NRM[id*3+1]=1/nl;NRM[id*3+2]=-dz/nl;
+  const lap=(hAt(i+1,j)+hAt(i-1,j)+hAt(i,j+1)+hAt(i,j-1)-4*h)/(step*step);AO[id]=clamp(1-lap*.22,.80,1.05);
+  const low=h-(hAt(i+k,j)+hAt(i-k,j)+hAt(i,j+k)+hAt(i,j-k))/4;
+  weightsCore(x,z,h,Math.hypot(dx,dz),low,w);applyMapToWeights(x,z,w);W.set(w,id*4);}
+ const out=new Float32Array(grid*grid*6*13);let o=0;
+ const put=(i,j)=>{const id=j*N+i,a=AO[id];out[o++]=-half+i*step;out[o++]=H[id];out[o++]=-half+j*step;out[o++]=NRM[id*3];out[o++]=NRM[id*3+1];out[o++]=NRM[id*3+2];
+  out[o++]=a;out[o++]=a;out[o++]=a;out[o++]=W[id*4];out[o++]=W[id*4+1];out[o++]=W[id*4+2];out[o++]=W[id*4+3];};
+ for(let j=0;j<grid;j++)for(let i=0;i<grid;i++){put(i,j);put(i,j+1);put(i+1,j);put(i+1,j);put(i,j+1);put(i+1,j+1);}  // (a,d,b) (b,d,c) — terrainMeshHeight ile aynı bölme
+ return renderer.upload(out,[3,3,3,4]);}
+// ── Kayalar: ikosahedron tabanlı, gürültüyle bozulmuş, düzlemsel kırıklı (köşeli bazalt / rüzgârla aşınmış ventifakt), kısmen gömülü, üstü tozlu
+const PHI=(1+Math.sqrt(5))/2;
+const ICO_V=[[-1,PHI,0],[1,PHI,0],[-1,-PHI,0],[1,-PHI,0],[0,-1,PHI],[0,1,PHI],[0,-1,-PHI],[0,1,-PHI],[PHI,0,-1],[PHI,0,1],[-PHI,0,-1],[-PHI,0,1]].map(v=>normalize(v));
+const ICO_F=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+function subdivide({V,F}){const nv=V.slice(),cache=new Map(),mid=(a,b)=>{const key=a<b?a+'_'+b:b+'_'+a;if(!cache.has(key)){nv.push(normalize([(V[a][0]+V[b][0])/2,(V[a][1]+V[b][1])/2,(V[a][2]+V[b][2])/2]));cache.set(key,nv.length-1);}return cache.get(key);};
+ const nf=[];for(const [a,b,c] of F){const ab=mid(a,b),bc=mid(b,c),ca=mid(c,a);nf.push([a,ab,ca],[b,bc,ab],[c,ca,bc],[ab,bc,ca]);}return {V:nv,F:nf};}
+const ROCK_GEO=[{V:ICO_V,F:ICO_F}];ROCK_GEO.push(subdivide(ROCK_GEO[0]));ROCK_GEO.push(subdivide(ROCK_GEO[1]));
+function vnoise3(x,y,z,s){const h=(a,b,c)=>rng(a*157.31+b*311.7+c*74.7+s*13.1);const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),fx=x-xi,fy=y-yi,fz=z-zi;
+ const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),w=fz*fz*(3-2*fz),L=(a,b,t)=>a+(b-a)*t;
+ return L(L(L(h(xi,yi,zi),h(xi+1,yi,zi),u),L(h(xi,yi+1,zi),h(xi+1,yi+1,zi),u),v),L(L(h(xi,yi,zi+1),h(xi+1,yi,zi+1),u),L(h(xi,yi+1,zi+1),h(xi+1,yi+1,zi+1),u),v),w);}
+const ROCK_PAL={basalt:[[.21,.19,.18],[.27,.23,.21],[.33,.27,.23]],light:[[.58,.45,.36],[.66,.52,.41]],red:[[.44,.27,.19],[.52,.32,.22]]};
+const DUST_COAT=[.66,.41,.27];
+export function rock(b,x,z,r,seed,palette=ROCK_PAL.basalt,level=1,dustAmt=.55){
+ const geo=ROCK_GEO[Math.min(level,2)],yaw=rng(seed)*Math.PI*2,fy=.42+.38*rng(seed+1),sx=.8+.45*rng(seed+2),sz=.8+.45*rng(seed+3),cy=Math.cos(yaw),sy=Math.sin(yaw);
+ const cuts=[0,1,2].map(k=>{const a=rng(seed+10+k)*Math.PI*2,e=(rng(seed+20+k)-.3)*1.2;return [normalize([Math.cos(a)*Math.cos(e),Math.sin(e),Math.sin(a)*Math.cos(e)]),.55+.3*rng(seed+30+k)];});
+ const ground=terrainHeight(x,z),P=geo.V.map(v=>{let d=1+.34*(vnoise3(v[0]*1.6,v[1]*1.6,v[2]*1.6,seed)-.5)*2+.1*(vnoise3(v[0]*4,v[1]*4,v[2]*4,seed+7)-.5);
+  let p=[v[0]*d,v[1]*d,v[2]*d];for(const [n,c] of cuts){const t=p[0]*n[0]+p[1]*n[1]+p[2]*n[2];if(t>c){p=[p[0]-n[0]*(t-c),p[1]-n[1]*(t-c),p[2]-n[2]*(t-c)];}}
+  const lx=p[0]*sx*r,ly=p[1]*fy*r,lz=p[2]*sz*r;return [x+lx*cy+lz*sy,ground+ly+r*fy*.28,z-lx*sy+lz*cy];});
+ const base=palette[Math.floor(rng(seed+5)*palette.length)];
+ for(const [a,c,d] of geo.F){const A=P[a],B=P[c],C=P[d],n=normalize(cross(sub(B,A),sub(C,A)));
+  const up=clamp((n[1]-.25)/.6,0,1)*dustAmt,v=.86+.24*rng(seed+a*3.1+c*1.7+d*.9),low=clamp(((A[1]+B[1]+C[1])/3-ground)/(r*.25),.55,1);
+  b.tri(A,B,C,[lerp(base[0]*v,DUST_COAT[0],up)*low,lerp(base[1]*v,DUST_COAT[1],up)*low,lerp(base[2]*v,DUST_COAT[2],up)*low]);}
+ return Math.max(...P.map(p=>p[1]))-ground;}
+/** q: {boulders, rockLevel} kalite ayarı. Kaya yoğunluğu zemine göre: çakıllı alanda çok, kumda az. */
+/** Çarpışma ve gezgin engel denetimi için kaya listesi {x,z,r,h} (v3.0). Her buildEnvironment çağrısında yenilenir. */
 export const ENGELLER=[];
-function boulder(b,x,z,r,col,seed){const y=terrainHeight(x,z)+r*.48;if(r>=.12)ENGELLER.push({x,z,r,h:r*.48+r*(.46+.34*rng(seed+17))});const n=7;const xs=[],zs=[];for(let i=0;i<n;i++){const a=i*Math.PI*2/n,radius=r*(.76+.38*rng(seed+i*1.44));xs.push(x+Math.cos(a)*radius);zs.push(z+Math.sin(a)*radius);}const top=[x+.2*r*(rng(seed+11)-.5),y+r*(.46+.34*rng(seed+17)),z+.2*r*(rng(seed+13)-.5)];for(let i=0;i<n;i++){const j=(i+1)%n;const a=[xs[i],terrainHeight(xs[i],zs[i])+.08,zs[i]],c=[xs[j],terrainHeight(xs[j],zs[j])+.08,zs[j]];const shade=.82+.25*rng(seed+i*12.3);b.tri(a,top,c,vary(col,shade));}}
-export function buildEnvironment(renderer){const b=new MeshBuilder();for(let i=0;i<490;i++){
- const x=(rng(i+5)-.5)*207,z=(rng(i+4153)-.5)*207;
+const engel=(x,z,r,h)=>{if(r>=.12)ENGELLER.push({x,z,r,h});};
+export function buildEnvironment(renderer,q={boulders:490,rockLevel:1}){const b=new MeshBuilder(),w=new Float32Array(4);let placed=0;ENGELLER.length=0;
+ for(let i=0;placed<q.boulders&&i<q.boulders*4;i++){
+ const x=(rng(i+5)-.5)*204,z=(rng(i+4153)-.5)*204;
  if((x*x+(z-19)*(z-19))<85 || TARGETS.some(p=>(p.x-x)**2+(p.z-z)**2<15))continue;
- const radius=.12+1.9*Math.pow(rng(i+920),3.6);const c=rng(i+56)>.49?P.rust:P.steel;
- boulder(b,x,z,radius,c,i*3.1);
+ materialWeights(x,z,w);const keep=.22+.95*w[2]+.35*w[1]-.75*w[0]-.35*w[3];if(rng(i+777)>keep)continue;
+ const radius=.10+1.7*Math.pow(rng(i+920),3.4)*(1+.6*w[2]);const pal=rng(i+56)<.68?ROCK_PAL.basalt:rng(i+57)<.5?ROCK_PAL.red:ROCK_PAL.light;
+ engel(x,z,radius,rock(b,x,z,radius,i*3.1+.7,pal,radius>.6?q.rockLevel+1:q.rockLevel,.35+.4*w[3]));placed++;
  }
- // Three distinct geology targets: rocks themselves use high-contrast layers.
- TARGETS.forEach((site,i)=>{const y=terrainHeight(site.x,site.z);boulder(b,site.x,site.z,2.0,[.36+i*.12,.21+i*.04,.16+i*.025],31+i*23);for(let l=0;l<3;l++){
+ // Three distinct geology targets: layered/coloured rocks.
+ const TARGET_PAL=[[[.42,.19,.14],[.50,.23,.16]],[[.62,.48,.37],[.70,.55,.42]],[[.20,.19,.19],[.26,.24,.22]]];
+ TARGETS.forEach((site,i)=>{const y=terrainHeight(site.x,site.z);engel(site.x,site.z,2.0,rock(b,site.x,site.z,2.0,31+i*23,TARGET_PAL[i],q.rockLevel+1,.4));for(let l=0;l<3;l++){
  const ox=site.x+(rng(i*4+l+3)-.5)*4,oz=site.z+(rng(i*6+l+92)-.5)*4;
- boulder(b,ox,oz,.45+.42*rng(l+i*12),i===1?P.sand:P.rust,i*72+l);}
+ const rr=.45+.42*rng(l+i*12);engel(ox,oz,rr,rock(b,ox,oz,rr,i*72+l,TARGET_PAL[i],q.rockLevel,.45));}
  // orbital marker strips and perimeter spikes
  b.ring(site.x,y+.17,site.z,3.5,3.59,P.amber,60);
  for(let k=0;k<12;k++){const a=k*Math.PI*2/12,bx=site.x+Math.cos(a)*3.62,bz=site.z+Math.sin(a)*3.62;b.box(bx,terrainHeight(bx,bz)+.04,bz,.35,.04,.07,P.amber);}
  b.tube([site.x+2.6,y+.05,site.z-2.6],[site.x+2.6,y+2.2,site.z-2.6],.035,P.steel2);
  b.sphere(site.x+2.6,y+2.25,site.z-2.6,.13,.13,.13,P.amber);
  });
- // Distant sediment shelves / rocky escarpments give scale and depth.
- for(let i=0;i<38;i++){const theta=i*2.39996,dist=68+36*rng(i+222),x=Math.cos(theta)*dist,z=Math.sin(theta)*dist;
- const y=terrainHeight(x,z),r=3.5+9*rng(i+173);
- if(Math.abs(x)>104||Math.abs(z)>104)continue;
- b.with(matmul(T(x,y+.15,z),RY(theta)),()=>{
- b.box(0,.25,0,r*.9,.45,r*.8,vary(P.rust,.73+.1*rng(i)));
- b.box(-r*.12,.52,-r*.11,r*.79,.3,r*.64,vary(P.sand,.62+.2*rng(i+9)));
- b.box(-r*.25,.85,-r*.04,r*.54,.42,r*.47,vary(P.rust,.75+.1*rng(i+11)));
- });
- }
  const scenery=b.build(renderer);
  // Route guidance painted on the ground (noninteractive navigation beacons).
  const route=new MeshBuilder();let previous={x:0,z:15};for(const site of TARGETS){const dx=site.x-previous.x,dz=site.z-previous.z,total=Math.hypot(dx,dz),steps=Math.floor(total/3.5);for(let k=1;k<steps;k++){const t=k/steps,x=previous.x+dx*t,z=previous.z+dz*t,y=terrainHeight(x,z)+.12,ang=Math.atan2(dx,dz);route.with(matmul(T(x,y,z),RY(ang)),()=>route.box(0,0,0,.08,.025,.45,P.gold));}previous=site;}

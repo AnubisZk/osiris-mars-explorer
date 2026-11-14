@@ -8,6 +8,8 @@ const S = await import(new URL('sistemler.js', kok));
 const Y = await import(new URL('yz.js', kok));
 const { DILLER } = await import(new URL('dil.js', kok));
 const V = await import(new URL('veri.js', kok));
+const TM = await import(new URL('terramechanics.js', kok));
+const ZEMIN = JSON.parse(readFileSync(new URL('assets/terrain/terrain_classes.json', kok), 'utf8'));
 const MODEL = JSON.parse(readFileSync(new URL('modeller.json', kok), 'utf8'));
 
 const W = MODEL.drone.kutle_kg * S.SABIT.g;
@@ -111,4 +113,19 @@ test('MEDA akışı ayrıştırılır; ulaşılamazsa veri uydurulmaz', async ()
   assert.equal(h.kaynak, 'cevrimdisi'); assert.ok(h.hata);
   const c = await V.canliHavaAl({ fetchImpl: async () => ({ ok: true, json: async () => ({ sols: [{ sol: 5, pressure: 700, min_temp: -70, max_temp: -10 }] }) }) });
   assert.equal(c.kaynak, 'canli'); assert.equal(c.basincPa, 700);
+});
+
+test('terramekanik: kum ve tozda kayma regolitten büyük, ana kayada en küçük; dik kumda saplanır', () => {
+  const sur = (i, egimDeg = 0) => {
+    const w = [0, 0, 0, 0, 0]; w[i] = 1;
+    const zemin = TM.blendSoil(w, ZEMIN.classes);
+    return S.zeminSurusu({ zeminler: Array(6).fill(zemin), kutleKg: MODEL.gezgin.kutle_kg, tekerHizi: 0.1, egimRad: egimDeg * Math.PI / 180, capM: 0.26, genislikM: 0.08 });
+  };
+  const [regolit, kum, kaya, , toz] = [0, 1, 2, 3, 4].map((i) => sur(i));
+  assert.ok(kaya.kayma < regolit.kayma && regolit.kayma < kum.kayma && kum.kayma < toz.kayma);
+  assert.ok(kaya.hiz > 0.09 && regolit.hiz > 0.05 && regolit.hiz < 0.1);
+  assert.equal(kaya.batmaM, 0);
+  assert.ok(sur(4, 29).saplandi && !sur(0, 29).saplandi);
+  assert.equal(sur(0, -10).kayma, 0);            // yokuş aşağı: kayma yok
+  assert.equal(S.zeminSurusu({ zeminler: [TM.blendSoil([1, 0, 0, 0, 0], ZEMIN.classes)], kutleKg: 45, tekerHizi: 0, capM: 0.26, genislikM: 0.08 }).hiz, 0);
 });

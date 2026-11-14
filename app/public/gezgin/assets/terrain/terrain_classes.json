@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "description": "OSIRISZK oyun zemin sınıfları — oyun (fizik + doku) ve ML/DL boru hattı bu dosyayı ortak kullanır. Sınıf sırası (id) değiştirilmemeli: doku katmanları ve model çıktıları bu sıraya göredir.",
+  "rover": {
+    "mass_kg": 1025,
+    "wheel_count": 6,
+    "wheel_diameter_m": 0.98,
+    "wheel_width_m": 0.31,
+    "note": "Kütle Perseverance'a göre. Teker ölçüleri oyundaki 3B modelden alındı (görsel ile fizik tutarlı kalsın diye)."
+  },
+  "classes": [
+    {
+      "id": 0, "key": "regolith", "name_tr": "Regolit (toprak)", "name_en": "Soil / regolith",
+      "description": "İnce taneli, kabuklu-topaklı Mars toprağı. Gezginin en çok sürdüğü yüzey.",
+      "base_color": [0.56, 0.30, 0.19], "tile_m": 2.4,
+      "physics": {"density_kg_m3": 1520, "cohesion_kpa": 2.0, "friction_deg": 35.0,
+                  "bekker_n": 1.3, "bekker_kc": 572.1, "bekker_kphi": 4915.3, "shear_K_m": 0.0254,
+                  "rigid": false},
+      "effects": {"dust": 1.0, "track": 0.65},
+      "sources": ["Bekker + c/φ: M90 Mars simulantı (arXiv:2606.06790, Tablo 2)",
+                  "Kabuklu-topaklı Mars toprağı c 0–4 kPa, φ 30–40° (Golombek vd. 2008; Delage vd. 2017 Tablo 1)",
+                  "MER teker hendekleri φ 30–37°, c 0–2 kPa (Sullivan, Anderson vd. 2011, JGR 116 E02006)"]
+    },
+    {
+      "id": 1, "key": "sand", "name_tr": "Kum", "name_en": "Sand",
+      "description": "Gevşek, kohezyonsuz kum; dalgacıklı (ripple) kum tepeleri. Kayma ve batma en yüksek.",
+      "base_color": [0.36, 0.26, 0.21], "tile_m": 3.2,
+      "physics": {"density_kg_m3": 1200, "cohesion_kpa": 0.5, "friction_deg": 30.0,
+                  "bekker_n": 1.1, "bekker_kc": 0.9, "bekker_kphi": 1523.4, "shear_K_m": 0.025,
+                  "rigid": false},
+      "effects": {"dust": 1.4, "track": 0.85},
+      "sources": ["Mars kumu c 0–1 kPa, φ ≈30°, yoğunluk 1.1–1.3 Mg/m³ (Golombek vd. 2008; Delage vd. 2017 Tablo 1)",
+                  "Bekker kuru kum n 1.1, kc 0.9, kφ 1523.4, K 0.025 m (Wong; Shibly vd. 2005 Tablo 1)"]
+    },
+    {
+      "id": 2, "key": "bedrock", "name_tr": "Ana kaya", "name_en": "Bedrock",
+      "description": "Yüzeye çıkmış katmanlı tortul kaya. Batma yok, yüksek tutunma.",
+      "base_color": [0.66, 0.47, 0.34], "tile_m": 6.0,
+      "physics": {"density_kg_m3": 2600, "cohesion_kpa": 1000.0, "friction_deg": 45.0,
+                  "rigid": true, "wheel_friction_mu": 0.75, "rolling_coef": 0.015},
+      "effects": {"dust": 0.12, "track": 0.0},
+      "sources": ["Kaya: c 1000–10000 kPa, φ 40–60° (Viking verileri, NASA NTRS 20200003046)",
+                  "Teker-kaya sürtünme katsayısı 0.75 ve yuvarlanma katsayısı 0.015 oyun tahminidir"]
+    },
+    {
+      "id": 3, "key": "gravel", "name_tr": "Çakıllı / bloklu zemin", "name_en": "Gravel / big rocks",
+      "description": "Çakıl, kaya parçaları ve sertleşmiş (blocky) toprak; krater fırlatmaları çevresi.",
+      "base_color": [0.47, 0.29, 0.20], "tile_m": 1.8,
+      "physics": {"density_kg_m3": 1600, "cohesion_kpa": 6.0, "friction_deg": 30.0,
+                  "bekker_n": 0.8, "bekker_kc": 102.0, "bekker_kphi": 5301.0, "shear_K_m": 0.008,
+                  "rigid": false},
+      "effects": {"dust": 0.45, "track": 0.35},
+      "sources": ["Bloklu/sertleşmiş toprak c 3–11 kPa, φ 25–33° (Golombek vd. 2008; Delage vd. 2017 Tablo 1)",
+                  "Bekker modülleri vekil değer: sıkı kum (Wong; Shibly 2017 Tablo 1); K = 0.008 m sert zemin için tahmini"]
+    },
+    {
+      "id": 4, "key": "dust", "name_tr": "Toz (sürüklenme)", "name_en": "Dust / drift",
+      "description": "Çok ince, parlak, gözenekli toz birikintisi. Düşük sürtünme açısı, kolay toz kalkar.",
+      "base_color": [0.72, 0.45, 0.29], "tile_m": 3.0,
+      "physics": {"density_kg_m3": 1150, "cohesion_kpa": 1.5, "friction_deg": 18.0,
+                  "bekker_n": 1.0, "bekker_kc": 0.5, "bekker_kphi": 600.0, "shear_K_m": 0.03,
+                  "rigid": false},
+      "effects": {"dust": 2.2, "track": 0.9},
+      "sources": ["Sürüklenme (drift) c 0–3 kPa, φ 15–21°, yoğunluk 1–1.3 Mg/m³ (Golombek vd. 2008; Delage vd. 2017 Tablo 1)",
+                  "Viking drift: φ ≈18°, c 0.7–3.0 kPa (Moore vd. 1987, USGS)",
+                  "Bekker modülleri tahmini (kumdan daha yumuşak seçildi)"]
+    }
+  ],
+  "dataset_mappings": {
+    "_note": "Etiket adları küçük harfe çevrilip boşluk/altçizgi/tire farkı gözetilmeden eşlenir. null = bu sınıf zemin eğitiminde kullanılmaz (gezgin parçası, gökyüzü, kutup buzu vb.).",
+    "hirise_v3": {
+      "other": "regolith", "crater": "gravel", "impact ejecta": "gravel",
+      "dark dune": "sand", "bright dune": "dust", "slope streak": "dust",
+      "swiss cheese": null, "spider": null, "edge": null
+    },
+    "msl_v1": {
+      "ground": "regolith", "drill holes": "bedrock", "drill hole": "bedrock",
+      "horizon": null, "sun": null, "wheel": null, "apxs": null, "apxs cal target": null, "chemcam cal target": null,
+      "chemin inlet open": null, "drill": null, "drt front": null, "drt side": null, "inlet": null, "mahli": null,
+      "mahli cal target": null, "mastcam": null, "mastcam cal target": null, "observation tray": null, "portion box": null,
+      "portion tube": null, "portion tube opening": null, "rems uv sensor": null, "rover rear deck": null, "scoop": null, "turret": null
+    },
+    "msl_v2": {
+      "nearby surface": "regolith", "wheel tracks": "regolith", "sand": "sand",
+      "close-up rock": "bedrock", "layers": "bedrock", "light-toned veins": "bedrock",
+      "drill hole": "bedrock", "drt spot": "bedrock", "float": "gravel",
+      "distant landscape": null, "night sky": null, "sun": null, "wheel": null, "wheel joint": null,
+      "arm cover": null, "other rover part": null, "artifact": null, "drt": null, "mastcam cal target": null
+    },
+    "ai4mars": {"soil": "regolith", "bedrock": "bedrock", "sand": "sand", "big rock": "gravel"},
+    "folder": {
+      "regolith": "regolith", "soil": "regolith", "toprak": "regolith", "regolit": "regolith", "ground": "regolith",
+      "sand": "sand", "kum": "sand", "dune": "sand",
+      "bedrock": "bedrock", "anakaya": "bedrock", "ana kaya": "bedrock", "kaya": "bedrock", "outcrop": "bedrock",
+      "gravel": "gravel", "cakil": "gravel", "çakıl": "gravel", "big rock": "gravel", "rocks": "gravel", "blocky": "gravel",
+      "dust": "dust", "toz": "dust", "drift": "dust"
+    }
+  }
+}

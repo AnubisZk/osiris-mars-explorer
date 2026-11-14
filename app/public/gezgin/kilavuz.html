@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#080e15" />
+<title>OSIRISZK Mars Pathfinder 3D — Kullanım Kılavuzu / User Guide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23d08a55'/%3E%3C/svg%3E" />
+<style>
+:root{color-scheme:dark;font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.62;color:#dfe8ea;background:#080d14}
+*{box-sizing:border-box}body{margin:0}
+header{position:sticky;top:0;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;background:#0b131cf2;border-bottom:1px solid #213442}
+header b{letter-spacing:2px;color:#e6aa69}header a,header button{font:inherit;font-size:12px;font-weight:700;letter-spacing:1px;color:#dfe8ea;background:#121f2b;border:1px solid #34495c;border-radius:5px;padding:7px 11px;text-decoration:none;cursor:pointer}
+header button.on{background:#cb8550;color:#0b141d;border-color:#e1a46e}header div{display:flex;gap:6px;flex-wrap:wrap}
+main{max-width:860px;margin:0 auto;padding:26px 20px 70px}
+h1{font-size:28px;line-height:1.2;margin:.2em 0 .3em}h2{font-size:19px;color:#e6aa69;margin:2em 0 .5em;padding-top:.6em;border-top:1px solid #213442}h3{font-size:15px;color:#9fe0c8;margin:1.4em 0 .3em}
+p,li{color:#c9d6da}small,.not{color:#8fa6b0;font-size:13px}
+kbd{font:12px Consolas,monospace;background:#162634;border:1px solid #34495c;border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:#f1e3d3;white-space:nowrap}
+code{font:13px Consolas,monospace;background:#12202c;padding:1px 5px;border-radius:3px;color:#f0c79d}
+table{border-collapse:collapse;width:100%;margin:.6em 0;font-size:14px}th,td{border:1px solid #223645;padding:7px 9px;text-align:left;vertical-align:top}th{background:#101c27;color:#9fb6bf;font-size:12px;letter-spacing:.6px}
+.kutu{background:#12202c;border-left:3px solid #cb8550;padding:12px 16px;margin:1em 0}.kutu.yesil{border-color:#71d3ad}
+nav{columns:2;font-size:14px;margin:1em 0}nav a{color:#9fd0e0;text-decoration:none;display:block;padding:2px 0}
+.tablo-sar{overflow-x:auto}
+[data-dil]{display:none}html[lang=tr] [data-dil=tr],html[lang=en] [data-dil=en]{display:block}
+@media(max-width:600px){nav{columns:1}h1{font-size:23px}}
+@media print{header{display:none}:root{color:#000;background:#fff}p,li,td{color:#000}h2{color:#8a4b12}.kutu,code,kbd,th{background:#f3f3f3;color:#000}}
+</style>
+</head>
+<body>
+<header><b>OSIRISZK</b><div><a href="index.html">▶ <span data-dil="tr" style="display:inline">OYUNA DÖN</span></a><button data-sec="tr">TR</button><button data-sec="en">EN</button></div></header>
+<main>
+
+<!-- ============================== TÜRKÇE ============================== -->
+<article data-dil="tr">
+<small>SÜRÜM 3.2 · Altıeylül BİLSEM Havacılık ve Uzay Kulübü · OsirisZK takımı</small>
+<h1>Mars Pathfinder 3D — Kullanım Kılavuzu</h1>
+<p>Jezero kraterinde bir <b>gezgin</b> (RV-01) ile onun sırtından kalkan Ingenuity benzeri bir <b>helikopter</b> (UD-07) yönetirsiniz. Görev: üç kaya hedefini taramak, veriyi gezgine taşımak ve Dünya'ya göndermek. Oyun tarayıcıda çalışır; kurulum gerekmez.</p>
+<nav>
+<a href="#tr-hizli">1. Beş adımda ilk görev</a><a href="#tr-ekran">2. Ekran</a><a href="#tr-kontrol">3. Kontroller</a><a href="#tr-kural">4. Görev kuralları</a><a href="#tr-fizik">5. Arkadaki fizik</a><a href="#tr-yz">6. Yapay zekâ ve canlı veri</a><a href="#tr-ozgun">7. Bu oyunu özgün yapan nedir?</a><a href="#tr-ml">8. Makine öğrenmesiyle yapılabilecekler</a><a href="#tr-sinir">9. Sınırlar</a><a href="#tr-sorun">10. Sorun giderme</a>
+</nav>
+
+<h2 id="tr-hizli">1. Beş adımda ilk görev</h2>
+<ol>
+<li><b>▶ OTONOM KEŞİF</b> düğmesine (ya da <kbd>M</kbd>) basın. Helikopter kalkar, üç kayayı sırayla tarar ve gezgine döner. Her hedeften önce günlükte bir <b>ML kararı</b> görürsünüz: “gerek 2,1 Wh / kullanılabilir 13,4 Wh → devam”.</li>
+<li>Helikopter kenetlenince taradığı veri paketleri gezgine geçer.</li>
+<li><b>VERİ AKTARIMI</b> (<kbd>T</kbd>) ile paketleri Dünya'ya gönderin. Aktarım 70 W çeker; gezgin pilini izleyin.</li>
+<li>Üç hedef tarandı, tüm paketler gitti ve helikopter kenetliyse görev <b>tamamlanır</b>.</li>
+<li><b>↓ RAPOR</b> ile görev raporunu (JSON), <b>CSV</b> ile saniyelik telemetriyi indirin. Bunlar ders ve proje verinizdir.</li>
+</ol>
+<div class="kutu yesil">Elle uçmak isterseniz: <kbd>SPACE</kbd> kalkış, <kbd>W</kbd> ileri, <kbd>← →</kbd> dönüş, hedefin üstünde 1,2 m'den yüksekte <kbd>G</kbd> tarama, gezginin üstünde <kbd>F</kbd> kenetlenme.</div>
+
+<h2 id="tr-ekran">2. Ekran</h2>
+<div class="tablo-sar"><table>
+<tr><th>Bölüm</th><th>Ne gösterir</th></tr>
+<tr><td>Üst çubuk</td><td>Görev süresi, <b>Jezero yerel saati</b>, zaman hızlandırma, duraklat, kaydet/yükle, CSV, rapor, canlı veri, grafik kalitesi, dil.</td></tr>
+<tr><td>3B sahne</td><td>Kamera adı, pusula (HDG), FPS, hava yoğunluğu ρ. Kayaların üstündeki etiket taramadan sonra sinir ağının kararını gösterir.</td></tr>
+<tr><td>Telemetri</td><td>İrtifa, hız, itki/ağırlık, UHF bağlantısı, <b>rotor gücü (W)</b>, rotor devri (sınır 2700 dev/dk).</td></tr>
+<tr><td>Enerji</td><td>Piller <b>Wh</b> cinsinden; güneş girişi, tüketim, indüktif şarj, pil bölmesi sıcaklığı, raftaki üç yedek pil, kalan uçuş süresi.</td></tr>
+<tr><td>Zemin / terramekanik</td><td>Gezginin altındaki zemin türü, teker kayması, batma, eğim, zemin mekaniği değerleri, çekiş.</td></tr>
+<tr><td>Atmosfer</td><td>Basınç, sıcaklık, yoğunluk, toz opaklığı, rüzgâr, pal ucu Mach sayısı, verinin kaynağı.</td></tr>
+<tr><td>Yapay zekâ</td><td>ML modelinin örnek sayısı ve hatası, ölçülen/tahmin edilen güç, son karar, sinir ağının doğruluğu, grafik.</td></tr>
+</table></div>
+
+<h2 id="tr-kontrol">3. Kontroller</h2>
+<h3>Klavye</h3>
+<div class="tablo-sar"><table>
+<tr><th>Tuş</th><th>Helikopter (UD-07)</th><th>Gezgin (RV-01)</th></tr>
+<tr><td><kbd>W</kbd> <kbd>S</kbd> / <kbd>↑</kbd> <kbd>↓</kbd></td><td>Burnun yönünde ileri / geri</td><td>İleri / geri</td></tr>
+<tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Yana kayma</td><td>Direksiyon</td></tr>
+<tr><td><kbd>←</kbd> <kbd>→</kbd> (<kbd>Q</kbd> <kbd>E</kbd>)</td><td>Kendi ekseninde dönüş</td><td>Direksiyon</td></tr>
+<tr><td><kbd>SPACE</kbd> / <kbd>SHIFT</kbd></td><td>Kalkış · yüksel / alçal</td><td>Fren</td></tr>
+<tr><td><kbd>G</kbd> / <kbd>R</kbd></td><td>Kaya tarama (havadan)</td><td>Kaya inceleme (yakından)</td></tr>
+<tr><td><kbd>F</kbd> · <kbd>B</kbd> · <kbd>T</kbd></td><td colspan="2">Kenetlen · pil modülü değiştir · Dünya'ya veri aktar</td></tr>
+<tr><td><kbd>TAB</kbd> · <kbd>M</kbd> · <kbd>P</kbd> · <kbd>X</kbd></td><td colspan="2">Araç değiştir · otonom görev · duraklat · zamanı hızlandır</td></tr>
+<tr><td><kbd>1</kbd>–<kbd>4</kbd> · <kbd>C</kbd> · <kbd>V</kbd> · <kbd>K</kbd> · <kbd>H</kbd></td><td colspan="2">Kamera · fotoğraf · arşiv · grafik kalitesi · oyun içi kılavuz</td></tr>
+</table></div>
+<h3>Oyun kumandası (Xbox ve PlayStation)</h3>
+<p>Kumandayı USB ya da Bluetooth ile bağlayın, oyun açıkken herhangi bir düğmeye basın. Xbox ve PlayStation (DualShock 4, DualSense) kumandaları aynı düzeni kullanır; yalnızca düğme adları farklıdır. Çubuklar ve tetikler analogdur.</p>
+<div class="tablo-sar"><table>
+<tr><th>Xbox</th><th>PlayStation</th><th>İşlev</th></tr>
+<tr><td>Sol çubuk</td><td>Sol çubuk</td><td>Helikopter: ileri-geri / yana kayma · Gezgin: direksiyon</td></tr>
+<tr><td>Sağ çubuk</td><td>Sağ çubuk</td><td>Helikopter: dönüş · Gezgin: kamera</td></tr>
+<tr><td>RT / LT</td><td>R2 / L2</td><td>Helikopter: yüksel (yerde kalkış) / alçal · Gezgin: gaz / geri</td></tr>
+<tr><td>A · B</td><td>✕ · ○</td><td>Kalkış ya da kenetlen · gezgin freni</td></tr>
+<tr><td>X · Y</td><td>□ · △</td><td>Tarama · araç değiştir</td></tr>
+<tr><td>LB</td><td>L1</td><td>Pil modülü değiştir</td></tr>
+<tr><td>Yön ▲ ▼ ◀ ▶</td><td>Yön tuşları</td><td>Otonom görev · veri aktar · kamera modu</td></tr>
+<tr><td>☰ · ⧉ · R3</td><td>OPTIONS · SHARE/CREATE · R3</td><td>Duraklat · kılavuz · yakınlaştır</td></tr>
+</table></div>
+<h3>Tablet ve telefon</h3>
+<p>Dokunmatik ekranda sahnenin sol altında yön ve irtifa tuşları çıkar. Kamerayı tek parmakla döndürür, iki parmakla yakınlaştırırsınız.</p>
+
+<h2 id="tr-kural">4. Görev kuralları</h2>
+<ul>
+<li><b>Kalkış izni:</b> pil %25'in üstünde olmalı, hava yeterince yoğun olmalı (gereken devir 2700'ü geçmemeli) ve şiddetli toz fırtınası olmamalı. Öğleden sonra hava ısınıp seyreldiği için kalkış zorlaşır; Ingenuity de sabah uçardı.</li>
+<li><b>Enerji:</b> helikopter pili 25 °C'de 44,4 Wh'tir, soğukta küçülür. Uçuş yaklaşık 330–440 W çeker. Otonom pilot kapasitenin %30'unu yedekte tutar.</li>
+<li><b>Şarj ve pil değişimi:</b> kenetliyken gezgin 100 W ile indüktif şarj eder; pil bölmesi 0 °C'nin altındaysa şarj olmaz. <kbd>B</kbd> ile raftaki dolu modül takılır; işlem 2,5 dakika sürer ve bölme −20 °C'den soğuksa yapılamaz.</li>
+<li><b>Gezgin:</b> en fazla 0,10 m/s gider, 0,30 m'den yüksek kayayı ve 30°'den dik eğimi aşamaz. Kumda ve tozda tekerler kayar, gezgin yavaşlar; dik ve yumuşak zeminde saplanabilir.</li>
+<li><b>Zaman hızlandırma</b> (<kbd>X</kbd>, ×5 / ×20 / ×60) yalnızca helikopter kenetliyken çalışır. Uzun gezgin sürüşleri ve şarj beklemeleri için kullanın.</li>
+<li><b>Bağlantı:</b> helikopter gezginle görüş hattını ya da menzili kaybederse 2 saniye sonra kendiliğinden döner.</li>
+<li><b>Hasar:</b> kayaya çarpmak ve 1 m/s'den sert inmek dayanıklılığı düşürür. Havada pil biterse helikopter düşer ve görev başarısız olur.</li>
+<li><b>Toz fırtınası:</b> güneş gücünü düşürür, rüzgâr helikopteri sürükler, tarama gürültüsünü artırır. Otonom pilot fırtınada gezgine döner.</li>
+</ul>
+
+<h2 id="tr-fizik">5. Arkadaki fizik</h2>
+<div class="tablo-sar"><table>
+<tr><th>Konu</th><th>Model</th><th>Dayanak</th></tr>
+<tr><td>Rotor gücü</td><td>Momentum teorisi: <code>P = T(Vc/2 + √((Vc/2)² + vh²))/FM + ½ρfV³</code>, FM = 0,27</td><td>Ingenuity'nin uçuşta ≈350 W çekmesine kalibre (NASA/JPL basın kiti)</td></tr>
+<tr><td>Hava yoğunluğu</td><td><code>ρ = p / (R·T)</code>, R = 191,8 J/(kg·K)</td><td>NASA Mars Fact Sheet; Perseverance MEDA ölçümleri</td></tr>
+<tr><td>Rotor sınırı</td><td>En büyük itki ∝ ρ·Ω²; devir sınırı 2700 dev/dk, tepe güç 510 W</td><td>NASA Ingenuity pil ve güç sistemi makalesi</td></tr>
+<tr><td>Pil</td><td>6 Li-ion hücre; 25 °C'de 44,4 Wh, 0 °C'de 38,8 Wh</td><td>Aynı makale</td></tr>
+<tr><td>Güneş paneli</td><td>Güneş yüksekliği + toz opaklığı (Beer–Lambert, <code>e^(−τ/μ)</code>)</td><td>MEDA opaklık ölçümleri</td></tr>
+<tr><td>Zemin</td><td>5 sınıf (regolit, kum, ana kaya, çakıl, toz). Batma: Bekker; çekiş: Mohr–Coulomb + Janosi–Hanamoto</td><td>Değerler ve kaynakları <code>assets/terrain/terrain_classes.json</code> içinde</td></tr>
+<tr><td>Araç ölçüleri</td><td>Gezgin 45 kg, teker Ø0,26 m; helikopter 1,8 kg, rotor Ø1,2 m</td><td>Takımın mimari çizimleri (<code>modeller.json</code>)</td></tr>
+</table></div>
+<p class="not">Oyun değeri olan (ölçülmemiş) sayılar kodda “VARSAYIM” diye işaretlidir: fırtına takvimi, Dünya bağlantı hızı, indüktif şarj verimi, tekerlek tırnağı çarpanı gibi.</p>
+
+<h2 id="tr-yz">6. Yapay zekâ ve canlı veri</h2>
+<h3>Makine öğrenmesi: enerji modeli</h3>
+<p>Helikopter uçarken saniyede beş kez kendi güç tüketimini ölçer ve altı özellikli doğrusal bir modeli günceller (çevrimiçi RLS: hız, tırmanma, alçalma, hava yoğunluğu, rüzgâr). 120 örnekten sonra model “hazır” sayılır. Otonom pilot her hedeften önce bu modelle <i>git + tara + dön</i> enerjisini hesaplar; kullanılabilir enerjiye sığmıyorsa gezgine döner. Model hazır değilken aynı hesap fizik formülüyle yapılır ve günlükte “fizik yedeği” yazar. Öğrendikleri tarayıcıda saklanır, sonraki oturumda kaldığı yerden sürer.</p>
+<h3>Derin öğrenme: kaya sınıflandırıcı</h3>
+<p>Oyun açılırken tarayıcıda küçük bir sinir ağı (8-16-16-3) eğitilir; yaklaşık bir saniye sürer. Her taramada sekiz bantlı bir spektrumu hematit, tortul ya da bazalt olarak sınıflandırır ve güvenini yazar. Yüksekten ya da fırtınada yapılan taramada gürültü artar, ağ yanılabilir; gezginin yakın ölçümü daha temizdir. <b>Eğitim spektrumları temsilîdir, ölçülmüş veri değildir.</b></p>
+<h3>Canlı veri</h3>
+<p><b>⟳ CANLI VERİ</b> düğmesi NASA'nın Perseverance MEDA hava akışını okur (basınç, en düşük ve en yüksek sıcaklık, gökyüzü durumu). Akış her zaman güncel olmayabilir; oyun hangi sol ve tarihin verisini kullandığını yazar. Akışa ulaşılamazsa yayımlanmış MEDA aralığı kullanılır ve ekranda “çevrimdışı model” görünür. Veri uydurulmaz.</p>
+
+<h2 id="tr-ozgun">7. Bu oyunu özgün yapan nedir?</h2>
+<ol>
+<li><b>Sayılar görevden geliyor.</b> Rotor gücü, pil kapasitesi, devir sınırı ve atmosfer değerleri Ingenuity ve Perseverance için yayımlanmış ölçümlere dayanır. Oyuncu “pil %40” yerine Wh, W ve dev/dk görür; yani bir mühendisin baktığı büyüklüklerle karar verir.</li>
+<li><b>Gezgin ile helikopter tek sistemdir.</b> Helikopter gezginin sırtındaki platformdan kalkar, orada indüktif şarj olur, pili orada değişir, verisini gezgin üzerinden Dünya'ya yollar. Bu mimari takımın kendi tasarımıdır ve oyundaki ölçüler takımın çizimlerinden okunur.</li>
+<li><b>Yapay zekâ süs değil, kararın parçası.</b> Otonom pilotun “devam mı, dönüş mü” kararını uçuşta öğrenen bir model verir; kararın sayıları günlükte açıkça görünür ve yanlış çıkabilir.</li>
+<li><b>Mars'ın o günkü havası oyunu değiştirir.</b> MEDA verisi yoğunluğu, yoğunluk da rotor gücünü ve kalkış iznini belirler.</li>
+<li><b>Zemin fizikle birlikte gelir.</b> Beş zemin sınıfının her biri hem görünüşü hem tekerin kaymasını ve batmasını belirler; aynı sınıf dosyasını zemin fotoğraflarını sınıflandıran eğitim hattı da kullanır.</li>
+<li><b>Her şey açık ve denetlenebilir.</b> Harici kütüphane yok; 3B motor, fizik, sinir ağı ve öğrenme algoritması okunabilir JavaScript olarak depoda duruyor ve otomatik testlerle denetleniyor. Varsayımlar etiketli.</li>
+<li><b>Oyun veri üretir.</b> CSV telemetri ve JSON görev raporu, öğrencilerin kendi analizlerini ve modellerini kurabileceği veri setleridir.</li>
+<li><b>Erişilebilir.</b> Türkçe ve İngilizce; klavye, Xbox ve PlayStation kumandası, dokunmatik ekran; kurulum gerektirmez.</li>
+</ol>
+
+<h2 id="tr-ml">8. Makine öğrenmesiyle yapılabilecekler</h2>
+<div class="tablo-sar"><table>
+<tr><th>Fikir</th><th>Veri</th><th>Zorluk</th></tr>
+<tr><td><b>Zemin sınıflandırma (CNN)</b>: gezgin kamerasındaki zemini beş sınıftan birine atar; oyun dokuyu ve fiziği ona göre seçer. Eğitim hattı <code>ml/</code> klasöründe hazır.</td><td>AI4Mars, Curiosity ve HiRISE etiketli setleri (JPL)</td><td>Orta</td></tr>
+<tr><td><b>Kayma tahmini</b>: zemin türü ve eğimden teker kaymasını öngörüp gezgine saplanmayacağı rotayı seçtirir.</td><td>Oyunun CSV telemetrisi</td><td>Kolay</td></tr>
+<tr><td><b>Hava tahmini</b>: önceki sollerden ertesi solün basınç ve sıcaklığını tahmin eder; kalkış saati buna göre planlanır.</td><td>MEDA sol kayıtları</td><td>Orta</td></tr>
+<tr><td><b>Gerçek spektrumla kaya sınıflandırma</b>: temsilî spektrumların yerine ölçülmüş veriler konur.</td><td>Mastcam-Z / SuperCam açık verileri</td><td>Orta–zor</td></tr>
+<tr><td><b>Pekiştirmeli öğrenme</b>: rüzgârda platforma iniş ya da üç hedefi en az enerjiyle gezen rota.</td><td>Oyunun kendisi (simülasyon)</td><td>Zor</td></tr>
+<tr><td><b>Anomali tespiti</b>: telemetride olağan dışı güç ya da sıcaklık davranışını yakalar, pilotu uyarır.</td><td>CSV telemetri</td><td>Kolay–orta</td></tr>
+<tr><td><b>Enerji modelini büyütmek</b>: doğrusal model yerine küçük bir sinir ağı; ikisini aynı uçuş verisinde karşılaştırmak.</td><td>CSV telemetri</td><td>Kolay</td></tr>
+</table></div>
+<p>Başlamak için en uygunu ikisi: <b>kayma tahmini</b> (veri hazır, sonuç oyunda hemen görünür) ve <b>zemin sınıflandırma</b> (eğitim hattı hazır, gerçek NASA verisi kullanır).</p>
+
+<h2 id="tr-sinir">9. Sınırlar</h2>
+<ul>
+<li>Eğitim simülasyonudur; uçuş yazılımı ya da mühendislik doğrulama aracı değildir.</li>
+<li>Arazi kurgusaldır; Jezero'nun gerçek yükseklik verisinden üretilmemiştir.</li>
+<li>Kaya spektrumları temsilîdir. Zemin dokuları, fotoğraf dokuları üretilene kadar prosedüreldir.</li>
+<li>Rotor modeli momentum teorisidir; pal elemanı ve akış ayrıntıları yoktur. Terramekanik yarı-statiktir.</li>
+<li>Canlı hava akışı gecikmeli olabilir.</li>
+</ul>
+
+<h2 id="tr-sorun">10. Sorun giderme</h2>
+<ul>
+<li><b>Oyun yavaş:</b> <kbd>K</kbd> ile kaliteyi DÜŞÜK yapın ya da adresin sonuna <code>?kalite=low</code> ekleyin.</li>
+<li><b>“WebGL2 bulunamadı”:</b> güncel Chrome, Edge ya da Firefox kullanın; donanım hızlandırmayı açın.</li>
+<li><b>Kumanda görünmüyor:</b> oyun sekmesi açıkken kumandada bir düğmeye basın.</li>
+<li><b>Helikopter kalkmıyor:</b> ekrandaki mesaj nedeni söyler (pil, hava yoğunluğu, fırtına, pil değişimi).</li>
+<li><b>Gezgin gitmiyor:</b> önünde 0,30 m'den yüksek kaya ya da dik eğim vardır, ya da saplanmıştır; geri gidip yön değiştirin.</li>
+<li><b>Dil:</b> sağ üstteki TR / EN ya da adresin sonuna <code>?dil=en</code>.</li>
+</ul>
+</article>
+
+<!-- ============================== ENGLISH ============================== -->
+<article data-dil="en">
+<small>BUILD 3.2 · Altıeylül BİLSEM Aviation &amp; Space Club · Team OsirisZK</small>
+<h1>Mars Pathfinder 3D — User Guide</h1>
+<p>You operate a <b>rover</b> (RV-01) and an Ingenuity-style <b>helicopter</b> (UD-07) that flies from the rover's back in Jezero crater. The mission: scan three rock targets, carry the data to the rover and send it to Earth. The game runs in the browser with nothing to install.</p>
+<nav>
+<a href="#en-quick">1. First mission in five steps</a><a href="#en-screen">2. The screen</a><a href="#en-controls">3. Controls</a><a href="#en-rules">4. Mission rules</a><a href="#en-physics">5. The physics behind it</a><a href="#en-ai">6. AI and live data</a><a href="#en-original">7. What makes this game original?</a><a href="#en-ml">8. What machine learning could do next</a><a href="#en-limits">9. Limits</a><a href="#en-trouble">10. Troubleshooting</a>
+</nav>
+
+<h2 id="en-quick">1. First mission in five steps</h2>
+<ol>
+<li>Press <b>▶ AUTONOMOUS SURVEY</b> (or <kbd>M</kbd>). The helicopter takes off, scans the three rocks in turn and returns. Before each target the log shows an <b>ML decision</b>: “needs 2.1 Wh / usable 13.4 Wh → continue”.</li>
+<li>When the helicopter docks, its data packets move to the rover.</li>
+<li>Send them to Earth with <b>EARTH UPLINK</b> (<kbd>T</kbd>). The uplink draws 70 W, so watch the rover battery.</li>
+<li>The mission is <b>complete</b> when all three targets are scanned, every packet is delivered and the helicopter is docked.</li>
+<li>Download the mission report (JSON) with <b>↓ REPORT</b> and per-second telemetry with <b>CSV</b>. That is your data for lessons and projects.</li>
+</ol>
+<div class="kutu yesil">To fly by hand: <kbd>SPACE</kbd> takes off, <kbd>W</kbd> goes forward, <kbd>← →</kbd> turn, <kbd>G</kbd> scans when you are above a target and higher than 1.2 m, <kbd>F</kbd> docks above the rover.</div>
+
+<h2 id="en-screen">2. The screen</h2>
+<div class="tablo-sar"><table>
+<tr><th>Area</th><th>What it shows</th></tr>
+<tr><td>Top bar</td><td>Mission time, <b>Jezero local time</b>, time warp, pause, save/load, CSV, report, live data, graphics quality, language.</td></tr>
+<tr><td>3D scene</td><td>Camera name, heading (HDG), FPS, air density ρ. After a scan the label above each rock shows the neural network's verdict.</td></tr>
+<tr><td>Telemetry</td><td>Altitude, speed, thrust-to-weight, UHF link, <b>rotor power (W)</b>, rotor speed (limit 2700 rpm).</td></tr>
+<tr><td>Energy</td><td>Batteries in <b>Wh</b>; solar input, load, inductive charging, battery-bay temperature, three spare packs, remaining flight time.</td></tr>
+<tr><td>Soil / terramechanics</td><td>Soil type under the rover, wheel slip, sinkage, slope, soil-mechanics values, traction.</td></tr>
+<tr><td>Atmosphere</td><td>Pressure, temperature, density, dust opacity, wind, blade-tip Mach number, data source.</td></tr>
+<tr><td>AI</td><td>ML sample count and error, measured vs predicted power, last decision, network accuracy, chart.</td></tr>
+</table></div>
+
+<h2 id="en-controls">3. Controls</h2>
+<h3>Keyboard</h3>
+<div class="tablo-sar"><table>
+<tr><th>Key</th><th>Helicopter (UD-07)</th><th>Rover (RV-01)</th></tr>
+<tr><td><kbd>W</kbd> <kbd>S</kbd> / <kbd>↑</kbd> <kbd>↓</kbd></td><td>Forward / back along the nose</td><td>Forward / back</td></tr>
+<tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Strafe</td><td>Steering</td></tr>
+<tr><td><kbd>←</kbd> <kbd>→</kbd> (<kbd>Q</kbd> <kbd>E</kbd>)</td><td>Yaw</td><td>Steering</td></tr>
+<tr><td><kbd>SPACE</kbd> / <kbd>SHIFT</kbd></td><td>Take off · climb / descend</td><td>Brake</td></tr>
+<tr><td><kbd>G</kbd> / <kbd>R</kbd></td><td>Scan a rock (from the air)</td><td>Survey a rock (close up)</td></tr>
+<tr><td><kbd>F</kbd> · <kbd>B</kbd> · <kbd>T</kbd></td><td colspan="2">Dock · swap battery module · uplink to Earth</td></tr>
+<tr><td><kbd>TAB</kbd> · <kbd>M</kbd> · <kbd>P</kbd> · <kbd>X</kbd></td><td colspan="2">Switch vehicle · autonomous mission · pause · time warp</td></tr>
+<tr><td><kbd>1</kbd>–<kbd>4</kbd> · <kbd>C</kbd> · <kbd>V</kbd> · <kbd>K</kbd> · <kbd>H</kbd></td><td colspan="2">Camera · photo · archive · graphics quality · in-game help</td></tr>
+</table></div>
+<h3>Game controller (Xbox and PlayStation)</h3>
+<p>Connect the controller by USB or Bluetooth and press any button while the game is open. Xbox and PlayStation (DualShock 4, DualSense) controllers share one layout; only the button names differ. Sticks and triggers are analogue.</p>
+<div class="tablo-sar"><table>
+<tr><th>Xbox</th><th>PlayStation</th><th>Function</th></tr>
+<tr><td>Left stick</td><td>Left stick</td><td>Helicopter: forward-back / strafe · Rover: steering</td></tr>
+<tr><td>Right stick</td><td>Right stick</td><td>Helicopter: yaw · Rover: camera</td></tr>
+<tr><td>RT / LT</td><td>R2 / L2</td><td>Helicopter: climb (take off on the ground) / descend · Rover: throttle / reverse</td></tr>
+<tr><td>A · B</td><td>✕ · ○</td><td>Take off or dock · rover brake</td></tr>
+<tr><td>X · Y</td><td>□ · △</td><td>Scan · switch vehicle</td></tr>
+<tr><td>LB</td><td>L1</td><td>Swap battery module</td></tr>
+<tr><td>D-pad ▲ ▼ ◀ ▶</td><td>D-pad</td><td>Autonomous mission · uplink · camera mode</td></tr>
+<tr><td>☰ · ⧉ · R3</td><td>OPTIONS · SHARE/CREATE · R3</td><td>Pause · help · zoom</td></tr>
+</table></div>
+<h3>Tablet and phone</h3>
+<p>On a touch screen, direction and altitude buttons appear at the lower left of the scene. Drag with one finger to rotate the camera and pinch to zoom.</p>
+
+<h2 id="en-rules">4. Mission rules</h2>
+<ul>
+<li><b>Take-off clearance:</b> battery above 25%, air dense enough (required rotor speed must not exceed 2700 rpm) and no strong dust storm. In the afternoon the air warms and thins, so take-off gets harder; Ingenuity flew in the morning too.</li>
+<li><b>Energy:</b> the helicopter battery holds 44.4 Wh at 25 °C and less when cold. Flight draws roughly 330–440 W. The autopilot keeps 30% of capacity in reserve.</li>
+<li><b>Charging and swaps:</b> docked, the rover charges the helicopter inductively at 100 W; no charging below 0 °C in the battery bay. <kbd>B</kbd> fits the fullest spare module; it takes 2.5 minutes and is refused below −20 °C.</li>
+<li><b>Rover:</b> top speed 0.10 m/s; it cannot pass rocks taller than 0.30 m or slopes steeper than 30°. Wheels slip in sand and dust and the rover slows; on steep soft ground it can get stuck.</li>
+<li><b>Time warp</b> (<kbd>X</kbd>, ×5 / ×20 / ×60) works only while the helicopter is docked. Use it for long drives and charging.</li>
+<li><b>Link:</b> if the helicopter loses line of sight or range to the rover, it returns on its own after 2 seconds.</li>
+<li><b>Damage:</b> hitting rocks and landing harder than 1 m/s reduce durability. If the battery empties in flight the helicopter falls and the mission fails.</li>
+<li><b>Dust storms</b> cut solar power, push the helicopter with wind and add noise to scans. The autopilot returns to the rover in a storm.</li>
+</ul>
+
+<h2 id="en-physics">5. The physics behind it</h2>
+<div class="tablo-sar"><table>
+<tr><th>Topic</th><th>Model</th><th>Basis</th></tr>
+<tr><td>Rotor power</td><td>Momentum theory: <code>P = T(Vc/2 + √((Vc/2)² + vh²))/FM + ½ρfV³</code>, FM = 0.27</td><td>Calibrated to Ingenuity's ≈350 W in flight (NASA/JPL press kit)</td></tr>
+<tr><td>Air density</td><td><code>ρ = p / (R·T)</code>, R = 191.8 J/(kg·K)</td><td>NASA Mars Fact Sheet; Perseverance MEDA measurements</td></tr>
+<tr><td>Rotor limit</td><td>Maximum thrust ∝ ρ·Ω²; 2700 rpm limit, 510 W peak power</td><td>NASA paper on the Ingenuity battery and power system</td></tr>
+<tr><td>Battery</td><td>6 Li-ion cells; 44.4 Wh at 25 °C, 38.8 Wh at 0 °C</td><td>Same paper</td></tr>
+<tr><td>Solar panel</td><td>Sun elevation + dust opacity (Beer–Lambert, <code>e^(−τ/μ)</code>)</td><td>MEDA opacity measurements</td></tr>
+<tr><td>Soil</td><td>5 classes (regolith, sand, bedrock, gravel, dust). Sinkage: Bekker; traction: Mohr–Coulomb + Janosi–Hanamoto</td><td>Values and sources in <code>assets/terrain/terrain_classes.json</code></td></tr>
+<tr><td>Vehicle dimensions</td><td>Rover 45 kg, wheels Ø0.26 m; helicopter 1.8 kg, rotor Ø1.2 m</td><td>The team's architecture drawings (<code>modeller.json</code>)</td></tr>
+</table></div>
+<p class="not">Numbers that are game values rather than measurements are marked “VARSAYIM” (assumption) in the code: storm schedule, Earth link rate, inductive charging efficiency, the wheel-grouser factor and similar.</p>
+
+<h2 id="en-ai">6. AI and live data</h2>
+<h3>Machine learning: the energy model</h3>
+<p>In flight the helicopter measures its own power draw five times a second and updates a six-feature linear model (online RLS: speed, climb, descent, air density, wind). After 120 samples the model counts as ready. Before every target the autopilot uses it to estimate the energy for <i>go + scan + return</i>; if that does not fit in the usable energy, it returns to the rover. Until the model is ready the same estimate comes from the physics formula and the log says “physics fallback”. What it learns is kept in the browser and continues next session.</p>
+<h3>Deep learning: the rock classifier</h3>
+<p>A small neural network (8-16-16-3) is trained in the browser when the game starts; it takes about a second. On each scan it classifies an eight-band spectrum as hematite, sedimentary or basalt and reports its confidence. Scans from high up or in a storm are noisier and the network can be wrong; the rover's close-up measurement is cleaner. <b>The training spectra are representative, not measured data.</b></p>
+<h3>Live data</h3>
+<p>The <b>⟳ LIVE DATA</b> button reads NASA's Perseverance MEDA weather feed (pressure, minimum and maximum temperature, sky condition). The feed is not always current; the game states which sol and date it is using. If the feed cannot be reached, the published MEDA range is used and the screen says “offline model”. No data is invented.</p>
+
+<h2 id="en-original">7. What makes this game original?</h2>
+<ol>
+<li><b>The numbers come from the mission.</b> Rotor power, battery capacity, rotor-speed limit and atmosphere values rest on measurements published for Ingenuity and Perseverance. The player sees Wh, W and rpm rather than “battery 40%”, and decides with the quantities an engineer watches.</li>
+<li><b>Rover and helicopter are one system.</b> The helicopter takes off from a pad on the rover's back, charges there inductively, has its battery swapped there and relays its data through the rover. That architecture is the team's own design, and the dimensions in the game are read from the team's drawings.</li>
+<li><b>The AI is part of the decision, not decoration.</b> A model that learns in flight makes the autopilot's continue-or-return call; the numbers behind each call are shown in the log, and it can be wrong.</li>
+<li><b>Mars weather changes the game.</b> MEDA data sets the density, and density sets rotor power and take-off clearance.</li>
+<li><b>The ground comes with physics.</b> Each of the five soil classes sets both the look and how wheels slip and sink; the same class file is used by the training pipeline that classifies ground photographs.</li>
+<li><b>Everything is open to inspection.</b> No external libraries: the 3D engine, physics, neural network and learning algorithm are readable JavaScript in the repository, checked by automated tests. Assumptions are labelled.</li>
+<li><b>The game produces data.</b> CSV telemetry and the JSON mission report are datasets students can analyse and build their own models on.</li>
+<li><b>Accessible.</b> Turkish and English; keyboard, Xbox and PlayStation controllers, touch screens; nothing to install.</li>
+</ol>
+
+<h2 id="en-ml">8. What machine learning could do next</h2>
+<div class="tablo-sar"><table>
+<tr><th>Idea</th><th>Data</th><th>Difficulty</th></tr>
+<tr><td><b>Terrain classification (CNN)</b>: assigns the ground in the rover camera to one of five classes; the game picks texture and physics from it. The training pipeline is ready in <code>ml/</code>.</td><td>AI4Mars, Curiosity and HiRISE labelled sets (JPL)</td><td>Medium</td></tr>
+<tr><td><b>Slip prediction</b>: predicts wheel slip from soil type and slope so the rover picks a route where it will not get stuck.</td><td>The game's CSV telemetry</td><td>Easy</td></tr>
+<tr><td><b>Weather forecasting</b>: predicts next sol's pressure and temperature from earlier sols; take-off time is planned from it.</td><td>MEDA sol records</td><td>Medium</td></tr>
+<tr><td><b>Rock classification on real spectra</b>: replaces the representative spectra with measured ones.</td><td>Mastcam-Z / SuperCam open data</td><td>Medium–hard</td></tr>
+<tr><td><b>Reinforcement learning</b>: landing on the pad in wind, or the least-energy route through the three targets.</td><td>The game itself (simulation)</td><td>Hard</td></tr>
+<tr><td><b>Anomaly detection</b>: spots unusual power or temperature behaviour in telemetry and warns the pilot.</td><td>CSV telemetry</td><td>Easy–medium</td></tr>
+<tr><td><b>A bigger energy model</b>: a small neural network instead of the linear model, compared on the same flight data.</td><td>CSV telemetry</td><td>Easy</td></tr>
+</table></div>
+<p>Two are the best starting points: <b>slip prediction</b> (the data is ready and the result shows up in the game at once) and <b>terrain classification</b> (the pipeline is ready and uses real NASA data).</p>
+
+<h2 id="en-limits">9. Limits</h2>
+<ul>
+<li>An educational simulation; not flight software or an engineering verification tool.</li>
+<li>The terrain is fictional; it is not built from Jezero's real elevation data.</li>
+<li>Rock spectra are representative. Ground textures are procedural until photo textures are produced.</li>
+<li>The rotor model is momentum theory, without blade-element or flow detail. Terramechanics is quasi-static.</li>
+<li>The live weather feed can lag.</li>
+</ul>
+
+<h2 id="en-trouble">10. Troubleshooting</h2>
+<ul>
+<li><b>The game is slow:</b> press <kbd>K</kbd> for LOW quality or add <code>?kalite=low</code> to the address.</li>
+<li><b>“WebGL2 not found”:</b> use a current Chrome, Edge or Firefox and turn on hardware acceleration.</li>
+<li><b>Controller not detected:</b> press a button on it while the game tab is open.</li>
+<li><b>Helicopter will not take off:</b> the on-screen message gives the reason (battery, air density, storm, battery swap).</li>
+<li><b>Rover will not move:</b> a rock taller than 0.30 m or a steep slope is ahead, or it is stuck; reverse and change direction.</li>
+<li><b>Language:</b> TR / EN at the top right, or add <code>?dil=en</code> to the address.</li>
+</ul>
+</article>
+</main>
+<script>
+const anahtar='osiriszk3d:dil';
+function sec(d){document.documentElement.lang=d;document.querySelectorAll('[data-sec]').forEach(b=>b.classList.toggle('on',b.dataset.sec===d));
+  document.querySelector('header a span').textContent=d==='tr'?'OYUNA DÖN':'BACK TO GAME';try{localStorage.setItem(anahtar,d);}catch{}}
+let d=new URLSearchParams(location.search).get('dil');
+try{d=d||localStorage.getItem(anahtar);}catch{}
+sec(d==='en'||(!d&&!/^tr/i.test(navigator.language||'tr'))?'en':'tr');
+document.querySelectorAll('[data-sec]').forEach(b=>b.addEventListener('click',()=>sec(b.dataset.sec)));
+</script>
+</body>
+</html>

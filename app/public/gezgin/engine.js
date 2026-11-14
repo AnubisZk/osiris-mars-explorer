@@ -33,7 +33,12 @@ const hash=n=>{const q=Math.sin(n*127.1+18.13)*43758.5453;return q-Math.floor(q)
 export function noise2(x,z){const xi=Math.floor(x),zi=Math.floor(z),a=x-xi,b=z-zi,u=a*a*(3-2*a),v=b*b*(3-2*b);return lerp(lerp(hash(xi+zi*123.45),hash(xi+1+zi*123.45),u),lerp(hash(xi+(zi+1)*123.45),hash(xi+1+(zi+1)*123.45),u),v)*2-1;}
 export function fbm(x,z){return .53*noise2(x,z)+.27*noise2(x*2.06,z*2.06)+.14*noise2(x*4.2,z*4.2)+.06*noise2(x*8.6,z*8.6);}
 function crater(x,z,cx,cz,r,depth){const d=Math.hypot(x-cx,z-cz)/r;return -depth*Math.exp(-d*d*5.6)+depth*.42*Math.exp(-Math.pow((d-1.08)/.17,2));}
-export function terrainHeight(x,z){return -.38 +1.05*fbm(x*.065,z*.065)+.27*fbm(x*.24,z*.24) + crater(x,z,-42,-52,14,3.3)+crater(x,z,37,-5,21,2.8)+crater(x,z,-65,44,18,3.8) - .55*Math.exp(-x*x/420);}
+// Uzak katmanlı tepeler (butte/mesa) — Gale kraterindeki tortul katmanlar gibi basamaklı yamaçlar. [x, z, yarıçap, yükseklik]
+export const MESAS=[[-78,-62,14,6.5],[84,-48,17,8.0],[62,74,12,5.5],[-88,30,15,7.2],[8,-95,19,9.0],[-40,90,11,5.0]];
+function mesa(x,z,mx,mz,r,h){const d=Math.hypot(x-mx,z-mz)+fbm(x*.09,z*.09)*4.2;if(d>r+8)return 0;const t=clamp((r+7-d)/7,0,1),s=t*t*(3-2*t),v=s*h/1.15,i=Math.floor(v);return 1.15*(i+Math.pow(v-i,3));}
+export function terrainHeight(x,z){let h=-.38 +1.05*fbm(x*.065,z*.065)+.27*fbm(x*.24,z*.24) + crater(x,z,-42,-52,14,3.3)+crater(x,z,37,-5,21,2.8)+crater(x,z,-65,44,18,3.8) - .55*Math.exp(-x*x/420);
+ if(x*x+z*z>2500)for(const m of MESAS)h+=mesa(x,z,m[0],m[1],m[2],m[3]);return h;}
+export const CRATERS=[[-42,-52,14],[37,-5,21],[-65,44,18]];
 export function gradientTerrain(x,z){const h=terrainHeight(x,z);const dx=(terrainHeight(x+.2,z)-terrainHeight(x-.2,z))/.4,dz=(terrainHeight(x,z+.2)-terrainHeight(x,z-.2))/.4;return normalize([-dx,1,-dz]);}
 export class MeshBuilder {
   constructor(){this.arr=[];this.stack=[I()];}
@@ -103,15 +108,98 @@ float disk=1.-smoothstep(.036,.040,sun);c+=disk*vec3(.92,.71,.47)*.25;
 outColor=vec4(c,1.);}`;
 function compile(gl,type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
 function program(gl,vs,fs){const p=gl.createProgram();gl.attachShader(p,compile(gl,gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl,gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));return p;}
+/* ── Arazi gölgelendiricisi (v2.4) ──
+   5 zemin malzemesi tek bir doku dizisinde (TEXTURE_2D_ARRAY): 0 regolit, 1 kum, 2 ana kaya, 3 çakıl, 4 toz.
+   Köşe ağırlıkları (kum, kaya, çakıl, toz; regolit = kalan) + doku alfa kanalındaki yükseklik ile karıştırılır.
+   uLevel: 0 Düşük (tek ölçek, doğrusal karışım) · 1 Orta (iki ölçek, yükseklik karışımı, kabartma) · 2 Yüksek (+ mikro detay, güçlü kabartma). */
+const terrainVertex=`#version 300 es
+precision highp float;
+layout(location=0) in vec3 aPos;
+layout(location=1) in vec3 aNormal;
+layout(location=2) in vec3 aColor;
+layout(location=3) in vec4 aWeights;
+uniform mat4 uViewProj;
+out vec3 vWorld,vNormal,vColor;out vec4 vW;
+void main(){vWorld=aPos;vNormal=aNormal;vColor=aColor;vW=aWeights;gl_Position=uViewProj*vec4(aPos,1.0);}
+`;
+const terrainFragment=`#version 300 es
+precision highp float;precision highp sampler2DArray;
+in vec3 vWorld,vNormal,vColor;in vec4 vW;
+uniform vec3 uEye,uSun,uFogColor;uniform float uFogDensity;
+uniform sampler2DArray uMat;uniform sampler2D uMacro;
+uniform float uTile[5];uniform int uLevel;uniform float uMapHalf;uniform float uMacroAmt;uniform float uBump;
+out vec4 outColor;
+float hash(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,21.871)))*43758.5453);}
+vec4 sampleMat(int i,vec2 p){
+ vec4 a=texture(uMat,vec3(p/uTile[i],float(i)));
+ if(uLevel>0){vec4 b=texture(uMat,vec3(p/(uTile[i]*5.3)+vec2(.37,.61),float(i)));a.rgb=mix(a.rgb,a.rgb*(b.rgb/max(vec3(.05),vec3(dot(b.rgb,vec3(.333))))),.33);a.a=mix(a.a,b.a,.25);}
+ return a;}
+void main(){
+ float w[5];w[1]=vW.x;w[2]=vW.y;w[3]=vW.z;w[4]=vW.w;w[0]=max(0.0,1.0-vW.x-vW.y-vW.z-vW.w);
+ vec2 p=vWorld.xz;vec4 s[5];float m=-1.0;
+ for(int i=0;i<5;i++){if(w[i]>.004){s[i]=sampleMat(i,p);}else{s[i]=vec4(0.0);}}
+ // Yükseklik tabanlı karışım: kum dalgacıklarının arasından çakıl, kaya çatlaklarına toz dolar.
+ float bw[5];float tot=0.0;
+ if(uLevel==0){for(int i=0;i<5;i++){bw[i]=w[i];tot+=bw[i];}}
+ else{for(int i=0;i<5;i++){if(w[i]>.004)m=max(m,w[i]+s[i].a*.55);}
+  for(int i=0;i<5;i++){bw[i]=w[i]>.004?max(0.0,w[i]+s[i].a*.55-m+.22):0.0;tot+=bw[i];}}
+ vec3 albedo=vec3(0.0);float H=0.0;
+ for(int i=0;i<5;i++){float k=bw[i]/max(tot,1e-4);albedo+=s[i].rgb*k;H+=s[i].a*k;}
+ float dist=length(vWorld-uEye);
+ if(uLevel==2){float near=1.0-smoothstep(4.0,22.0,dist);
+  vec4 micro=texture(uMat,vec3(p/(uTile[0]*.21),0.0));albedo*=mix(1.0,.82+.36*micro.a,near*.6);H+=micro.a*.25*near;}
+ // Yörünge (HiRISE) makro albedosu: uzak arazide parlak/koyu bölgeler
+ float macro=texture(uMacro,(p+uMapHalf)/(2.0*uMapHalf)).r;
+ albedo*=mix(1.0,.62+.76*macro,uMacroAmt);
+ albedo*=vColor;
+ vec3 n=normalize(vNormal);
+ if(uLevel>0){vec3 dpdx=dFdx(vWorld),dpdy=dFdy(vWorld);float dhdx=dFdx(H),dhdy=dFdy(H);
+  vec3 r1=cross(dpdy,n),r2=cross(n,dpdx);float det=dot(dpdx,r1);
+  vec3 grad=sign(det)*(dhdx*r1+dhdy*r2);float fade=1.0-smoothstep(10.0,45.0,dist);
+  n=normalize(abs(det)*n-grad*uBump*fade);}
+ vec3 sun=normalize(uSun);
+ float diffuse=max(dot(n,sun),0.0);float sky=.5+.5*n.y;float occ=clamp(.72+.28*sky,0.0,1.0)*mix(.82,1.04,H);
+ float grain=(hash(floor(vWorld*9.7))-.5)*(uLevel==0?.05:.02);
+ vec3 base=albedo*(.36+.70*diffuse+.17*sky)*occ+grain;
+ vec3 viewDir=normalize(uEye-vWorld);float spec=pow(max(dot(reflect(-sun,n),viewDir),0.),24.)*.05*(1.0-H*.5);
+ base+=spec*vec3(1.,.83,.64);
+ float haze=clamp(1.0-exp(-dist*dist*uFogDensity*uFogDensity),0.0,.91);
+ base=mix(base,uFogColor,haze);
+ base=pow(max(base,vec3(0.0)),vec3(.88));
+ outColor=vec4(base,1.0);
+}`;
 export class Renderer {
   constructor(canvas){this.canvas=canvas;this.gl=canvas.getContext('webgl2',{alpha:false,antialias:true,powerPreference:'high-performance'});if(!this.gl)throw new Error('WebGL2 unavailable');const g=this.gl;
   this.p=program(g,vertex,fragment);this.skyP=program(g,skyVert,skyFrag);this.u={};for(const name of ['uModel','uViewProj','uEye','uSun','uFogColor','uFogDensity','uOpacity','uGlow','uTime'])this.u[name]=g.getUniformLocation(this.p,name);
+  this.tP=program(g,terrainVertex,terrainFragment);this.tu={};for(const name of ['uViewProj','uEye','uSun','uFogColor','uFogDensity','uMat','uMacro','uTile','uLevel','uMapHalf','uMacroAmt','uBump'])this.tu[name]=g.getUniformLocation(this.tP,name);
   this.skyVao=g.createVertexArray();g.bindVertexArray(this.skyVao);const sky=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,sky);g.bufferData(g.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),g.STATIC_DRAW);g.enableVertexAttribArray(0);g.vertexAttribPointer(0,2,g.FLOAT,false,0,0);g.bindVertexArray(null);
-  g.enable(g.DEPTH_TEST);g.depthFunc(g.LEQUAL);g.enable(g.BLEND);g.blendFunc(g.SRC_ALPHA,g.ONE_MINUS_SRC_ALPHA);this.meshes=[];this.time=0;this.evening=0;this.fog=.006;this.eye=[0,8,20];this.viewProj=I();}
-  upload(data){const g=this.gl;const vao=g.createVertexArray();g.bindVertexArray(vao);const buffer=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,buffer);g.bufferData(g.ARRAY_BUFFER,data,g.STATIC_DRAW);const stride=9*4;for(let i=0;i<3;i++){g.enableVertexAttribArray(i);g.vertexAttribPointer(i,3,g.FLOAT,false,stride,i*3*4);}g.bindVertexArray(null);const mesh={vao,count:data.length/9,buffer};this.meshes.push(mesh);return mesh;}
-  update(mesh,data){const g=this.gl;g.bindVertexArray(null);g.bindBuffer(g.ARRAY_BUFFER,mesh.buffer);g.bufferData(g.ARRAY_BUFFER,data,g.DYNAMIC_DRAW);mesh.count=data.length/9;return mesh;}
-  resize(){const rect=this.canvas.getBoundingClientRect();const pixelRatio=Math.min(window.devicePixelRatio||1,1.45);const w=Math.max(1,Math.floor(rect.width*pixelRatio)),h=Math.max(1,Math.floor(rect.height*pixelRatio));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}this.gl.viewport(0,0,w,h);return {width:rect.width,height:rect.height,aspect:w/h};}
-  begin(eye,target,time){const g=this.gl;this.time=time;this.eye=eye;const r=this.resize();this.viewProj=matmul(perspective(Math.PI/3.7,r.aspect,.14,550),lookAt(eye,target));g.disable(g.DEPTH_TEST);g.depthMask(false);g.useProgram(this.skyP);g.bindVertexArray(this.skyVao);g.uniform1f(g.getUniformLocation(this.skyP,'uTime'),time);g.uniform1f(g.getUniformLocation(this.skyP,'uEvening'),this.evening);g.drawArrays(g.TRIANGLES,0,6);g.bindVertexArray(null);g.enable(g.DEPTH_TEST);g.depthMask(true);g.clear(g.DEPTH_BUFFER_BIT);g.useProgram(this.p);g.uniformMatrix4fv(this.u.uViewProj,false,new Float32Array(this.viewProj));g.uniform3fv(this.u.uEye,new Float32Array(eye));g.uniform3fv(this.u.uSun,new Float32Array([-.48,.92-this.evening*.69,-.3]));g.uniform3fv(this.u.uFogColor,new Float32Array([.72-.11*this.evening,.43-.12*this.evening,.32-.08*this.evening]));g.uniform1f(this.u.uFogDensity,this.fog);g.uniform1f(this.u.uTime,time);}
+  this.aniso=g.getExtension('EXT_texture_filter_anisotropic');this.maxAniso=this.aniso?g.getParameter(this.aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT):1;
+  g.enable(g.DEPTH_TEST);g.depthFunc(g.LEQUAL);g.enable(g.BLEND);g.blendFunc(g.SRC_ALPHA,g.ONE_MINUS_SRC_ALPHA);this.meshes=[];this.time=0;this.evening=0;this.fog=.006;this.eye=[0,8,20];this.viewProj=I();this.pixelRatioCap=1.45;this.sun=[-.48,.92,-.3];this.fogColor=[.72,.43,.32];}
+  /** sizes: köşe başına öznitelik boyutları; varsayılan konum(3) normal(3) renk(3). Arazi: [3,3,3,4]. */
+  upload(data,sizes=[3,3,3]){const g=this.gl;const vao=g.createVertexArray();g.bindVertexArray(vao);const buffer=g.createBuffer();g.bindBuffer(g.ARRAY_BUFFER,buffer);g.bufferData(g.ARRAY_BUFFER,data,g.STATIC_DRAW);const stride=sizes.reduce((a,b)=>a+b,0);let off=0;sizes.forEach((n,i)=>{g.enableVertexAttribArray(i);g.vertexAttribPointer(i,n,g.FLOAT,false,stride*4,off*4);off+=n;});g.bindVertexArray(null);const mesh={vao,count:data.length/stride,buffer,stride};this.meshes.push(mesh);return mesh;}
+  update(mesh,data){const g=this.gl;g.bindVertexArray(null);g.bindBuffer(g.ARRAY_BUFFER,mesh.buffer);g.bufferData(g.ARRAY_BUFFER,data,g.DYNAMIC_DRAW);mesh.count=data.length/(mesh.stride||9);return mesh;}
+  dispose(mesh){if(!mesh)return;const g=this.gl;g.deleteBuffer(mesh.buffer);g.deleteVertexArray(mesh.vao);mesh.count=0;this.meshes=this.meshes.filter(m=>m!==mesh);}
+  /** layers: Uint8Array RGBA (size×size) dizisi — RGB albedo, A yükseklik. */
+  createTextureArray(layers,size,aniso=4){const g=this.gl,t=g.createTexture();g.bindTexture(g.TEXTURE_2D_ARRAY,t);
+   g.texImage3D(g.TEXTURE_2D_ARRAY,0,g.RGBA8,size,size,layers.length,0,g.RGBA,g.UNSIGNED_BYTE,null);
+   layers.forEach((d,i)=>g.texSubImage3D(g.TEXTURE_2D_ARRAY,0,0,0,i,size,size,1,g.RGBA,g.UNSIGNED_BYTE,d));
+   g.texParameteri(g.TEXTURE_2D_ARRAY,g.TEXTURE_WRAP_S,g.REPEAT);g.texParameteri(g.TEXTURE_2D_ARRAY,g.TEXTURE_WRAP_T,g.REPEAT);
+   g.texParameteri(g.TEXTURE_2D_ARRAY,g.TEXTURE_MIN_FILTER,g.LINEAR_MIPMAP_LINEAR);g.texParameteri(g.TEXTURE_2D_ARRAY,g.TEXTURE_MAG_FILTER,g.LINEAR);
+   if(this.aniso)g.texParameterf(g.TEXTURE_2D_ARRAY,this.aniso.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(aniso,this.maxAniso));
+   g.generateMipmap(g.TEXTURE_2D_ARRAY);g.bindTexture(g.TEXTURE_2D_ARRAY,null);return t;}
+  createTexture2D(data,size){const g=this.gl,t=g.createTexture();g.bindTexture(g.TEXTURE_2D,t);g.texImage2D(g.TEXTURE_2D,0,g.RGBA8,size,size,0,g.RGBA,g.UNSIGNED_BYTE,data);
+   g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);
+   g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR_MIPMAP_LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);g.generateMipmap(g.TEXTURE_2D);g.bindTexture(g.TEXTURE_2D,null);return t;}
+  deleteTexture(t){if(t)this.gl.deleteTexture(t);}
+  resize(){const rect=this.canvas.getBoundingClientRect();const pixelRatio=Math.min(window.devicePixelRatio||1,this.pixelRatioCap);const w=Math.max(1,Math.floor(rect.width*pixelRatio)),h=Math.max(1,Math.floor(rect.height*pixelRatio));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}this.gl.viewport(0,0,w,h);return {width:rect.width,height:rect.height,aspect:w/h};}
+  begin(eye,target,time){const g=this.gl;this.time=time;this.eye=eye;const r=this.resize();this.viewProj=matmul(perspective(Math.PI/3.7,r.aspect,.14,550),lookAt(eye,target));this.sun=[-.48,.92-this.evening*.69,-.3];this.fogColor=[.72-.11*this.evening,.43-.12*this.evening,.32-.08*this.evening];g.disable(g.DEPTH_TEST);g.depthMask(false);g.useProgram(this.skyP);g.bindVertexArray(this.skyVao);g.uniform1f(g.getUniformLocation(this.skyP,'uTime'),time);g.uniform1f(g.getUniformLocation(this.skyP,'uEvening'),this.evening);g.drawArrays(g.TRIANGLES,0,6);g.bindVertexArray(null);g.enable(g.DEPTH_TEST);g.depthMask(true);g.clear(g.DEPTH_BUFFER_BIT);g.useProgram(this.p);g.uniformMatrix4fv(this.u.uViewProj,false,new Float32Array(this.viewProj));g.uniform3fv(this.u.uEye,new Float32Array(eye));g.uniform3fv(this.u.uSun,new Float32Array(this.sun));g.uniform3fv(this.u.uFogColor,new Float32Array(this.fogColor));g.uniform1f(this.u.uFogDensity,this.fog);g.uniform1f(this.u.uTime,time);}
+  /** opts: {matTex, macroTex, tiles:[5], level:0|1|2, mapHalf, macroAmt, bump} */
+  drawTerrain(mesh,opts){if(!mesh||!mesh.count)return;const g=this.gl,u=this.tu;g.useProgram(this.tP);
+   g.uniformMatrix4fv(u.uViewProj,false,new Float32Array(this.viewProj));g.uniform3fv(u.uEye,new Float32Array(this.eye));g.uniform3fv(u.uSun,new Float32Array(this.sun));g.uniform3fv(u.uFogColor,new Float32Array(this.fogColor));g.uniform1f(u.uFogDensity,this.fog);
+   g.activeTexture(g.TEXTURE0);g.bindTexture(g.TEXTURE_2D_ARRAY,opts.matTex);g.uniform1i(u.uMat,0);
+   g.activeTexture(g.TEXTURE1);g.bindTexture(g.TEXTURE_2D,opts.macroTex);g.uniform1i(u.uMacro,1);g.activeTexture(g.TEXTURE0);
+   g.uniform1fv(u.uTile,new Float32Array(opts.tiles));g.uniform1i(u.uLevel,opts.level);g.uniform1f(u.uMapHalf,opts.mapHalf);g.uniform1f(u.uMacroAmt,opts.macroAmt);g.uniform1f(u.uBump,opts.bump);
+   g.bindVertexArray(mesh.vao);g.drawArrays(g.TRIANGLES,0,mesh.count);g.bindVertexArray(null);g.useProgram(this.p);}
   draw(mesh,model=I(),opacity=1,glow=0){if(!mesh||!mesh.count)return;const g=this.gl;g.useProgram(this.p);g.bindVertexArray(mesh.vao);g.uniformMatrix4fv(this.u.uModel,false,new Float32Array(model));g.uniform1f(this.u.uOpacity,opacity);g.uniform1f(this.u.uGlow,glow);if(opacity<1)g.depthMask(false);g.drawArrays(g.TRIANGLES,0,mesh.count);if(opacity<1)g.depthMask(true);}
   project(p){const m=this.viewProj,x=p[0],y=p[1],z=p[2],cx=m[0]*x+m[4]*y+m[8]*z+m[12],cy=m[1]*x+m[5]*y+m[9]*z+m[13],cz=m[2]*x+m[6]*y+m[10]*z+m[14],w=m[3]*x+m[7]*y+m[11]*z+m[15];if(w<=0.05)return null;const s=this.canvas.getBoundingClientRect();return {x:(cx/w*.5+.5)*s.width,y:(1-(cy/w*.5+.5))*s.height,visible:Math.abs(cx/w)<1.1&&Math.abs(cy/w)<1.1&&cz/w<1};}
 }

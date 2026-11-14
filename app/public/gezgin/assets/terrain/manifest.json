@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "source": "procedural",
+  "note": "Fotoğraf dokuları henüz üretilmedi. ml/scripts/05_build_game_assets.py çalıştırıldığında bu dosya otomatik yeniden yazılır.",
+  "quality": {},
+  "macro": null,
+  "materialMap": null
+}
