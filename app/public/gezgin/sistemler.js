@@ -46,8 +46,45 @@ export function varsayilanHava() {
     kaynak: 'cevrimdisi', etiket: 'Yayımlanmış MEDA aralığı (çevrimdışı)' };
 }
 
-/** Yerel güneş saatine (0–24) göre hava sıcaklığı: en düşük ~05:30, en yüksek ~14:00 (MEDA günlük eğrisi biçiminde). */
+
+// ------------------------------------------------------------------ MEDA ÖLÇÜMLERİNDEN EĞİTİLEN GÜN İÇİ MODEL
+/**
+ * Perseverance MEDA türetilmiş verisi (NASA PDS Atmospheres), sol 105–107. Ölçümler 10 dakikalık
+ * ortalamalara indirildi; sol 105–106 eğitim, sol 107 test. Model: f(t) = a0 + Σ ak·cos(2πkt/24) + bk·sin(2πkt/24),
+ * t = yerel gerçek güneş saati (LTST), en küçük kareler.
+ *  · Basınç: DER_PS → PRESSURE (Pa), 4 harmonik · test RMSE 0,90 Pa, R² 0,963
+ *  · Sıcaklık: DER_RHS → HUMIDITY_LOCAL_TEMP (K), 4 harmonik · test RMSE 2,68 K, R² 0,985
+ *      YAKLAŞIK: bu, nem sensörünün kendi sıcaklığıdır; hava sıcaklığı (ATS) dosyası bu veri setinde yok.
+ *  · Rüzgâr: DER_WS → HORIZONTAL_WIND_SPEED (m/s), yalnız ROVER_STILL = 1, 1 harmonik · test R² 0,35
+ *      (2+ harmonikte test R² ≈ 0 ve altı: aşırı öğrenme). Rüzgârın gün içi deseni zayıf.
+ */
+export const MEDA_MODEL = {
+  soller: [105, 106, 107], egitim: [105, 106], test: 107,
+  basincPa: [761.0512, 1.2835, 1.5681, -3.5485, -3.242, 2.2168, -0.837, -0.1808, 1.6427],
+  sicaklikK: [224.0575, -24.9557, -14.5921, 3.4185, -0.0614, 3.5286, 4.1753, -1.8759, -0.1848],
+  ruzgarMs: [3.076, -0.4315, -0.7504],
+  test: { basincRmsePa: 0.90, basincR2: 0.963, sicaklikRmseK: 2.68, sicaklikR2: 0.985, ruzgarR2: 0.345 },
+};
+/** Harmonik seri: w = [a0, a1, b1, a2, b2, ...], saat 0–24 */
+export function harmonik(w, saat) {
+  let y = w[0];
+  for (let k = 1; 2 * k < w.length; k++) { const a = 2 * Math.PI * k * saat / 24; y += w[2 * k - 1] * Math.cos(a) + w[2 * k] * Math.sin(a); }
+  return y;
+}
+/** Varsayılan hava: sol 105–107 MEDA ölçümlerinden eğitilen model (Jezero, kuzey ilkbaharı). */
+export function medaHava() {
+  const M = MEDA_MODEL;
+  return { basincPa: Math.round(M.basincPa[0]), minC: -78, maxC: -21, opaklik: 0.6, ls: 55, model: M,
+    kaynak: 'meda-model', etiket: 'MEDA ölçümlerinden eğitilen model · sol 105–107' };
+}
+/** O saatteki basınç (Pa): model varsa gün içi eğri, yoksa sabit değer. */
+export function basincPa(lst, hava) { return hava.model ? harmonik(hava.model.basincPa, lst) : hava.basincPa; }
+/** O saatteki ortalama yüzey rüzgârı (m/s): yalnız MEDA modelinde. */
+export function zeminRuzgari(lst, hava) { return hava.model ? Math.max(0, harmonik(hava.model.ruzgarMs, lst)) : 0; }
+
+/** Yerel güneş saatine (0–24) göre hava sıcaklığı. MEDA modeli varsa ölçülen eğri; yoksa en düşük ~05:30, en yüksek ~14:00 olan yaklaşık eğri. */
 export function havaSicakligiC(lst, hava) {
+  if (hava.model) return harmonik(hava.model.sicaklikK, lst) - 273.15;
   const enDusuk = 5.5, enYuksek = 14;
   let t;
   if (lst >= enDusuk && lst <= enYuksek) t = (1 - Math.cos(Math.PI * (lst - enDusuk) / (enYuksek - enDusuk))) / 2;

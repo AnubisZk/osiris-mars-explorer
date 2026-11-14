@@ -110,7 +110,7 @@ test('MEDA akışı ayrıştırılır; ulaşılamazsa veri uydurulmaz', async ()
     { sol: '1001', pressure: '--', min_temp: '-81', max_temp: '-21' }] });
   assert.equal(s.sol, 1000); assert.equal(s.p, 690);
   const h = await V.canliHavaAl({ fetchImpl: async () => { throw new Error('ağ yok'); }, zamanAsimi: 50 });
-  assert.equal(h.kaynak, 'cevrimdisi'); assert.ok(h.hata);
+  assert.equal(h.kaynak, 'meda-model'); assert.ok(h.hata);
   const c = await V.canliHavaAl({ fetchImpl: async () => ({ ok: true, json: async () => ({ sols: [{ sol: 5, pressure: 700, min_temp: -70, max_temp: -10 }] }) }) });
   assert.equal(c.kaynak, 'canli'); assert.equal(c.basincPa, 700);
 });
@@ -128,4 +128,19 @@ test('terramekanik: kum ve tozda kayma regolitten büyük, ana kayada en küçü
   assert.ok(sur(4, 29).saplandi && !sur(0, 29).saplandi);
   assert.equal(sur(0, -10).kayma, 0);            // yokuş aşağı: kayma yok
   assert.equal(S.zeminSurusu({ zeminler: [TM.blendSoil([1, 0, 0, 0, 0], ZEMIN.classes)], kutleKg: 45, tekerHizi: 0, capM: 0.26, genislikM: 0.08 }).hiz, 0);
+});
+
+test('MEDA modeli (sol 105–107): ölçülen gün içi döngü ve Ingenuity gücü', () => {
+  const h = S.medaHava();
+  assert.equal(S.harmonik([5, 0, 0], 13), 5);
+  const sabah = S.havaSicakligiC(5, h), ogle = S.havaSicakligiC(14, h);
+  assert.ok(sabah < -65 && ogle > -26 && ogle < -15, `sıcaklık ${sabah} / ${ogle}`);
+  for (let t = 0; t < 24; t += 0.5) {
+    const p = S.basincPa(t, h);
+    assert.ok(p > 750 && p < 775, `basınç ${p} @${t}`);
+    const P = S.rotorGucu({ itkiN: W, rho: S.yogunluk(p, S.havaSicakligiC(t, h)), rotorCapM: CAP });
+    assert.ok(P > 300 && P < 360, `güç ${P} @${t}`);
+  }
+  assert.ok(S.zeminRuzgari(15, h) > S.zeminRuzgari(3, h));
+  assert.ok(S.MEDA_MODEL.test.basincR2 > 0.9 && S.MEDA_MODEL.test.sicaklikR2 > 0.9);
 });

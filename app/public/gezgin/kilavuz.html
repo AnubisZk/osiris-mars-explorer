@@ -121,7 +121,7 @@ nav{columns:2;font-size:14px;margin:1em 0}nav a{color:#9fd0e0;text-decoration:no
 <h3>Derin öğrenme: kaya sınıflandırıcı</h3>
 <p>Oyun açılırken tarayıcıda küçük bir sinir ağı (8-16-16-3) eğitilir; yaklaşık bir saniye sürer. Her taramada sekiz bantlı bir spektrumu hematit, tortul ya da bazalt olarak sınıflandırır ve güvenini yazar. Yüksekten ya da fırtınada yapılan taramada gürültü artar, ağ yanılabilir; gezginin yakın ölçümü daha temizdir. <b>Eğitim spektrumları temsilîdir, ölçülmüş veri değildir.</b></p>
 <h3>Canlı veri</h3>
-<p><b>⟳ CANLI VERİ</b> düğmesi NASA'nın Perseverance MEDA hava akışını okur (basınç, en düşük ve en yüksek sıcaklık, gökyüzü durumu). Akış her zaman güncel olmayabilir; oyun hangi sol ve tarihin verisini kullandığını yazar. Akışa ulaşılamazsa yayımlanmış MEDA aralığı kullanılır ve ekranda “çevrimdışı model” görünür. Veri uydurulmaz.</p>
+<p><b>⟳ CANLI VERİ</b> düğmesi NASA'nın Perseverance MEDA hava akışını okur (basınç, en düşük ve en yüksek sıcaklık, gökyüzü durumu). Akış her zaman güncel olmayabilir; oyun hangi sol ve tarihin verisini kullandığını yazar. Akışa ulaşılamazsa oyun, Perseverance’ın sol 105–107 MEDA ölçümlerinden eğitilmiş gün içi modeli kullanır ve ekranda “MEDA MODELİ · SOL 105–107” yazar: basınç ve sıcaklık o sollerin saat saat ölçülen eğrisinden gelir (test hatası basınçta 0,9 Pa, sıcaklıkta 2,7 K). Sıcaklık, nem sensörünün kendi sıcaklığıdır; gerçek hava sıcaklığına yakındır ama aynısı değildir. Veri uydurulmaz.</p>
 
 <h2 id="tr-ozgun">7. Bu oyunu özgün yapan nedir?</h2>
 <ol>
@@ -259,7 +259,7 @@ nav{columns:2;font-size:14px;margin:1em 0}nav a{color:#9fd0e0;text-decoration:no
 <h3>Deep learning: the rock classifier</h3>
 <p>A small neural network (8-16-16-3) is trained in the browser when the game starts; it takes about a second. On each scan it classifies an eight-band spectrum as hematite, sedimentary or basalt and reports its confidence. Scans from high up or in a storm are noisier and the network can be wrong; the rover's close-up measurement is cleaner. <b>The training spectra are representative, not measured data.</b></p>
 <h3>Live data</h3>
-<p>The <b>⟳ LIVE DATA</b> button reads NASA's Perseverance MEDA weather feed (pressure, minimum and maximum temperature, sky condition). The feed is not always current; the game states which sol and date it is using. If the feed cannot be reached, the published MEDA range is used and the screen says “offline model”. No data is invented.</p>
+<p>The <b>⟳ LIVE DATA</b> button reads NASA's Perseverance MEDA weather feed (pressure, minimum and maximum temperature, sky condition). The feed is not always current; the game states which sol and date it is using. If the feed cannot be reached, the game uses a diurnal model trained on Perseverance’s MEDA measurements from sols 105–107, and the screen says “MEDA MODEL · SOLS 105–107”: pressure and temperature follow the curve measured hour by hour on those sols (test error 0.9 Pa for pressure, 2.7 K for temperature). The temperature is the humidity sensor’s own temperature, close to but not the same as the air temperature. No data is invented.</p>
 
 <h2 id="en-original">7. What makes this game original?</h2>
 <ol>

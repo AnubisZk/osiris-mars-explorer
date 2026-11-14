@@ -13,7 +13,7 @@ import {loadTerrainConfig,TERRAIN_CONFIG,materialWeights,fullWeights,dominantCla
 import {blendSoil} from './terramechanics.js';
 import {buildTerrainTextures,loadManifest} from './textures.js';
 import {TARGETS,ENGELLER,GEZGIN_OLCU,TERRAIN_SPAN,terrainMeshHeight,buildTerrain,buildEnvironment,buildRover,buildDrone,buildExtra} from './scene.js';
-import {SABIT,varsayilanHava,havaSicakligiC,yogunluk,gunesGucu,gunesYukseklikSin,ROTOR,rotorGucu,maksItki,gerekliDevir,ucMach,
+import {SABIT,medaHava,basincPa,zeminRuzgari,havaSicakligiC,yogunluk,gunesGucu,gunesYukseklikSin,ROTOR,rotorGucu,maksItki,gerekliDevir,ucMach,
   pilKapasitesiWh,GEZGIN,zeminSurusu,ISI,bolmeSicakligi,baglantiKalitesi,firtinaDurumu,tahminiKalanUcusS} from './sistemler.js';
 import {EnerjiModeli,siniflandiriciHazirla,spektrumUret,rastgele,SINIFLAR} from './yz.js';
 import {canliHavaAl} from './veri.js';
@@ -63,7 +63,7 @@ const ML_ANAHTAR='osiriszk3d:ml';
 // ------------------------------------------------------------- durum
 function yeniDurum(){return{
   surum:SURUM,time:0,running:true,warp:1,selected:'drone',cameraMode:'cinematic',auto:false,phase:'ready',targetIndex:0,phaseTime:0,
-  hava:state?.hava??varsayilanHava(),tohum:7,
+  hava:state?.hava??medaHava(),tohum:7,
   rover:{x:0,z:16,yaw:0,speed:0,tekerHizi:0,kayma:0,batmaM:0,cekisN:0,saplandi:false,saplanmaS:0,wheelAngle:0,enerjiWh:900,bolmeC:5,isiyor:false,uplink:false,uyariT:-99,pitch:0,roll:0},
   drone:{x:0,y:0,z:0,yaw:0,vx:0,vy:0,vz:0,enerjiWh:.6*DRONE_PIL_WH,pilC:5,docked:true,landed:false,rotorAngle:0,
     tw:0,gucW:0,devir:0,ucusS:0,dayaniklilik:100,dustu:false,carpmaT:-99,sicakUyari:false,baglanti:100,kopukS:0},
@@ -81,7 +81,10 @@ let toastTimer=0,uiTimer=0,frameCount=0,fpsTime=0,lastFrame=0;
 // ------------------------------------------------------------- yardımcılar
 const lst=()=>(LST0+state.time*24/SABIT.SOL_S)%24;
 const ortamC=()=>havaSicakligiC(lst(),state.hava);
-const rho=()=>yogunluk(state.hava.basincPa,ortamC());
+const basinc=()=>basincPa(lst(),state.hava);
+const rho=()=>yogunluk(basinc(),ortamC());
+/** Rüzgâr: MEDA modelinin o saatteki ortalaması; fırtınada fırtına rüzgârı (hangisi büyükse). */
+const ruzgar=f=>Math.max(zeminRuzgari(lst(),state.hava),f.aktif?f.ruzgarMs:0);
 const firtina=()=>firtinaDurumu(state.time,state.tohum);
 const droneKap=()=>pilKapasitesiWh(state.drone.pilC,DRONE_PIL_WH);
 const dronePct=()=>100*state.drone.enerjiWh/DRONE_PIL_WH;
@@ -440,7 +443,7 @@ function droneUcus(dt,ro,hava,f){
   // makine öğrenmesi: ölçülen güç ile modeli 5 Hz'de güncelle
   state.mlT+=dt;
   if(state.mlT>=.2&&P>0){
-    state.mlT=0;const kosul={yatayHiz:yh,dikeyHiz:d.vy,rho:ro,ruzgar:f.ruzgarMs};
+    state.mlT=0;const kosul={yatayHiz:yh,dikeyHiz:d.vy,rho:ro,ruzgar:ruzgar(f)};
     const tahmin=model.tahmin(kosul);model.ogren(kosul,P);
     state.gucGecmis.push({t:state.time,P,tahmin});if(state.gucGecmis.length>150)state.gucGecmis.shift();
   }
@@ -486,7 +489,7 @@ function sonucDenetle(){
 }
 function telemetriKaydet(saat,hava,ro,f){
   const d=state.drone,r=state.rover;
-  state.telemetri.push([state.time.toFixed(0),saatYaz(saat),hava.toFixed(1),ro.toFixed(4),f.aktif?1:0,f.ruzgarMs.toFixed(1),
+  state.telemetri.push([state.time.toFixed(0),saatYaz(saat),hava.toFixed(1),ro.toFixed(4),f.aktif?1:0,ruzgar(f).toFixed(1),
     d.docked?'kenetli':d.landed?'yerde':d.dustu?'dustu':'ucus',d.x.toFixed(2),d.y.toFixed(2),d.z.toFixed(2),agl().toFixed(2),
     Math.hypot(d.vx,d.vz).toFixed(2),d.vy.toFixed(2),d.gucW.toFixed(1),Math.round(d.devir),d.enerjiWh.toFixed(2),d.pilC.toFixed(1),d.baglanti,
     r.x.toFixed(2),r.z.toFixed(2),r.enerjiWh.toFixed(1),(r.gunesW||0).toFixed(1),(r.yukW||0).toFixed(1),r.bolmeC.toFixed(1),state.phase]);
@@ -670,9 +673,9 @@ function updateUI(){
   ]);
   const mach=ucMach(d.devir||gerekliDevir({rho:ro}),CFG.rotorCapM,hava);
   $('atmDetails').innerHTML=kv([
-    [t('ust.saat'),saatYaz(saat)],[t('atm.basinc'),`${Math.round(state.hava.basincPa)} Pa`],[t('atm.sicaklik'),`${f1(hava)} °C`],
-    [t('atm.yogunluk'),`${ro.toFixed(4)} kg/m³`],[t('atm.opaklik'),f2(state.hava.opaklik*f.tozCarpani)],[t('atm.ruzgar'),`${f1(f.ruzgarMs)} m/s${f.aktif?' · '+t('atm.firtina'):''}`,f.aktif?'uyari':''],
-    [t('atm.mach'),f2(mach)],[t('atm.kaynak'),state.hava.kaynak==='canli'?`MEDA sol ${state.hava.sol}`:t('durum.cevrimdisi')],
+    [t('ust.saat'),saatYaz(saat)],[t('atm.basinc'),`${f1(basinc())} Pa`],[t('atm.sicaklik'),`${f1(hava)} °C`],
+    [t('atm.yogunluk'),`${ro.toFixed(4)} kg/m³`],[t('atm.opaklik'),f2(state.hava.opaklik*f.tozCarpani)],[t('atm.ruzgar'),`${f1(ruzgar(f))} m/s${f.aktif?' · '+t('atm.firtina'):''}`,f.aktif?'uyari':''],
+    [t('atm.mach'),f2(mach)],[t('atm.kaynak'),state.hava.kaynak==='canli'?`MEDA sol ${state.hava.sol}`:state.hava.kaynak==='meda-model'?t('durum.medaModel'):t('durum.cevrimdisi')],
   ]);
   const tz=tekerZeminleri(r),bas=dominantClass(tz.karisim),zm=blendSoil(tz.karisim,TERRAIN_CONFIG.classes);
   $('soilDetails').innerHTML=kv([
@@ -710,7 +713,7 @@ function updateUI(){
     const active=state.auto&&((i===0&&state.phase==='takeoff')||(i===state.targetIndex+1&&['travel','scan'].includes(state.phase))||(i===4&&['return','land'].includes(state.phase)));
     return `<div class="step ${done?'done':active?'active':''}"><b>${i===4?'↵':i===0?'↑':i}</b><span>${escapeHTML(label)}</span></div>`;}).join('');
   el('missionDescription',state.sonuc==='basari'?t('aciklama.bitti'):state.auto?t('aciklama.otonom'):t('aciklama.hazir',{n:state.collected.filter(Boolean).length,p:q.drone.length+q.rover.length}));
-  $('veriDurum').textContent=state.hava.kaynak==='canli'?t('durum.canli'):t('durum.cevrimdisi');
+  $('veriDurum').textContent=state.hava.kaynak==='canli'?t('durum.canli'):state.hava.kaynak==='meda-model'?t('durum.medaModel'):t('durum.cevrimdisi');
   drawMap();drawPowerChart();
 }
 

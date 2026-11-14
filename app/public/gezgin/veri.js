@@ -7,7 +7,7 @@
  *  1) ../nasa/mars/...  — OsirisZk sitesinin Netlify vekil adresi (tarayıcının CORS sınırını aşmak için)
  *  2) mars.nasa.gov     — doğrudan (yerelde baslat.py ile açıldığında çoğu tarayıcı CORS nedeniyle engeller)
  * ========================================================================== */
-import { varsayilanHava, SABIT } from './sistemler.js';
+import { varsayilanHava, medaHava, SABIT } from './sistemler.js';
 
 const YOL = 'rss/api/?feed=weather&category=mars2020&feedtype=json';
 export const ADRESLER = [`../nasa/mars/${YOL}`, `https://mars.nasa.gov/${YOL}`];
@@ -52,6 +52,6 @@ export async function canliHavaAl({ zamanAsimi = 8000, fetchImpl = globalThis.fe
     } catch (e) { hatalar.push(`${url}: ${e.name === 'AbortError' ? 'zaman aşımı' : e.message}`); }
     finally { clearTimeout(zam); }
   }
-  const h = varsayilanHava(); h.hata = hatalar.join(' · '); return h;
+  const h = medaHava(); h.hata = hatalar.join(' · '); return h;
 }
 export { SABIT };
