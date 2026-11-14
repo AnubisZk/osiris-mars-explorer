@@ -35,7 +35,7 @@ ayarlar.js şu anda bu görevin hazır ayarlarını içeriyor: gezegen = '{gezeg
 Senden istediklerimiz, sırayla:
 0. AGENTS.md'deki şeffaflık kuralına göre bu komutu, işe başlamadan önce, KOMUT-KAYDI.md'ye kelimesi kelimesine kaydet ve commit et.
 1. README.md, ayarlar.js, fizik.js ve gezegenler.js dosyalarını oku. fizik.js'teki denklemleri bize 5–6 maddede, bir lise öğrencisinin anlayacağı şekilde özetle.
-2. FIZIK-HESAPLARI.md dosyasını görevimiz için doldur: her satır "formül → sayıları yerine koyma → sonuç (birimiyle)" olsun. Aracımız {arac}; kullanılmayan bölümü (3A rotor ya da 3B roket) sil.
+2. FIZIK-HESAPLARI.md dosyasını görevimiz için doldur: her satır "formül → sayıları yerine koyma → sonuç (birimiyle)" olsun. Aracımız {arac}; kullanılmayan bölümün (3A rotor ya da 3B roket) başına "Bu görevde kullanılmıyor" yaz, silme.
 3. "node hesapla.mjs" komutunu çalıştır. Çıktıdaki sonuçları defterin "Motorun sonucu" sütununa yaz, farkı yüzde olarak hesapla. Fark %1'den büyükse nedenini bul ve düzelt.
 4. Ortam tablosundaki her değerin yanına güvenilir bir kaynak (NASA, ESA) bağlantısı yaz. Emin olmadığın değeri "emin değilim" diye işaretle.
 5. Yaptığın her işi YZ-GUNLUGU.md'ye bir satır olarak ekle.
@@ -139,7 +139,7 @@ oyun.js'e şu özelliği eklemek istiyoruz: [ÖZELLİĞİ YAZIN — örnekler: "
 - three.js zaten "import * as THREE from 'three'" ile yüklü.
 
 [oyun.js'in ilgili kısmını buraya yapıştırın]`,
-    ipucu: 'Önce dosyanın bir kopyasını alın (ör. oyun-yedek.js). Ekledikten sonra oyunu açıp deneyin; bozulursa kırmızı kutudaki yazıyla "Hata ayıkla" komutunu kullanın.' },
+    ipucu: 'Önce mevcut hâli commit edin: Git eskisini saklar, kopya dosya açmanıza gerek kalmaz. Ekledikten sonra oyunu açıp deneyin; bozulursa kırmızı kutudaki yazıyla "Hata ayıkla" komutunu kullanın.' },
   { asama: 4, rol: 'Kodcu', baslik: 'Hata ayıkla',
     metin: `${BEN} Oyunumuzda bir hata var.
 Hata mesajı (kırmızı kutuda ya da F12 → Console'da gördüğümüz):
@@ -195,6 +195,21 @@ Bizim aracımız {gezegen} üzerinde ve oyun şu değerleri gösteriyor: [GİRİ
 "[KONTROL ETMEK İSTEDİĞİNİZ BİLGİYİ YAPIŞTIRIN]"
 Bu bilgiyi doğrulamak için hangi güvenilir kaynaklara bakmalıyız? Bu bilgide hata olma ihtimali olan yerler neler? Doğrudan "doğru" ya da "yanlış" demek yerine, bizim nasıl kontrol edebileceğimizi anlat.`,
     ipucu: 'Önerilen kaynağa gerçekten gidin ve okuyun. Yapay zekâya "kontrol ettim" dedirtmek kontrol etmek değildir.' },
+  { asama: 5, rol: 'Bilim danışmanı', baslik: 'Fabrika tasarımını denetle',
+    metin: `${BEN} Görev Fabrikası'nda (fabrika.html) {gezegen} için bir araç tasarladık. Sayfanın verdiği kütle dökümü ve kontroller:
+[TASARIM-RAPORU.md'NİN "2. Cihaz tasarımı" BÖLÜMÜNÜ BURAYA YAPIŞTIRIN]
+1. Her parçanın kütlesini gerçek bir araçla (ör. Ingenuity: toplam yaklaşık 1,8 kg) karşılaştır; makul olmayan görünenleri işaretle.
+2. Kontrollerdeki her kuralın (itki/ağırlık, uç Mach, enerji bütçesi, rüzgâr dayanımı) fiziksel anlamını bir cümleyle açıkla.
+3. Bu tasarımın en zayıf yeri neresi? Kararı bize bırak; neye bakmamız gerektiğini söyle.
+Bilmediğin bir sayıyı uydurma; kaynak önerirken "doğrulayın" de.`,
+    ipucu: 'Yapay zekânın karşılaştırdığı gerçek değerlerin kaynağını bulun ve TASARIM-RAPORU.md\'nin "Takımın kontrolü" kutularını doldurun.' },
+  { asama: 5, rol: 'Bilim danışmanı', baslik: 'Stres testini yorumla',
+    metin: `${BEN} Aracımızı Görev Fabrikası'nın stres testinde (Monte Carlo) aşırı koşullarda defalarca uçurduk. Sonuç tablosu:
+[TASARIM-RAPORU.md'NİN "5. Stres testi" TABLOSUNU BURAYA YAPIŞTIRIN]
+1. "%95 güven aralığı" sütununu bir ortaokul öğrencisine anlatır gibi açıkla. Deneme sayısını artırırsak ne olur?
+2. Başarısızlık nedenlerine bakarak aracın hangi özelliğini değiştirmeyi düşünmeliyiz? Birkaç seçenek söyle, seçimi bize bırak.
+3. Bu testin sınırları neler? (otopilot, basitleştirilmiş kütle modeli, atmosfer modelinin hatası)`,
+    ipucu: 'Önerilerden birini Fabrika\'da deneyin, stres testini yeniden çalıştırın ve iki sonucu karşılaştırın. Her iki tasarım da arşivde kalır.' },
 
   // ---------------------------------------------------------------- 6
   { asama: 6, rol: 'Sunucu', baslik: 'Sunum planı',

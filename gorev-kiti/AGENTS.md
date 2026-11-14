@@ -21,6 +21,7 @@ yapay zekâ (Claude Code, Codex, GitHub Copilot ajanı vb.) aşağıdaki kuralla
 | `KOMUT-KAYDI.md` | Sana verilen komutların kelimesi kelimesine kaydı | **Her komutta zorunlu** (aşağıya bak). |
 | `YZ-GUNLUGU.md` | Yapay zekâ kullanım günlüğü | Yaptığın her işi buraya bir satır olarak ekle. |
 | `atmosfer.js`, `veri-atolyesi.html` | Gerçek veriden atmosfer modeli (dijital ikiz) | Değiştirme. Model dosyaları `veri/` klasörüne konur; ayarlar.js'te `atmosfer` satırıyla bağlanır. Model dosyasındaki katsayıları elle değiştirme. |
+| `fabrika.html`, `tasarim.js`, `malzemeler.js`, `otopilot.js`, `stres.js`, `optimize.js`, `fabrika.js` | Görev Fabrikası: araç tasarımı, maliyet, otopilot, stres testi, optimizasyon (bkz. `FABRIKA.md`) | Değiştirme; tasarımı sayfadan yap. `malzemeler.js` değerleri "tipik"tir: takım kaynakla düzeltebilir, kaynağını yazar. |
 | `oyun.js`, `index.html`, `arazi.js` | Ekran, kontroller, arazi | "ÖĞRENCİ:" ile işaretli yerler değiştirilebilir. |
 
 ## Şeffaflık: komut kaydı (ZORUNLU, her komutta)
@@ -47,7 +48,7 @@ Takım kaptanı seni bu depoda şu işler için çalıştırır. Sırayla yap:
 0. **Kaydet:** Komutu `KOMUT-KAYDI.md`'ye kelimesi kelimesine ekle ve commit et (yukarıdaki şeffaflık kuralları).
 1. **Oku:** `README.md`, `GOREV-TASARIMI.md`, `ayarlar.js`, `fizik.js` (yalnızca denklemleri anlamak için), `gezegenler.js`.
 2. **Görevi işle:** Kaptanın verdiği görev bilgileriyle (ya da GOREV-TASARIMI.md'deki kararlarla) `ayarlar.js`'teki değerleri güncelle. Bilmediğin bir değeri uydurma; takıma sor ya da `[ ... ]` olarak bırakıp nedenini yaz.
-3. **Fizik hesap defterini doldur:** `FIZIK-HESAPLARI.md`'deki her satırı **formül → yerine koyma → sonuç (birimiyle)** biçiminde doldur. Kullanılmayan bölümü (3A rotor ya da 3B roket) sil.
+3. **Fizik hesap defterini doldur:** `FIZIK-HESAPLARI.md`'deki her satırı **formül → yerine koyma → sonuç (birimiyle)** biçiminde doldur. Kullanılmayan bölümün (3A rotor ya da 3B roket) başına "Bu görevde kullanılmıyor" yaz; bölümü silme.
 4. **Doğrula:** `node hesapla.mjs` çalıştır (Node.js 18+). Çıktıdaki her sonucu defterdeki "Motorun sonucu" sütununa yaz ve farkı hesapla. Fark %1'den büyükse kendi hesabını düzelt; düzeltmeyi günlüğe yaz. Node yoksa takıma `hesap.html` sayfasını açmasını söyle.
 5. **Kontrol et:** `node --check ayarlar.js` ile yazım hatası olmadığını doğrula. Giriş ekranında aracın "uçabilir" olması gerekir (itki/ağırlık > 1,05; rahat uçuş için > 1,5).
 6. **Günlüğe yaz:** `YZ-GUNLUGU.md`'ye yaptığın her iş için bir satır ekle: saat, "Hangi araç" sütununa kendi adın, ne yapıldığı, nasıl kontrol edildiği ("hesapla.mjs ile karşılaştırıldı" gibi). "Kim" sütununu takım doldurur.
@@ -55,6 +56,7 @@ Takım kaptanı seni bu depoda şu işler için çalıştırır. Sırayla yap:
 8. **Kaydı tamamla:** `KOMUT-KAYDI.md`'deki kaydın "Ajanın yaptıkları", "Commit'ler" ve "Ajanın emin olmadıkları" satırlarını doldur.
 
 ## Kesin kurallar
+- **Öğrencilerin çalışmasını silme.** Takımın yazdığı hiçbir dosyayı, satırı, kaydı (KOMUT-KAYDI.md, YZ-GUNLUGU.md, FIZIK-HESAPLARI.md, GOREV-TASARIMI.md, TASARIM-RAPORU.md, `veri/` dosyaları) silme, kısaltma ya da üzerine yazma. Değişiklik gerekiyorsa **ekle** ya da eskisini koruyarak düzelt. `ayarlar.js`'i değiştirmeden önce mevcut hâlinin commit edildiğinden emin ol. `git reset --hard`, `git push --force`, `git clean`, dosya silme gibi geri alınamaz komutları çalıştırma; gerekiyorsa takıma ve öğretmene sor.
 - **Sayı uydurma.** Bilimsel bir değer verdiysen kaynağını yaz. Emin değilsen "emin değilim" de.
 - **Öğrencinin yerine öğrenme.** Hesapları açık yaz ki takım her adımı takip edip kendi hesap makinesiyle tekrarlayabilsin.
 - **Kişisel bilgi yok.** Ad soyad, okul numarası, adres, telefon, fotoğraf yazma ve isteme. Takım üyelerini rolleriyle an.

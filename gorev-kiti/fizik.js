@@ -142,6 +142,8 @@ export function adim(d, girdi, gorev, zemin, dt) {
     wx = ort.atm.ruzgarDogu + Math.sin(ryon) * artis;
     wz = -ort.atm.ruzgarKuzey - Math.cos(ryon) * artis;   // oyunda +z güney yönüdür
   }
+  // Stres testi (stres.js) ani rüzgâr ya da toz şeytanı ekleyebilir; normal oyunda bu yoktur
+  if (gorev._ruzgarEk) { const e = gorev._ruzgarEk(d.zaman, d.x, d.z); wx += e.x; wz += e.z; }
 
   // ---- kontrol
   let hedefEgimX, hedefEgimZ, hedefGaz;

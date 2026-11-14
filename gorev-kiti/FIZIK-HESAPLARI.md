@@ -30,7 +30,7 @@
 | Ağırlık | W = m × g | [ ... ] | [ ... ] N | [ ... ] | [ ... ] |
 | Dünya'daki ağırlığı | W_D = m × 9,81 | [ ... ] | [ ... ] N | [ ... ] | — |
 
-## 3A. Rotorlu araç (roketse bu bölümü silin)
+## 3A. Rotorlu araç (roketse başına "Bu görevde kullanılmıyor" yazın)
 
 | Hesap | Formül | Yerine koyma | Sonuç | Motorun sonucu | Fark |
 |---|---|---|---|---|---|
@@ -42,7 +42,7 @@
 | Askıda kalma gücü | P = W × v_i ÷ verim + avyonik | [ ... ] | [ ... ] W | [ ... ] | [ ... ] |
 | Askıda kalma süresi | t = batarya × 3600 ÷ P | [ ... ] | [ ... ] s | [ ... ] | [ ... ] |
 
-## 3B. Roketli araç (rotorsa bu bölümü silin)
+## 3B. Roketli araç (rotorsa başına "Bu görevde kullanılmıyor" yazın)
 
 | Hesap | Formül | Yerine koyma | Sonuç | Motorun sonucu | Fark |
 |---|---|---|---|---|---|

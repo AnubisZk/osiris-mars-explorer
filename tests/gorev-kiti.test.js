@@ -10,29 +10,12 @@ import { GEZEGENLER } from '../gorev-kiti/gezegenler.js';
 import { aracOzeti, yeniDurum, adim, puan, ortam, maksItki } from '../gorev-kiti/fizik.js';
 import { araziKur } from '../gorev-kiti/arazi.js';
 import { GOREV as VARSAYILAN } from '../gorev-kiti/ayarlar.js';
+import { otopilotlaUc } from '../gorev-kiti/otopilot.js';
 
 const zeminOf = g => araziKur(g.arazi, [{ x: 0, z: 0, yaricap: 14 }, ...g.hedefler.map(h => ({ x: h.x, z: h.z, yaricap: h.yaricap }))]);
 
-// A scripted pilot: climb to 25 m, fly to each target, descend, observe, return and land.
-function otopilot(g) {
-  const zemin = zeminOf(g), d = yeniDurum(g, zemin), dt = 1 / 120;
-  const rota = [...g.hedefler.map((h, i) => ({ x: h.x, z: h.z, i })), { x: 0, z: 0, i: -1 }];
-  let k = 0;
-  while (!d.sonuc && d.zaman < 900) {
-    const w = rota[k], dx = w.x - d.x, dz = w.z - d.z, uzak = Math.hypot(dx, dz);
-    const alc = w.i < 0 ? 0 : g.hedefler[w.i].maksIrtifa_m * 0.5, inp = { x: 0, z: 0, y: 0 };
-    if (uzak > 8) {
-      const s = Math.min(1, uzak / 40); inp.x = dx / uzak * s; inp.z = dz / uzak * s;
-      inp.y = d.agl < 25 ? Math.min(1, (25 - d.agl) / 5) : -Math.min(1, (d.agl - 25) / 5);
-      if (uzak < 60 && d.agl > alc + 3) inp.y = -1;
-    } else {
-      inp.x = dx / 8 * 0.3; inp.z = dz / 8 * 0.3;
-      if (w.i < 0) inp.y = -1; else { inp.y = d.agl > alc ? -0.6 : 0.2; if (d.hedefler[w.i].tamam) k++; }
-    }
-    adim(d, inp, g, zemin, dt);
-  }
-  return d;
-}
+// The kit's own autopilot (gorev-kiti/otopilot.js): climb to 25 m, visit each target, observe, return and land.
+const otopilot = g => otopilotlaUc(g, { zemin: zeminOf(g) });
 
 test('every mission card: vehicle can lift off with margin and the autopilot completes the mission', () => {
   assert.equal(Object.keys(GOREVLER).length, 7);

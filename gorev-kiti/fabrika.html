@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Görev Fabrikası · Görev Kiti</title>
+<style>
+  :root{--kart:#131720;--cizgi:#ffffff1a;--turuncu:#ff9a52;--mavi:#6cc3ff;--yesil:#7ee08a;--kirmizi:#ff7b7b}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0b0d12;color:#eef2f7;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:980px;margin:0 auto;padding:18px 16px 80px}
+  h1{font-size:28px;margin:8px 0 2px}h2{font-size:20px;margin:0 0 6px}h3{font-size:16px;margin:16px 0 6px;color:#ffcf9e}
+  p{margin:6px 0}a{color:var(--mavi)}
+  .ust{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 0 14px;border-bottom:1px solid var(--cizgi)}
+  .ust a{color:#eef2f7;text-decoration:none;background:#ffffff14;border:1px solid #ffffff2a;border-radius:8px;padding:6px 11px;font:600 14px system-ui}
+  .boru{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0;position:sticky;top:0;background:#0b0d12f0;padding:8px 0;z-index:5}
+  .boru button{flex:1 1 120px;background:var(--kart);color:#cfd6e2;border:1px solid var(--cizgi);border-radius:10px;padding:8px 6px;font:600 13px system-ui;cursor:pointer;text-align:left}
+  .boru button b{display:block;font-size:11px;color:#8d97a8;font-weight:600}
+  .boru button.on{border-color:var(--turuncu);color:#fff}.boru button.tamam b{color:var(--yesil)}
+  section{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:16px;margin:14px 0}
+  .ipucu{font-size:14px;color:#aeb8c7;border-left:3px solid var(--mavi);padding:4px 10px;background:#6cc3ff10;border-radius:0 8px 8px 0;margin:8px 0}
+  .ızgara{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+  label{display:flex;flex-direction:column;gap:3px;font-size:13px;color:#aeb8c7}
+  input,select,textarea{background:#0b0d12;color:#eef2f7;border:1px solid #ffffff2a;border-radius:8px;padding:7px 9px;font:15px system-ui;width:100%}
+  input[type=range]{padding:0}
+  button.d{background:#ffffff14;color:#eef2f7;border:1px solid #ffffff2a;border-radius:9px;padding:8px 13px;font:600 14px system-ui;cursor:pointer}
+  button.ana{background:var(--turuncu);color:#1d1005;border:0}button:disabled{opacity:.5;cursor:wait}
+  .dugmeler{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--cizgi)}th{color:#a6b0bf;font-weight:600}
+  .sayi{font-variant-numeric:tabular-nums}
+  .kontrol{list-style:none;padding:0;margin:6px 0}.kontrol li{padding:3px 0}
+  .iyi{color:var(--yesil)}.kotu{color:var(--kirmizi)}.uyari{color:#ffd27a}
+  .cubuk{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:6px 0}
+  .cubuk span{display:block;height:100%}
+  .lejant{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:#aeb8c7}.lejant i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+  pre.gunluk{background:#0b0d12;border:1px solid var(--cizgi);border-radius:8px;padding:8px;font:12.5px/1.5 ui-monospace,monospace;white-space:pre-wrap;max-height:220px;overflow:auto;margin:6px 0}
+  canvas{width:100%;background:#0b0d12;border:1px solid var(--cizgi);border-radius:10px;display:block}
+  .ilerleme{height:8px;background:#ffffff14;border-radius:4px;overflow:hidden;margin:8px 0}.ilerleme span{display:block;height:100%;width:0;background:var(--turuncu);transition:width .2s}
+  .buyuk{font-size:26px;font-weight:700}
+  .karar{padding:10px 12px;border-radius:10px;margin:8px 0;font-weight:600}.karar.iyi{background:#7ee08a1c}.karar.kotu{background:#ff7b7b1c}
+  #hata{display:none;background:#3b1111;border:2px solid #ff6b6b;color:#ffd6d6;border-radius:10px;padding:12px;white-space:pre-wrap;font-family:ui-monospace,monospace}
+  details summary{cursor:pointer;color:#ffcf9e;font-weight:600}
+</style>
+</head>
+<body><main>
+  <div class="ust"><a href="./">← Oyun</a><a href="hesap.html">🧮 Hesaplar</a><a href="veri-atolyesi.html">📈 Veri Atölyesi</a><a href="FABRIKA.md">📘 Rehber</a></div>
+  <h1>🏭 Görev Fabrikası</h1>
+  <p>Bir görevden başlayıp aracını tasarla, yollama maliyetini hesapla, simülasyonda uçur, aşırı koşullarda dene ve sonunda <b>oynanabilir bir oyun</b> üret. Her adım oyunun kendi fizik motorunu (fizik.js) kullanır.</p>
+  <div class="ipucu">🛡 Çalışmanız korunur: her kaydedilen tasarım tarayıcıdaki arşive <b>eklenir</b>, hiçbir tasarım ya da günlük kaydı otomatik silinmez; ayarlar.js dosyanıza bu sayfa hiçbir zaman doğrudan yazmaz.</div>
+  <div id="hata"></div>
+
+  <nav class="boru" id="boru"></nav>
+
+  <!-- 1 -->
+  <section id="a1">
+    <h2>1 · Sistem tasarımı</h2>
+    <p>Önce <b>ne istediğimize</b> karar veririz: hangi görev, ne kadar yük, hangi kurallar. Mühendislikte buna <i>gereksinimler</i> denir.</p>
+    <div class="ızgara">
+      <label>Başlangıç görevi<select id="taban"></select></label>
+      <label>Görevin adı<input id="baslik"></label>
+      <label>Faydalı yük (kg) — kamera, sensör<input id="yuk" type="number" step="0.05" min="0" value="0.3"></label>
+      <label>Aviyonik kütlesi (kg) — bilgisayar, telsiz<input id="avk" type="number" step="0.05" min="0" value="0.25"></label>
+      <label>Aviyonik gücü (W)<input id="avg" type="number" step="1" min="0" value="20"></label>
+      <label>Stres testinde hedef başarı (%)<input id="hedefB" type="number" step="5" min="50" max="100" value="90"></label>
+    </div>
+    <div id="gorevOzet" class="ipucu"></div>
+  </section>
+
+  <!-- 2 -->
+  <section id="a2">
+    <h2>2 · Cihaz tasarımı</h2>
+    <p>Değerleri kendin seçebilir, <b>yapay zekâdan öneri</b> isteyebilir ya da <b>otonom mühendise</b> en hafif güvenli tasarımı aratabilirsin. En iyisi üçünü birlikte kullanmak: yapay zekâ önerir, algoritma iyileştirir, simülasyon doğrular.</p>
+    <div class="ızgara" id="degiskenler"></div>
+    <div class="dugmeler">
+      <button class="d" id="yzOner">🤖 Yapay zekâ önersin</button>
+      <button class="d ana" id="otonom">⚙️ Otonom mühendis (optimize + stres testi)</button>
+    </div>
+    <details id="yzAyar"><summary>Yapay zekâ ayarları</summary>
+      <div class="ızgara" style="margin-top:8px">
+        <label>Sınıf kodu (öğretmeninden)<input id="sinifKodu" autocomplete="off"></label>
+        <label>Model<select id="model"><option value="claude">Claude</option><option value="chatgpt">ChatGPT</option><option value="gemini">Gemini</option></select></label>
+      </div>
+      <p class="ipucu">Komuta kişisel bilgi yazılmaz. Gönderilen komutun tamamı atölyenin asistan günlüğüne ve tasarım raporuna kelimesi kelimesine kaydedilir.</p>
+    </details>
+    <div class="ilerleme" id="optIlerleme" hidden><span></span></div>
+    <pre class="gunluk" id="optGunluk" hidden></pre>
+    <div id="yzCevap"></div>
+    <h3>Kütle dökümü</h3>
+    <div class="cubuk" id="cubuk"></div><div class="lejant" id="lejant"></div>
+    <div class="ızgara" style="margin-top:10px">
+      <div><div class="buyuk sayi" id="kutle">—</div><div style="font-size:13px;color:#aeb8c7">toplam kütle</div></div>
+      <ul class="kontrol" id="kontroller"></ul>
+    </div>
+    <details><summary>Bu sayılar nereden geliyor?</summary>
+      <p>Batarya kütlesi = enerji ÷ özgül enerji. Motor kütlesi = en büyük itkideki güç ÷ 2000 W/kg. Gövde kütlesi, iç parçaların %25'i (karbon fiber için); özgül dayanımı düşük malzemede orantılı olarak artar. Araç ağırlaştıkça motor büyür, motor büyüdükçe araç ağırlaşır: hesap kütle değişmeyene kadar tekrarlanır. Ayrıntılar ve katsayılar <code>tasarim.js</code> içinde; bunlar öğretim amaçlı basitleştirilmiş varsayımlardır.</p>
+    </details>
+  </section>
+
+  <!-- 3 -->
+  <section id="a3">
+    <h2>3 · Yollama maliyeti</h2>
+    <p>Uzaya her kilogramı taşımak para ister: araç ne kadar hafifse görev o kadar ucuzdur.</p>
+    <div class="ızgara">
+      <label>Fiyat kaynağı<select id="fiyat"></select></label>
+      <label>Kendi değeriniz ($/kg)<input id="kendiFiyat" type="number" min="0" step="1000" placeholder="kaynağıyla birlikte"></label>
+    </div>
+    <div id="maliyet" style="margin-top:8px"></div>
+  </section>
+
+  <!-- 4 -->
+  <section id="a4">
+    <h2>4 · Simülasyon</h2>
+    <p>Otonom pilot görevi bir kez uçar: kalkar, her hedefe gider, gözlem yapar ve üsse döner.</p>
+    <div class="dugmeler"><button class="d ana" id="uc">🛸 Simülasyonda uçur</button></div>
+    <canvas id="harita" width="900" height="420"></canvas>
+    <canvas id="grafik" width="900" height="170" style="margin-top:8px"></canvas>
+    <div id="simSonuc"></div>
+  </section>
+
+  <!-- 5 -->
+  <section id="a5">
+    <h2>5 · Stres testi (aşırı koşullar)</h2>
+    <p>Tasarım; rüzgârlı gün, toz şeytanı, soğuk sabah ve seyrek hava gibi koşullarda defalarca uçurulur. Her denemede hava biraz farklıdır. Gerçek veriden eğitilmiş atmosfer modeli varsa belirsizlik onun <b>test hatasından</b> gelir.</p>
+    <div class="dugmeler">
+      <label style="flex-direction:row;align-items:center;gap:6px">Senaryo başına deneme <select id="n" style="width:auto"><option>20</option><option selected>50</option><option>100</option></select></label>
+      <button class="d ana" id="stres">🌪 Stres testini başlat</button>
+    </div>
+    <div class="ilerleme" id="stresIlerleme" hidden><span></span></div>
+    <div id="stresSonuc"></div>
+  </section>
+
+  <!-- 6 -->
+  <section id="a6">
+    <h2>6 · Oyun</h2>
+    <p>Tasarımın artık oynanabilir bir görev. Kaydet, kitte oyna, ayarlar.js olarak indir ve raporu takım deposuna ekle.</p>
+    <div class="dugmeler">
+      <button class="d ana" id="oyna">▶ Kaydet ve oyunda aç</button>
+      <button class="d" id="ayarIndir">⬇ ayarlar.js indir</button>
+      <button class="d" id="raporIndir">⬇ TASARIM-RAPORU.md indir</button>
+    </div>
+    <div class="ipucu">ayarlar.js'i değiştirmeden önce mevcut dosyanızı <b>commit edin</b>: Git eski hâlini her zaman saklar, isterseniz geri dönersiniz. İndirilen dosya bilgisayarınızdaki hiçbir dosyanın üstüne yazmaz.</div>
+    <h3>Tasarım arşivi (bu tarayıcıda)</h3>
+    <div id="arsivTablo"></div>
+  </section>
+</main>
+<script type="module">
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const say = (v, b = 2) => (Number.isFinite(v) ? v.toLocaleString('tr-TR', { minimumFractionDigits: b, maximumFractionDigits: b }) : '—');
+const yuzde = v => (Number.isFinite(v) ? `%${Math.round(v * 100)}` : '—');
+function hataGoster(e) { $('#hata').style.display = 'block'; $('#hata').textContent = '⚠ ' + (e?.message ?? e); console.error(e); }
+
+try {
+const [{ GOREV: AYAR }, { GOREVLER, ayarlarDosyasi }, T, O, S, F, M, { otopilotlaUc, gorevArazisi }, { ortam, puan }, { atmosferiBagla }, { GEZEGENLER }, { rota }] = await Promise.all([
+  import('./ayarlar.js'), import('./gorevler.js'), import('./tasarim.js'), import('./optimize.js'), import('./stres.js'), import('./fabrika.js'),
+  import('./malzemeler.js'), import('./otopilot.js'), import('./fizik.js'), import('./atmosfer.js'), import('./gezegenler.js'), import('./hesap.js')]);
+
+const yukle = async yol => { const r = await fetch(yol, { cache: 'no-store' }); if (!r.ok) throw new Error(`Atmosfer modeli bulunamadı: ${yol}`); return r.json(); };
+const durum = { taban: null, gereksinim: null, tasarim: null, degerlendirme: null, kaynak: null, yz: null, optimizasyon: [], maliyet: null, sim: null, stres: null };
+const ADIMLAR = ['Sistem tasarımı', 'Cihaz tasarımı', 'Yollama maliyeti', 'Simülasyon', 'Stres testi', 'Oyun'];
+$('#boru').innerHTML = ADIMLAR.map((a, i) => `<button data-a="${i + 1}"><b>${i + 1}. adım</b>${a}</button>`).join('');
+$('#boru').onclick = e => { const b = e.target.closest('button'); if (b) $('#a' + b.dataset.a).scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+const adimTamam = (i, v = true) => $(`#boru [data-a="${i}"]`).classList.toggle('tamam', v);
+
+// ---------------------------------------------------------------- 1. sistem
+$('#taban').innerHTML = `<option value="">ayarlar.js (takımın görevi)</option>` + Object.values(GOREVLER).map(g => `<option value="${g.kimlik}">${esc(g.baslik)}</option>`).join('');
+async function tabanKur() {
+  const k = $('#taban').value;
+  const g = structuredClone(k ? GOREVLER[k] : AYAR);
+  await atmosferiBagla(g, yukle, GEZEGENLER[g.gezegen]?.gazSabiti_J_kgK).catch(e => { delete g.atmosfer; hataGoster(e.message + '\nAtmosfer modeli olmadan devam ediliyor.'); });
+  durum.taban = g;
+  $('#baslik').value = `${g.baslik} — Fabrika tasarımı`;
+  const tip = O.uygunTip(g);
+  degiskenleriCiz(tip, varsayilanTasarim(tip));
+  gereksinimGuncelle();
+}
+function gereksinimGuncelle() {
+  const g = durum.taban, gr = T.varsayilanGereksinim(g);
+  gr.yuk_kg = Math.max(0, +$('#yuk').value || 0); gr.aviyonik_kg = Math.max(0, +$('#avk').value || 0);
+  gr.aviyonikGucu_W = Math.max(0, +$('#avg').value || 0); gr.hedefBasari = Math.min(1, Math.max(0.5, (+$('#hedefB').value || 90) / 100));
+  durum.gereksinim = gr;
+  const o = ortam(g);
+  $('#gorevOzet').innerHTML = `<b>${esc(o.ad)}</b>: g = ${say(o.g)} m/s², yüzey havası ρ = ${say(o.rho0, 4)} kg/m³${o.rho0 > 0 ? '' : ' (hava yok → roketli araç)'}${g._atmosfer ? ' · <b>gerçek veriden atmosfer modeli</b> bağlı' : ''}.<br>
+    ${g.hedefler.length} hedef, rota ${say(rota(g).toplam, 0)} m, rüzgâr ${say(g.ruzgar?.hiz_m_s ?? 0, 1)} m/s.
+    Kurallar: itki/ağırlık ≥ ${gr.minItkiAgirlik}, enerji/yakıt bütçesi ≤ ${yuzde(gr.maksButce)}${o.rho0 > 0 ? `, rotor ucu Mach ≤ ${gr.maksMach}, ${gr.tasarimRuzgari_m_s} m/s rüzgâra dayanım` : ''}.`;
+  adimTamam(1);
+  hesapla();
+}
+
+// ---------------------------------------------------------------- 2. cihaz
+const ETIKET = {
+  rotorSayisi: ['Rotor sayısı', { 2: '2 (eş eksenli, Ingenuity gibi)', 4: '4 (dört rotorlu dron)' }],
+  yaricap_m: ['Rotor yarıçapı (m)'], ucHizi_m_s: ['Rotor uç hızı (m/s)'], batarya_Wh: ['Batarya enerjisi (Wh)'],
+  bataryaTipi: ['Batarya tipi', Object.fromEntries(Object.entries(M.BATARYALAR).map(([k, b]) => [k, `${b.ad} (${b.ozgulEnerji_Wh_kg} Wh/kg)`]))],
+  yapiMalzemesi: ['Gövde malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, m.ad]))],
+  kanatMalzemesi: ['Pervane malzemesi', Object.fromEntries(Object.entries(M.YAPI_MALZEMELERI).map(([k, m]) => [k, m.ad]))],
+  maksEgim_derece: ['En fazla eğim (°)'],
+  yakit_kg: ['Yakıt (kg)'], maksItki_N: ['En büyük itki (N)'],
+  motorTipi: ['Roket motoru', Object.fromEntries(Object.entries(M.ROKET_MOTORLARI).map(([k, m]) => [k, `${m.ad} (Isp ${m.isp_s} s)`]))],
+};
+function varsayilanTasarim(tip) {
+  return tip === 'rotor'
+    ? { tip, rotorSayisi: 2, yaricap_m: 0.6, ucHizi_m_s: 150, batarya_Wh: 30, bataryaTipi: 'liion', yapiMalzemesi: 'karbon', kanatMalzemesi: 'karbon', maksEgim_derece: 20 }
+    : { tip, yakit_kg: 20, maksItki_N: 300, motorTipi: 'bi', yapiMalzemesi: 'aluminyum' };
+}
+function degiskenleriCiz(tip, d) {
+  durum.tasarim = O.sinirla(tip, d);
+  $('#degiskenler').innerHTML = Object.entries(O.ARALIK[tip]).map(([k, v]) => {
+    const [ad, secenek] = ETIKET[k] ?? [k];
+    if (typeof v[0] === 'number' && k !== 'rotorSayisi') {
+      const adim = (v[1] - v[0]) / 200;
+      return `<label>${ad} <input type="number" data-k="${k}" min="${v[0]}" max="${v[1]}" step="${+adim.toPrecision(1)}" value="${+(+durum.tasarim[k]).toPrecision(4)}"><input type="range" data-r="${k}" min="${v[0]}" max="${v[1]}" step="${+adim.toPrecision(1)}" value="${durum.tasarim[k]}"></label>`;
+    }
+    return `<label>${ad}<select data-k="${k}">${v.map(x => `<option value="${x}" ${String(durum.tasarim[k]) === String(x) ? 'selected' : ''}>${esc(secenek?.[x] ?? x)}</option>`).join('')}</select></label>`;
+  }).join('');
+}
+$('#degiskenler').addEventListener('input', e => {
+  const k = e.target.dataset.k ?? e.target.dataset.r; if (!k) return;
+  const v = O.ARALIK[durum.tasarim.tip][k];
+  let x = e.target.value;
+  if (typeof v[0] === 'number') x = +x;
+  durum.tasarim[k] = x;
+  if (e.target.dataset.r) $(`[data-k="${k}"]`).value = +(+x).toPrecision(4); else if ($(`[data-r="${k}"]`)) $(`[data-r="${k}"]`).value = x;
+  durum.kaynak = 'takımın elle seçtiği değerler' + (durum.yz || durum.optimizasyon.length ? ' (öneriden sonra değiştirildi)' : '');
+  hesapla();
+});
+const RENK = ['#ff9a52', '#6cc3ff', '#7ee08a', '#ffd27a', '#c59bff', '#ff7b9c', '#9ad7d0', '#d0c39a'];
+function hesapla() {
+  if (!durum.gereksinim || !durum.tasarim) return;
+  try { durum.degerlendirme = T.degerlendir(durum.gereksinim, durum.tasarim); }
+  catch (e) { hataGoster(e); return; }
+  durum.sim = null; durum.stres = null; $('#simSonuc').innerHTML = ''; $('#stresSonuc').innerHTML = ''; [4, 5, 6].forEach(i => adimTamam(i, false));
+  const e = durum.degerlendirme, o = e.ozet, roket = e.arac.tip === 'roket';
+  const p = Object.entries(e.parcalar);
+  $('#cubuk').innerHTML = p.map(([k, v], i) => `<span title="${esc(k)}: ${say(v, 3)} kg" style="width:${v / e.kutle_kg * 100}%;background:${RENK[i % RENK.length]}"></span>`).join('');
+  $('#lejant').innerHTML = p.map(([k, v], i) => `<span><i style="background:${RENK[i % RENK.length]}"></i>${esc(k)} ${say(v, 3)} kg</span>`).join('');
+  $('#kutle').textContent = `${say(e.kutle_kg, 3)} kg`;
+  const gr = durum.gereksinim, k = (ok, m) => `<li class="${ok ? 'iyi' : 'kotu'}">${ok ? '✓' : '✗'} ${m}</li>`;
+  $('#kontroller').innerHTML = [
+    k(o.itkiAgirlikOrani >= gr.minItkiAgirlik, `İtki/ağırlık ${say(o.itkiAgirlikOrani)} (en az ${gr.minItkiAgirlik})`),
+    roket ? `<li>Delta-v ${say(o.deltaV_m_s, 0)} m/s</li>` : k(o.ucMach <= gr.maksMach, `Rotor ucu Mach ${say(o.ucMach)} (en çok ${gr.maksMach})`),
+    k(e.hesap.butceOrani <= gr.maksButce, `Görev enerjinin/yakıtın ${yuzde(e.hesap.butceOrani)}'ini harcar (en çok ${yuzde(gr.maksButce)})`),
+    Number.isFinite(o.ruzgarDayanimi) ? k(o.ruzgarDayanimi >= (gr.minRuzgarDayanimi ?? 1.2), `${gr.tasarimRuzgari_m_s} m/s rüzgâra dayanım ${say(o.ruzgarDayanimi)} (en az ${gr.minRuzgarDayanimi ?? 1.2})`) : '',
+    `<li>Askıda kalma süresi ${say(o.askidaKalmaSuresi_s / 60, 1)} dk</li>`,
+    ...e.sorunlar.filter(s => /eğilince|süre/.test(s)).map(s => k(false, esc(s))),
+    !roket && M.BATARYALAR[durum.tasarim.bataryaTipi]?.deneysel ? '<li class="uyari">⚠ Seçilen batarya deneysel: gerçek bir görevde risklidir.</li>' : '',
+    M.YAPI_MALZEMELERI[durum.tasarim.yapiMalzemesi]?.soguktaKirilgan ? '<li class="uyari">⚠ PLA plastik soğukta kırılganlaşır: Mars gecesi −80 °C\'ye iner.</li>' : '',
+  ].join('');
+  adimTamam(2, e.uygun);
+  maliyetCiz();
+}
+
+// ---- yapay zekâ önerisi
+try { $('#sinifKodu').value = JSON.parse(localStorage.getItem('atolye:sinifKodu') ?? '""'); } catch {}
+function gunlugeYaz(model, soru, cevap) {   // atölye asistanının günlüğüyle aynı biçim; hiçbir kayıt silinmez
+  let g = []; try { g = JSON.parse(localStorage.getItem('atolye:yzGunluk')) ?? []; } catch {}
+  g.push({ zaman: new Date().toISOString(), arac: { claude: 'Claude', chatgpt: 'ChatGPT', gemini: 'Gemini' }[model] ?? model, model: '', gorev: durum.taban.baslik, kod: '', soru: soru.slice(0, 8000), cevap: (cevap ?? '').replace(/\s+/g, ' ').slice(0, 300) });
+  try { localStorage.setItem('atolye:yzGunluk', JSON.stringify(g)); } catch { alert('Tarayıcı deposu dolu: atölye sayfasından günlüğü indirin. Bu komut tasarım raporunda yine de yer alır.'); }
+}
+async function yzOner() {
+  const kod = $('#sinifKodu').value.trim();
+  if (!kod) { $('#yzAyar').open = true; $('#sinifKodu').focus(); $('#yzCevap').innerHTML = '<p class="uyari">Önce öğretmeninden aldığın sınıf kodunu yaz.</p>'; return null; }
+  try { localStorage.setItem('atolye:sinifKodu', JSON.stringify(kod)); } catch {}
+  const tip = durum.tasarim.tip, komut = F.yzKomutu(durum.gereksinim, tip), model = $('#model').value;
+  $('#yzCevap').innerHTML = '<p>🤖 Yapay zekâ düşünüyor…</p>';
+  let metin = '';
+  try {
+    const r = await fetch('/api/yz', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model, kod, gorev: { baslik: durum.taban.baslik, gezegen: ortam(durum.taban).ad, arac: 'Görev Fabrikası tasarımı' }, mesajlar: [{ rol: 'kullanici', metin: komut }] }) });
+    if (!r.ok) { let h = `Sorun oluştu (${r.status}).`; try { h = (await r.json()).hata ?? h; } catch {} throw new Error(h); }
+    const ok = r.body.getReader(), c = new TextDecoder();
+    for (;;) { const { value, done } = await ok.read(); if (done) break; metin += c.decode(value, { stream: true }); }
+  } catch (e) {
+    $('#yzCevap').innerHTML = `<p class="kotu">⚠ ${esc(e.message === 'Failed to fetch' ? 'Asistana ulaşılamadı. Bu özellik yalnızca yayındaki sitede çalışır; otonom mühendisi yapay zekâsız da kullanabilirsin.' : e.message)}</p>`;
+    return null;
+  }
+  gunlugeYaz(model, komut, metin);
+  try {
+    const o = F.yzCevabiniOku(metin, tip);
+    durum.yz = { arac: $('#model').selectedOptions[0].textContent, komut, ...o };
+    degiskenleriCiz(tip, o.tasarim); durum.kaynak = `yapay zekâ önerisi (${durum.yz.arac})`; hesapla();
+    $('#yzCevap').innerHTML = `<div class="ipucu">🤖 <b>${esc(durum.yz.arac)} önerdi</b> ve değerler forma yazıldı.${o.duzeltilen.length ? ` Aralık dışında olduğu için düzeltilenler: <b>${esc(o.duzeltilen.join(', '))}</b>.` : ''}${o.eksik.length ? ` Eksik gelenler (varsayılan kullanıldı): ${esc(o.eksik.join(', '))}.` : ''}<br>Kontrolleri oku: öneri kuralları sağlıyor mu? Gerekçeleri kendi hesabınla karşılaştır.<pre class="gunluk">${esc(o.aciklama.slice(0, 1500))}</pre></div>`;
+    return o.tasarim;
+  } catch (e) { $('#yzCevap').innerHTML = `<p class="kotu">⚠ ${esc(e.message)}</p><pre class="gunluk">${esc(metin.slice(0, 1200))}</pre>`; return null; }
+}
+$('#yzOner').onclick = async () => { $('#yzOner').disabled = true; try { await yzOner(); } finally { $('#yzOner').disabled = false; } };
+
+// ---- otonom mühendis
+$('#otonom').onclick = async () => {
+  const dugmeler = ['#otonom', '#yzOner', '#stres', '#uc']; dugmeler.forEach(s => $(s).disabled = true);
+  const g = $('#optGunluk'), il = $('#optIlerleme'); g.hidden = false; il.hidden = false; g.textContent = '';
+  const yaz = m => { g.textContent += m + '\n'; g.scrollTop = g.scrollHeight; durum.optimizasyon.push(m); };
+  durum.optimizasyon = [];
+  try {
+    const tohumlar = [durum.tasarim];
+    yaz(`Başlangıç: ${durum.kaynak ?? 'formdaki değerler'} arama nüfusuna eklendi.`);
+    const s = await O.otonomTasarim(durum.gereksinim, { tohumlar, n: 30, gunluk: yaz, ilerleme: x => il.firstChild.style.width = `${x * 100}%` });
+    if (!s.tasarim) { yaz('Uygun tasarım bulunamadı: gereksinimleri (yük, hedef başarı) gözden geçirin.'); return; }
+    degiskenleriCiz(durum.tasarim.tip, s.tasarim.d);
+    durum.kaynak = `otonom mühendis (evrimsel arama + stres testi${durum.yz ? ', yapay zekâ önerisiyle başladı' : ''})`;
+    hesapla();
+    durum.stres = s.stres; stresCiz(); adimTamam(5, s.basarili);
+    yaz(s.basarili ? `✓ Sonuç: ${say(s.tasarim.e.kutle_kg, 3)} kg, stres testinden geçti.` : '✗ Hedef başarıya ulaşılamadı; en iyi aday gösteriliyor. Hedef başarıyı ya da yükü değiştirip yeniden deneyin.');
+  } catch (e) { hataGoster(e); }
+  finally { dugmeler.forEach(s => $(s).disabled = false); }
+};
+
+// ---------------------------------------------------------------- 3. maliyet
+$('#fiyat').innerHTML = Object.entries(M.YOLLAMA_FIYATLARI).map(([k, f]) => `<option value="${k}">${esc(f.ad)}${f.usd_kg ? ` — ${f.usd_kg.toLocaleString('tr-TR')} $/kg` : ''}</option>`).join('');
+function maliyetCiz() {
+  const e = durum.degerlendirme; if (!e) return;
+  const k = $('#fiyat').value, f = { ...M.YOLLAMA_FIYATLARI[k] };
+  if (k === 'kendi') f.usd_kg = +$('#kendiFiyat').value || null;
+  $('#kendiFiyat').disabled = k !== 'kendi';
+  durum.maliyet = f;
+  const usd = f.usd_kg ? e.kutle_kg * f.usd_kg : null;
+  $('#maliyet').innerHTML = usd == null ? '<p>Kendi değerinizi ve kaynağını yazın.</p>' : `
+    <div class="buyuk sayi">${Math.round(usd).toLocaleString('tr-TR')} $</div>
+    <p>${say(e.kutle_kg, 3)} kg × ${f.usd_kg.toLocaleString('tr-TR')} $/kg. <span style="color:#aeb8c7">Kaynak: ${esc(f.kaynak)}.</span></p>
+    <p class="ipucu">Bu yalnızca <b>taşıma</b>. Kıyas: Ingenuity'nin yapımı yaklaşık ${(M.INGENUITY_YAPIM_USD / 1e6).toLocaleString('tr-TR')} milyon $ tuttu. Aracı 100 g hafifletmek ${f.usd_kg ? Math.round(0.1 * f.usd_kg).toLocaleString('tr-TR') : '—'} $ kazandırır.</p>`;
+  adimTamam(3, usd != null);
+}
+$('#fiyat').onchange = maliyetCiz; $('#kendiFiyat').oninput = maliyetCiz;
+
+// ---------------------------------------------------------------- 4. simülasyon
+$('#uc').onclick = () => {
+  const e = durum.degerlendirme; if (!e) return;
+  const iz = [], zemin = gorevArazisi(e.gorev);
+  const d = otopilotlaUc(e.gorev, { dt: 1 / 60, zemin, iz });
+  const p = puan(d, e.gorev);
+  durum.sim = { mesaj: d.sonuc.mesaj, tur: d.sonuc.tur, zaman: d.zaman, kalan: iz.at(-1)?.enerji, puan: p.puan };
+  haritaCiz(e.gorev, iz); grafikCiz(iz, e.arac.tip === 'roket');
+  const iyi = d.sonuc.tur === 'basari';
+  $('#simSonuc').innerHTML = `<div class="karar ${iyi ? 'iyi' : 'kotu'}">${iyi ? '✓' : '✗'} ${esc(d.sonuc.mesaj)}</div><p>Süre ${say(d.zaman / 60, 1)} dk · kalan ${e.arac.tip === 'roket' ? 'yakıt' : 'enerji'} ${yuzde(durum.sim.kalan)} · hedefler ${p.tamamlanan}/${p.toplam} · puan ${p.puan}</p>`;
+  adimTamam(4, iyi);
+};
+function haritaCiz(g, iz) {
+  const c = $('#harita'), x = c.getContext('2d'), W = c.width, H = c.height;
+  const nok = [{ x: 0, z: 0 }, ...g.hedefler, ...iz];
+  const minX = Math.min(...nok.map(p => p.x)) - 30, maxX = Math.max(...nok.map(p => p.x)) + 30, minZ = Math.min(...nok.map(p => p.z)) - 30, maxZ = Math.max(...nok.map(p => p.z)) + 30;
+  const s = Math.min(W / (maxX - minX), H / (maxZ - minZ)), ox = (W - (maxX - minX) * s) / 2, oz = (H - (maxZ - minZ) * s) / 2;
+  const X = v => ox + (v - minX) * s, Z = v => oz + (v - minZ) * s;
+  x.clearRect(0, 0, W, H);
+  x.fillStyle = '#ffffff22'; x.beginPath(); x.arc(X(0), Z(0), 10 * s, 0, 7); x.fill();
+  x.fillStyle = '#eef2f7'; x.font = '13px system-ui'; x.fillText('ÜS', X(0) + 8, Z(0) - 8);
+  g.hedefler.forEach(h => { x.strokeStyle = '#7ee08a'; x.beginPath(); x.arc(X(h.x), Z(h.z), (h.yaricap ?? 15) * s, 0, 7); x.stroke(); x.fillStyle = '#7ee08a'; x.fillText(h.ad, X(h.x) + 6, Z(h.z) - 6); });
+  x.strokeStyle = '#ff9a52'; x.lineWidth = 2; x.beginPath(); iz.forEach((p, i) => i ? x.lineTo(X(p.x), Z(p.z)) : x.moveTo(X(p.x), Z(p.z))); x.stroke(); x.lineWidth = 1;
+  x.fillStyle = '#aeb8c7'; x.fillText('↑ kuzey · 50 m', 10, 18); x.strokeStyle = '#aeb8c7'; x.beginPath(); x.moveTo(10, 26); x.lineTo(10 + 50 * s, 26); x.stroke();
+}
+function grafikCiz(iz, roket) {
+  const c = $('#grafik'), x = c.getContext('2d'), W = c.width, H = c.height, T = iz.at(-1)?.t || 1, A = Math.max(30, ...iz.map(p => p.agl));
+  x.clearRect(0, 0, W, H); x.font = '12px system-ui';
+  const cz = (f, renk) => { x.strokeStyle = renk; x.beginPath(); iz.forEach((p, i) => { const px = 40 + p.t / T * (W - 50), py = H - 20 - f(p) * (H - 35); i ? x.lineTo(px, py) : x.moveTo(px, py); }); x.stroke(); };
+  cz(p => p.agl / A, '#6cc3ff'); cz(p => p.enerji, '#7ee08a');
+  x.fillStyle = '#6cc3ff'; x.fillText(`yükseklik (en çok ${say(A, 0)} m)`, 44, 14); x.fillStyle = '#7ee08a'; x.fillText(`kalan ${roket ? 'yakıt' : 'enerji'} (%)`, 250, 14);
+  x.fillStyle = '#aeb8c7'; x.fillText(`${say(T / 60, 1)} dk`, W - 50, H - 4); x.fillText('0', 30, H - 4);
+}
+
+// ---------------------------------------------------------------- 5. stres testi
+$('#stres').onclick = async () => {
+  const e = durum.degerlendirme; if (!e) return;
+  $('#stres').disabled = true; const il = $('#stresIlerleme'); il.hidden = false;
+  try {
+    durum.stres = await S.stresTesti(e.gorev, { n: +$('#n').value, ilerleme: v => il.firstChild.style.width = `${v * 100}%` });
+    stresCiz();
+  } catch (er) { hataGoster(er); } finally { $('#stres').disabled = false; }
+};
+function stresCiz() {
+  const s = durum.stres; if (!s) return;
+  const hedef = durum.gereksinim.hedefBasari, enKotu = Math.min(...Object.values(s.senaryolar).map(v => v.oran));
+  const iyi = enKotu >= hedef;
+  $('#stresSonuc').innerHTML = `
+    <div class="karar ${iyi ? 'iyi' : 'kotu'}">${iyi ? '✓ Tasarım stres testinden geçti' : '✗ Tasarım stres testinden geçemedi'}: en kötü senaryoda ${yuzde(enKotu)} başarı (hedef ${yuzde(hedef)}).</div>
+    <p style="font-size:13px;color:#aeb8c7">Belirsizlik: ${esc(s.belirsizlik.kaynak)} — hava yoğunluğu ±${yuzde(s.belirsizlik.yogunlukSapma)}, rüzgâr ±${say(s.belirsizlik.ruzgarSapma_m_s, 1)} m/s.</p>
+    <table><tr><th>Senaryo</th><th>Başarı</th><th>%95 güven aralığı</th><th>En az kalan enerji</th><th>Başarısızlık nedeni</th></tr>
+    ${Object.entries(s.senaryolar).map(([k, v]) => `<tr title="${esc(S.SENARYOLAR[k]?.aciklama)}"><td>${esc(S.SENARYOLAR[k]?.ad ?? k)}</td><td class="sayi ${v.oran >= hedef ? 'iyi' : 'kotu'}">${v.basari}/${v.n} (${yuzde(v.oran)})</td><td class="sayi">${yuzde(v.aralik[0])} – ${yuzde(v.aralik[1])}</td><td class="sayi">${yuzde(v.enAzKalan)}</td><td>${esc(Object.entries(v.nedenler).map(([n, c]) => `${n}: ${c}`).join(', ') || '—')}</td></tr>`).join('')}
+    </table>
+    <p class="ipucu"><b>Güven aralığı ne demek?</b> 50 denemede 46 başarı görmek, gerçek başarının tam %92 olduğunu göstermez; aralık "gerçek değer büyük olasılıkla bu ikisi arasında" der. Deneme sayısı arttıkça aralık daralır.</p>`;
+  adimTamam(5, iyi);
+}
+
+// ---------------------------------------------------------------- 6. oyun
+function oyunGorevi() { return F.oyunGorevi(durum.taban, durum.degerlendirme.arac, { baslik: $('#baslik').value.trim() || undefined }); }
+function indir(ad, metin, tur) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([metin], { type: tur })); a.download = ad; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+function arsivCiz() {
+  const l = F.arsiv(localStorage);
+  $('#arsivTablo').innerHTML = !l.length ? '<p style="color:#aeb8c7">Henüz kaydedilmiş tasarım yok.</p>' : `<table><tr><th>#</th><th>Zaman</th><th>Görev</th><th>Kütle</th><th>Stres testi</th><th></th></tr>${l.slice().reverse().map(k => `<tr><td>${k.no}</td><td>${new Date(k.zaman).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</td><td>${esc(k.gorev.baslik)}</td><td class="sayi">${say(k.ozet?.kutle_kg, 3)} kg</td><td>${k.ozet?.stres == null ? '—' : yuzde(k.ozet.stres)}</td><td><button class="d" data-ac="${k.no}">▶ Oyna</button></td></tr>`).join('')}</table>`;
+}
+$('#arsivTablo').onclick = e => {
+  const no = +e.target.dataset.ac; if (!no) return;
+  const k = F.arsiv(localStorage).find(x => x.no === no);
+  if (k && F.oyundaAc(localStorage, k.gorev)) window.open('index.html?gorev=fabrika', '_blank');
+};
+$('#oyna').onclick = () => {
+  if (!durum.degerlendirme) return;
+  const g = oyunGorevi();
+  if (!durum.degerlendirme.uygun && !confirm('Bu tasarım bazı kuralları sağlamıyor. Yine de kaydedip oynamak istiyor musun?')) return;
+  const sonuc = F.arsiveEkle(localStorage, { gorev: g, tasarim: durum.tasarim, ozet: { kutle_kg: durum.degerlendirme.kutle_kg, stres: durum.stres?.toplam.oran ?? null, kaynak: durum.kaynak } });
+  if (!sonuc.tamam) { alert(sonuc.hata); return; }
+  if (!F.oyundaAc(localStorage, g)) { alert('Oyun için kaydedilemedi (tarayıcı deposu dolu).'); return; }
+  arsivCiz(); adimTamam(6);
+  window.open('index.html?gorev=fabrika', '_blank');
+};
+$('#ayarIndir').onclick = () => { if (durum.degerlendirme) indir('ayarlar.js', ayarlarDosyasi(oyunGorevi()), 'text/javascript;charset=utf-8'); };
+$('#raporIndir').onclick = () => { if (durum.degerlendirme) indir('TASARIM-RAPORU.md', F.tasarimRaporu({ ...durum, degerlendirme: { ...durum.degerlendirme, gorev: oyunGorevi() } }), 'text/markdown;charset=utf-8'); };
+
+// ---------------------------------------------------------------- başlat
+for (const id of ['#yuk', '#avk', '#avg', '#hedefB']) $(id).addEventListener('input', gereksinimGuncelle);
+$('#taban').onchange = () => { durum.yz = null; durum.optimizasyon = []; durum.kaynak = null; $('#yzCevap').innerHTML = ''; $('#optGunluk').hidden = true; tabanKur(); };
+await tabanKur();
+arsivCiz();
+} catch (e) { hataGoster(e); }
+</script>
+</body>
+</html>

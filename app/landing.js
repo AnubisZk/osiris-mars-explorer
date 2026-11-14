@@ -78,6 +78,10 @@ export function showLanding(){
         h('span',{class:'wicon'},'🛠'),
         h('span',{class:'wtext'},h('small',{},t('workshopTag')),h('b',{},t('workshopTitle')),h('span',{},t('workshopText'))),
         h('span',{class:'go'},`${t('workshopGo')} →`)),
+      h('a',{class:'workshop',href:'atolye/kit/fabrika.html'},
+        h('span',{class:'wicon'},'🏭'),
+        h('span',{class:'wtext'},h('small',{},t('workshopTag')),h('b',{},t('factoryTitle')),h('span',{},t('factoryText'))),
+        h('span',{class:'go'},`${t('factoryGo')} →`)),
       h('p',{class:'foot'},t('landFoot')));
   };
   render();

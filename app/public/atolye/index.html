@@ -286,6 +286,16 @@
     </div>
     <p style="font-size:13px;color:var(--soluk);margin:4px 0 0">Süre 60–90 dk · Bilim danışmanı veriyi hazırlar, Kodcu modeli bağlar, takım deneyi yapar · Komutlar: K4.5, K4.6 · Değerlendirmede bonus (+5).</p>
   </div>
+  <div class="kart" style="margin-top:16px;border-color:#ff9a5266;background:linear-gradient(110deg,#2a1a10,#131720)">
+    <span class="rozet">yeni</span>
+    <h3>🏭 Görev Fabrikası: tasarımdan oyuna</h3>
+    <p style="color:#d4dbe5;margin:6px 0">Mühendis gibi çalış: <b>sistem tasarımı → cihaz tasarımı → yollama maliyeti → simülasyon → stres testi → oyun</b>. Aracının malzemesini, bataryasını, rotorunu seç; yapay zekâdan öneri al, <b>otonom mühendis</b> en hafif güvenli tasarımı evrimsel aramayla bulsun, tasarım rüzgârlı gün, toz şeytanı, soğuk sabah gibi aşırı koşullarda yüzlerce kez uçurulsun (gerçek veriden eğitilmiş atmosfer modelin varsa belirsizlik onun test hatasından gelir). Sonunda oynanabilir görev, <code>ayarlar.js</code> ve tasarım raporu hazır.</p>
+    <div class="dugmeler">
+      <a class="dugme ana" href="kit/fabrika.html" target="_blank" rel="noopener">🏭 Görev Fabrikası'nı aç</a>
+      <a class="dugme ikinci" href="kit/FABRIKA.md" target="_blank" rel="noopener">📘 Rehber</a>
+    </div>
+    <p style="font-size:13px;color:var(--soluk);margin:4px 0 0">Süre 60–90 dk · Komutlar: K5.3, K5.4 · Her tasarım tarayıcıdaki arşive eklenir; hiçbir tasarım ya da kayıt otomatik silinmez.</p>
+  </div>
   <h3 style="margin-top:26px">İlk 10 dakika: ısınma</h3>
   <div class="kart"><ol style="font-size:15px;color:#d4dbe5;padding-left:20px;margin:0">
     <li><b>Renk:</b> <code>arac → renk</code> değerini <code>"#ff4fa0"</code> yap. Helikopter pembe oldu mu?</li>
@@ -558,6 +568,7 @@ const DOSYALAR = [
   ['AGENTS.md · CLAUDE.md', 'Depoda çalışan yapay zekâ ajanlarının uyacağı kurallar', 'Kaptan', '❌ Gerek yok'],
   ['KOMUT-KAYDI.md', 'Ajanlara verilen her komutun kelimesi kelimesine kaydı (şeffaflık)', 'Ajan yazar, takım kontrol eder', '✅ "Takımın kontrolü" satırlarını doldurun'],
   ['veri-atolyesi.html · atmosfer.js · veri/', 'Gerçek ölçümlerden atmosfer modeli eğitme ve oyuna bağlama (dijital ikiz)', 'Bilim + Kodcu', '✅ Bonus görev: VERI-IKIZI.md'],
+  ['fabrika.html · tasarim.js · malzemeler.js · otopilot.js · stres.js · optimize.js · fabrika.js', 'Görev Fabrikası: tasarım, maliyet, otopilot, stres testi, optimizasyon, oyun üretimi', 'Tüm takım', '✅ Sayfadan kullanın: FABRIKA.md'],
   ['GOREV-TASARIMI.md', 'Takımın tasarım belgesi', 'Tüm takım', '✅ Doldurulacak'],
   ['ROLLER.md', 'Görev dağılımı ve takım sözleşmesi', 'Tüm takım', '✅ Doldurulacak'],
   ['YZ-GUNLUGU.md', 'Yapay zekâ kullanım kaydı', 'Sunucu', '✅ Her kullanımda'],
@@ -769,8 +780,11 @@ const gunlukSay = () => { $('#gunlukSayi').textContent = gunluk.length; };
 function gunlugeEkle(model, soru, cevap) {
   const kod = soru.match(/\[Hazır komut (K\d+\.\d+)/)?.[1] ?? '';
   gunluk.push({ zaman: new Date().toISOString(), arac: durum.modeller[model]?.ad ?? model, model: durum.modeller[model]?.model ?? '', gorev: secili ? GOREVLER[secili].baslik : '', kod, soru: soru.slice(0, 8000), cevap: (cevap ?? '').replace(/```[\s\S]*?```/g, '[kod]').replace(/\s+/g, ' ').slice(0, 300) });
-  if (gunluk.length > 300) gunluk = gunluk.slice(-300);
-  depo.koy('yzGunluk', gunluk); gunlukSay();
+  // Öğrencilerin kayıtları hiçbir zaman otomatik silinmez. Tarayıcı deposu dolarsa uyarılır:
+  // o zaman günlüğü indirip YZ-GUNLUGU.md'ye ekleyin; kayıt yine silinmez.
+  try { localStorage.setItem('atolye:yzGunluk', JSON.stringify(gunluk)); }
+  catch { bildir('⚠ Tarayıcı deposu doldu: günlüğü şimdi indirin (📥). Bu sorudan sonraki kayıtlar yalnızca bu sekmede tutuluyor.'); }
+  gunlukSay();
 }
 $('#gunlukIndir').onclick = () => {
   if (!gunluk.length) return bildir('Günlük henüz boş.');

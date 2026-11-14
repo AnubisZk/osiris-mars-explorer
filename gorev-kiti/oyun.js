@@ -18,8 +18,12 @@ import { GEZEGENLER } from './gezegenler.js';
 
 // ---------------------------------------------------------------- görevi seç
 // Adres çubuğunda ?gorev=titan gibi bir ek varsa hazır görev, yoksa ayarlar.js
+// ?gorev=fabrika → Görev Fabrikası'nda (fabrika.html) tasarlanıp bu tarayıcıya kaydedilen görev
 const ek = new URLSearchParams(location.search).get('gorev');
-const GOREV = ek && GOREVLER[ek] ? structuredClone(GOREVLER[ek]) : AYAR;
+function fabrikaGorevi() {
+  try { return JSON.parse(localStorage.getItem('gorevKiti:fabrika')); } catch { return null; }
+}
+const GOREV = ek === 'fabrika' ? (fabrikaGorevi() ?? AYAR) : ek && GOREVLER[ek] ? structuredClone(GOREVLER[ek]) : AYAR;
 dogrula(GOREV);
 // Gerçek veriden eğitilmiş atmosfer modeli varsa (ayarlar.js → atmosfer) önce onu yükle
 await atmosferiBagla(GOREV, async yol => {
