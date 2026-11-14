@@ -24,7 +24,6 @@
         <button class="btn subtle" id="csvBtn" data-t="dugme.csv"></button>
         <button class="btn subtle" id="reportBtn" data-t="dugme.rapor"></button>
         <button class="btn subtle" id="dataBtn" data-t="dugme.veri"></button>
-        <button class="btn subtle" id="qualityBtn" data-t-title="kalite.ipucu"></button>
         <a class="btn subtle" id="guideLink" href="kilavuz.html" target="_blank" rel="noopener" data-t="dugme.kullanim"></a>
         <button class="btn subtle" id="helpBtn" data-t="dugme.kilavuz"></button>
         <div class="dil-secici" role="group" aria-label="Dil / Language"><button data-dil="tr">TR</button><button data-dil="en">EN</button></div>
@@ -38,8 +37,8 @@
           <canvas id="glcanvas" aria-label="Mars 3D"></canvas>
           <div class="viewer-vignette"></div>
           <div class="viewer-top">
-            <div class="view-badge"><span class="live-dot"></span> <span data-t="sahne.rozet"></span> <span class="sep">/</span> <span data-t="sahne.sektor"></span> <span class="sep">/</span> <span id="viewModeLabel"></span></div>
-            <div class="view-telemetry"><span id="padBadge" hidden>🎮 <b id="padAd"></b></span><span>HDG <b id="heading">000</b>°</span><span>FPS <b id="fps">—</b></span><span>ρ <b id="hudRho">—</b></span><span>WEBGL <b>2.0</b></span></div>
+            <div class="viewer-top-left"><div class="view-badge"><span class="live-dot"></span> <span data-t="sahne.rozet"></span> <span class="sep">/</span> <span data-t="sahne.sektor"></span> <span class="sep">/</span> <span id="viewModeLabel"></span></div><div class="quality-seg" id="qualitySeg" role="group" data-t-title="kalite.ipucu"><span data-t="kalite.baslik"></span><button data-q="low" data-t="kalite.low"></button><button data-q="medium" data-t="kalite.medium"></button><button data-q="high" data-t="kalite.high"></button></div><div class="quality-seg" id="resSeg" role="group" data-t-title="coz.ipucu"><span data-t="coz.baslik"></span><button data-r="auto" data-t="coz.auto"></button><button data-r="0.75" data-t="coz.0.75"></button><button data-r="1" data-t="coz.1"></button><button data-r="1.5" data-t="coz.1.5"></button><button data-r="2" data-t="coz.2"></button></div></div>
+            <div class="view-telemetry"><span id="padBadge" hidden>🎮 <b id="padAd"></b></span><span>HDG <b id="heading">000</b>°</span><span>FPS <b id="fps">—</b></span><span>ρ <b id="hudRho">—</b></span><span data-t-title="coz.res">RES <b id="resLabel">—</b></span><span>WEBGL <b>2.0</b></span></div>
           </div>
           <div class="crosshair" id="crosshair"><span></span><span></span><span></span><span></span><i></i></div>
           <div class="altitude-ruler" id="altRuler"><small data-t="sahne.irtifa"></small><strong id="hudAlt">0.0</strong><small data-t="sahne.metre"></small><div class="rule-ticks"></div></div>
@@ -72,6 +71,17 @@
           </div>
         </div>
         <div class="lower-panels"><div class="module-pad"><div class="module-head"><span>◈</span> <span data-t="harita.baslik"></span> <small data-t="harita.gercek"></small></div><canvas id="minimap" width="520" height="180"></canvas><div class="legend"><span><i class="drone-dot"></i> <span data-t="harita.drone"></span></span><span><i class="rover-dot"></i> <span data-t="harita.gezgin"></span></span><span><i class="target-dot"></i> <span data-t="harita.numune"></span></span></div></div><div class="module-pad journey"><div class="module-head"><span>◷</span> <span data-t="zaman.baslik"></span> <small>JZR-03</small></div><div class="mission-steps" id="missionSteps"></div><p class="mission-description" id="missionDescription"></p></div></div>
+        <div class="lower-panels meda-row"><div class="module-pad meda-pad" id="medaPanel">
+          <div class="module-head"><span>☁</span> <span data-t="meda.baslik"></span> <small id="medaMeta">JEZERO</small></div>
+          <div class="meda-body">
+            <div class="meda-bar"><div class="seg" id="medaSols"></div><div class="seg" id="medaVars"></div></div>
+            <canvas id="medaChart" aria-label="MEDA"></canvas>
+            <div class="meda-time"><button class="seg-btn" id="medaPlay" hidden>▶</button><button class="seg-btn" id="medaSpeed" hidden>×1</button><input type="range" id="medaTime" min="0" max="1439" step="1" value="540" data-t-title="meda.kaydirici" aria-label="LMST"><b id="medaClock">09:00 LMST</b></div>
+            <div class="meda-read" id="medaRead"></div>
+            <div class="meda-flight" id="medaFlight"></div>
+            <div class="meda-src" id="medaSrc"></div>
+          </div>
+        </div></div>
       </section>
       <aside class="sidebar">
         <div class="sidebar-header"><div><span class="kicker" data-t="yan.ust"></span><h2 data-t="yan.baslik"></h2></div><div class="pulse-bars"><span></span><span></span><span></span><span></span><span></span></div></div>

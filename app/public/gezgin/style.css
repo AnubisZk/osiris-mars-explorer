@@ -23,3 +23,44 @@
 .soil-bars{display:flex;height:7px;margin-top:9px;border-radius:2px;overflow:hidden;background:#101c26}.soil-bars span{min-width:0}
 a.btn{text-decoration:none;display:inline-block}
 @media(max-width:600px){.viewer-bottom .coords{display:none}}
+
+/* v3.3 (v2.5'ten): grafik/çözünürlük düğmeleri ve MEDA hava paneli */
+.viewer-top-left{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+.quality-seg{pointer-events:auto;display:flex;align-items:center;gap:2px;padding:3px;background:#11212dcc;border:1px solid #ffffff2b;border-radius:3px;box-shadow:0 2px 12px #0005}
+.quality-seg span{font-size:9px;font-weight:800;letter-spacing:1px;color:#e6b07a;padding:0 7px 0 5px;white-space:nowrap}
+.quality-seg button{background:transparent;border:0;border-radius:2px;color:#c3d1d7;font:800 9px Inter,"Segoe UI",sans-serif;letter-spacing:.8px;padding:6px 9px;cursor:pointer}
+.quality-seg button:hover{background:#ffffff1c;color:#fff}
+.quality-seg button.on{background:#ce9664;color:#0e151b}
+.quality-seg.busy{opacity:.55;pointer-events:none}
+.data-row{align-items:stretch}
+.data-row .module-pad{min-width:0;display:flex;flex-direction:column}
+.seg{display:flex;flex-wrap:wrap;gap:3px}
+.seg button,.seg-btn{background:#172534;border:1px solid #2b4051;color:#9fb2bd;font:800 9px Inter,"Segoe UI",sans-serif;letter-spacing:.6px;padding:5px 7px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.seg button:hover,.seg-btn:hover{background:#21364a;color:#eef2f3}
+.seg button.on{background:#c98953;border-color:#e4a76d;color:#0e151b}
+.meda-bar{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+#medaChart{display:block;width:100%;height:124px;margin-top:8px;cursor:crosshair;background:#0d1720;border:1px solid #1f3140;border-radius:3px;touch-action:none}
+.meda-time{display:flex;align-items:center;gap:5px;margin-top:7px}
+.meda-time input{flex:1;min-width:60px;accent-color:#e4a76d;height:16px}
+.meda-time b{font:700 12px Consolas,monospace;color:#e4e8ed;min-width:84px;text-align:right}
+.meda-read{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:7px}
+.meda-read>div{background:#0d1720;border:1px solid #1f3140;border-radius:3px;padding:5px 6px;min-width:0;overflow:hidden}
+.meda-read small{display:block;font-size:8px;color:#7794a4;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meda-read b{font:700 11.5px/1.5 Consolas,monospace;color:#edf2f3;white-space:nowrap}
+.meda-read em{font-style:normal;font-size:8px;color:#7f97a5;margin-left:2px;font-family:Inter,sans-serif}
+.meda-read i{color:#e0b25c;font-style:normal}
+.warrow{display:inline-block;color:#9fc6e6;font-family:Inter,sans-serif}
+.meda-flight{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;margin-top:7px;padding:6px 9px;border:1px solid;border-radius:3px;font-size:10px;color:#c9d6dc;line-height:1.4}
+.meda-flight b{font-size:10px;letter-spacing:1px}
+.meda-flight.ok{border-color:#2f6b5f;background:#10282a}
+.meda-flight.ok b{color:#77d0bf}
+.meda-flight.marginal{border-color:#7a6232;background:#272215}
+.meda-flight.marginal b{color:#e7b95f}
+.meda-flight.no{border-color:#7a3a32;background:#2a1716}
+.meda-flight.no b{color:#ec7a63}
+.meda-energy{margin-left:auto;color:#a3b3be;font:10px Consolas,monospace;white-space:nowrap}
+.meda-src{font-size:8.5px;color:#6c8494;margin-top:auto;padding-top:7px;line-height:1.45}
+.meda-empty{color:#a3b3be;font-size:11px;line-height:1.5}
+.meda-row{grid-template-columns:1fr}.meda-pad{display:flex;flex-direction:column;min-height:0}
+.viewer-top{align-items:flex-start}.viewer-top-left{pointer-events:none}.viewer-top-left .quality-seg{pointer-events:auto}
+@media(max-width:840px){.quality-seg span{font-size:8px;padding:0 4px}.quality-seg button{padding:5px 6px;font-size:8px}.meda-energy{margin-left:0}.meda-read{grid-template-columns:repeat(3,1fr)}}

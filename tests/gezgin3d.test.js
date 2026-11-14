@@ -130,7 +130,7 @@ test('terramekanik: kum ve tozda kayma regolitten büyük, ana kayada en küçü
   assert.equal(S.zeminSurusu({ zeminler: [TM.blendSoil([1, 0, 0, 0, 0], ZEMIN.classes)], kutleKg: 45, tekerHizi: 0, capM: 0.26, genislikM: 0.08 }).hiz, 0);
 });
 
-test('MEDA modeli (sol 105–107): ölçülen gün içi döngü ve Ingenuity gücü', () => {
+test('MEDA modeli (sol 105–110): ölçülen gün içi döngü ve Ingenuity gücü', () => {
   const h = S.medaHava();
   assert.equal(S.harmonik([5, 0, 0], 13), 5);
   const sabah = S.havaSicakligiC(5, h), ogle = S.havaSicakligiC(14, h);
@@ -143,4 +143,51 @@ test('MEDA modeli (sol 105–107): ölçülen gün içi döngü ve Ingenuity gü
   }
   assert.ok(S.zeminRuzgari(15, h) > S.zeminRuzgari(3, h));
   assert.ok(S.MEDA_MODEL.test.basincR2 > 0.9 && S.MEDA_MODEL.test.sicaklikR2 > 0.9);
+});
+
+// ------------------------------------------------------------------ v3.3: MEDA ölçüm paneli (v2.5'ten)
+const M = await import(new URL('meda.js', kok));
+const MEDA = JSON.parse(readFileSync(new URL('assets/meda/meda_sols.json', kok), 'utf8'));
+
+test('MEDA ölçüm dosyası: 5 sol, 144 kutu, ρ oyunun R değeriyle', () => {
+  assert.deepEqual(Object.keys(MEDA.sols), ['105', '106', '107', '109', '110']);
+  assert.equal(MEDA.files.length, 25);
+  for (const s of Object.values(MEDA.sols)) {
+    assert.equal(s.bins.p.length, 144);
+    s.bins.p.forEach((p, i) => {
+      const T = s.bins.t[i], r = s.bins.rho[i];
+      if (p == null || T == null) return;
+      assert.ok(p > 740 && p < 790, `basınç ${p}`);
+      assert.ok(Math.abs(r - S.yogunluk(p, T)) < 2e-5, `ρ ${r} ≠ ${S.yogunluk(p, T)}`);
+    });
+  }
+});
+
+test('MEDA örnekleme: boşluk birleşik döngüden, rüzgâr yönü dairesel', () => {
+  const o = M.sample(MEDA, '109', 9 * 60);
+  assert.ok(o.p > 750 && o.p < 780 && o.t < -20 && o.t > -80);
+  for (let dk = 0; dk < 1440; dk += 37) {
+    const s = M.sample(MEDA, 'birlesik', dk);
+    assert.ok(s.p != null && s.rho > 0.012 && s.rho < 0.025, `dk ${dk}: ${s.rho}`);
+    if (s.wd != null) assert.ok(s.wd >= 0 && s.wd < 360);
+  }
+  assert.deepEqual(M.windVector(0, 90), [0, 0]);
+  const [x, z] = M.windVector(2, 0);            // kuzeyden esen rüzgâr güneye (+z) akar
+  assert.ok(Math.abs(x) < 1e-9 && Math.abs(z - 2) < 1e-9);
+});
+
+test('MEDA uçuş kuralları: seyrek hava ve fırtına yasak, sakin sabah uygun', () => {
+  assert.equal(M.flightStatus({ rho: 0.019, ws: 2, wmax: 3, t: -40, sza: 40 }).level, 'ok');
+  assert.equal(M.flightStatus({ rho: 0.012, ws: 2, wmax: 3, t: -40, sza: 40 }).level, 'marginal');
+  assert.equal(M.flightStatus({ rho: 0.0105, ws: 2, wmax: 3, t: -40, sza: 40 }).level, 'no');
+  assert.equal(M.flightStatus({ rho: 0.019, ws: 11, wmax: 12, t: -40, sza: 40 }).level, 'no');
+  const P = M.hoverPowerW(0.017);
+  assert.ok(P > 300 && P < 380, `askı gücü ${P}`);
+});
+
+test('MEDA paneli ve çözünürlük dizgileri iki dilde', () => {
+  for (const k of ['meda.baslik', 'meda.d.ok', 'meda.d.no', 'meda.kaynak', 'coz.baslik', 'coz.auto', 'kalite.baslik', 'm.medaYasak', 'durum.medaOlcum']) {
+    assert.ok(DILLER.tr[k] && DILLER.en[k], k);
+  }
+  assert.equal(DILLER.en['meda.pusula'].split(',').length, 8);
 });
