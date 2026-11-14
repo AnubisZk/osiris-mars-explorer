@@ -191,3 +191,39 @@ test('MEDA paneli ve çözünürlük dizgileri iki dilde', () => {
   }
   assert.equal(DILLER.en['meda.pusula'].split(',').length, 8);
 });
+
+// ------------------------------------------------------------------ v3.3: GRU tahmini, MLP ve kuantum sınıflandırıcı (v2.6'dan)
+const TAHMIN = JSON.parse(readFileSync(new URL('assets/meda/meda_tahmin.json', kok), 'utf8'));
+const NN = await import(new URL('nn.js', kok));
+const Q = await import(new URL('quantum.js', kok));
+
+test('GRU tahmini: tarayıcı hesabı PyTorch denetim çıktılarıyla aynı', () => {
+  assert.deepEqual(TAHMIN.config.split, { train: [105, 106, 107], val: [109], test: [110] });
+  for (const c of TAHMIN.checks) {
+    const r = M.forecastAt(TAHMIN, String(c.sol), c.m0);
+    const fark = Math.max(...r.delta.map((v, i) => Math.abs(v / TAHMIN.norm.ysd[i] - c.pred[i])));
+    const farkHam = Math.max(...r.delta.map((v, i) => Math.abs(v - c.pred[i])));
+    assert.ok(Math.min(fark, farkHam) < 5e-3, `sol ${c.sol} dk ${c.m0}: ${fark} / ${farkHam}`);
+  }
+  // test gününde GRU sıcaklıkta kalıcılık tahmininden belirgin iyi
+  const T = TAHMIN.metrics.test;
+  assert.ok(M.meanOf(T.gru.t) < 0.6 * M.meanOf(T.persistence.t));
+});
+
+test('kuantum devre simülatörü: olasılıklar 1 eder, RY(π) ve CNOT doğru', () => {
+  const s = Q.newState(); Q.ry(s, 0, Math.PI); Q.cnot(s, 0, 1);
+  const p = Q.probs(s);
+  assert.ok(Math.abs(p.reduce((a, b) => a + b, 0) - 1) < 1e-12);
+  assert.ok(Math.abs(p[0b11] - 1) < 1e-12);                 // |00⟩ → |01⟩ → |11⟩
+  assert.ok(Math.abs(Q.expZ(p, 0) + 1) < 1e-12 && Math.abs(Q.expZ(p, 2) - 1) < 1e-12);
+});
+
+test('MLP kaya sınıflandırıcı tarayıcıdaki gibi eğitilir (temsilî spektrum)', () => {
+  const r = new NN.RockTrainer(2025); while (!r.done) r.step();
+  assert.ok(r.test.accuracy > 0.9, `doğruluk ${r.test.accuracy}`);
+  assert.equal(NN.ROCK_CLASSES.length, 3);
+});
+
+test('DL/kuantum paneli ve GRU sekmesi dizgileri iki dilde', () => {
+  for (const k of ['dl.baslik', 'dl.not.quantum', 'dl.l.vqc', 'meda.fc.sekme', 'meda.fc.kaynak', 'l.medaGru']) assert.ok(DILLER.tr[k] && DILLER.en[k], k);
+});

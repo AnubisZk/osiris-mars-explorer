@@ -117,6 +117,61 @@ export function windVector(ws, wdDeg) {
   return [ws * Math.sin(b), -ws * Math.cos(b)];
 }
 
+/* ─────────────── Derin öğrenme tahmini (GRU, PyTorch ile çevrim dışı eğitildi; ağırlıklar assets/meda/meda_tahmin.json) ─────────────── */
+export const FORECAST_URL = 'assets/meda/meda_tahmin.json';
+export async function loadForecast(url = FORECAST_URL) {
+  try { const r = await fetch(url, {cache: 'no-cache'}); if (!r.ok) throw new Error(`HTTP ${r.status}`); const d = await r.json(); if (!d?.models?.length) throw new Error('no model'); return d; }
+  catch (e) { console.warn('MEDA forecast model could not be loaded:', e.message); return null; }
+}
+const sigm = x => 1 / (1 + Math.exp(-x));
+/** PyTorch GRU (r, z, n kapıları) + doğrusal çıkış. seq: LOOK × kanal, c: günlük döngü girdisi. */
+export function gruForward(m, seq, c) {
+  const {W_ih, W_hh, b_ih, b_hh} = m.gru, hid = W_hh[0].length; let h = new Float64Array(hid);
+  for (const x of seq) {
+    const gi = W_ih.map((row, i) => row.reduce((s, w, j) => s + w * x[j], b_ih[i]));
+    const gh = W_hh.map((row, i) => row.reduce((s, w, j) => s + w * h[j], b_hh[i]));
+    const nh = new Float64Array(hid);
+    for (let k = 0; k < hid; k++) { const r = sigm(gi[k] + gh[k]), z = sigm(gi[hid + k] + gh[hid + k]), n = Math.tanh(gi[2 * hid + k] + r * gh[2 * hid + k]); nh[k] = (1 - z) * n + z * h[k]; }
+    h = nh;
+  }
+  const z = [...h, ...c];
+  return m.head.W.map((row, i) => row.reduce((s, w, j) => s + w * z[j], m.head.b[i]));
+}
+const okAt = (S, m) => m >= 0 && m < 1440 && S.p[m] != null && S.t[m] != null && S.tg[m] != null && S.sza[m] != null;
+/** m0'da biten LOOK dakikalık kesintisiz ölçüm var mı? */
+export function windowOk(F, sol, m0) { const S = F?.series?.[sol], L = F?.config?.look || 20; if (!S) return false; for (let m = m0 - L + 1; m <= m0; m++) if (!okAt(S, m)) return false; return true; }
+const futureOk = (F, sol, m0) => { const S = F.series[sol], H = F.config.horizon; for (let m = m0 + 1; m <= m0 + H; m++) if (m >= 1440 || S.t[m] == null || S.p[m] == null) return false; return true; };
+/** İstenen dakikaya en yakın geçerli tahmin anı. Önce sonraki 15 dakikası da ölçülmüş (tahmin–ölçüm karşılaştırılabilir) anı arar. */
+export function nearestForecastMinute(F, sol, minute, span = 180) {
+  for (const strict of [true, false])
+    for (let d = 0; d <= span; d++) for (const m of [minute - d, minute + d]) if (windowOk(F, sol, m) && (!strict || futureOk(F, sol, m))) return m;
+  return null;
+}
+/** sol + dakika için 15 dk ileri tahmin; baseline'lar ve (varsa) gerçek ölçümle birlikte. */
+export function forecastAt(F, sol, m0) {
+  if (!F || !windowOk(F, sol, m0)) return null;
+  const S = F.series[sol], L = F.config.look, H = F.config.horizon, {mu, sd, ysd} = F.norm;
+  const last = [S.p[m0], S.t[m0], S.tg[m0]], seq = [];
+  for (let m = m0 - L + 1; m <= m0; m++) {
+    const f = [S.p[m] - last[0], S.t[m] - last[1], S.tg[m] - last[2], last[0], last[1], last[2], Math.cos(S.sza[m] * Math.PI / 180), Math.sin(2 * Math.PI * m / 1440), Math.cos(2 * Math.PI * m / 1440)];
+    seq.push(f.map((v, j) => (v - mu[j]) / sd[j]));
+  }
+  const clim = [];
+  for (let k = 0; k < H; k++) clim.push(F.clim.t[(m0 + 1 + k) % 1440] - F.clim.t[m0 % 1440]);
+  for (let k = 0; k < H; k++) clim.push(F.clim.p[(m0 + 1 + k) % 1440] - F.clim.p[m0 % 1440]);
+  const outs = F.models.map(m => gruForward(m, seq, clim.map((v, i) => v / ysd[i])));
+  const d = outs[0].map((_, i) => outs.reduce((s, o) => s + o[i], 0) / outs.length * ysd[i]);
+  const fut = k => m0 + 1 + k, act = (arr, k) => fut(k) < 1440 ? arr[fut(k)] ?? null : null;
+  const split = F.config.split, role = split.train.includes(+sol) ? 'train' : split.val.includes(+sol) ? 'val' : split.test.includes(+sol) ? 'test' : 'other';
+  return {sol, m0, H, L, role, delta: d,
+    t: d.slice(0, H).map(v => last[1] + v), p: d.slice(H).map(v => last[0] + v),
+    tDiurnal: clim.slice(0, H).map(v => last[1] + v), pDiurnal: clim.slice(H).map(v => last[0] + v),
+    tNow: last[1], pNow: last[0],
+    actualT: Array.from({length: H}, (_, k) => act(S.t, k)), actualP: Array.from({length: H}, (_, k) => act(S.p, k)),
+    histT: Array.from({length: L}, (_, k) => S.t[m0 - L + 1 + k]), histP: Array.from({length: L}, (_, k) => S.p[m0 - L + 1 + k])};
+}
+export const meanOf = a => a.reduce((s, v) => s + v, 0) / a.length;
+
 export const clockText = m => { const mm = ((Math.round(m) % 1440) + 1440) % 1440; return `${String(Math.floor(mm / 60)).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}`; };
 const COMPASS = () => t('meda.pusula').split(',');
 export const compass = deg => deg == null ? '—' : COMPASS()[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
@@ -141,6 +196,8 @@ export function niceTicks(lo, hi, n = 4) {
   let out = make(step); if (out.length < 3) { step /= 2; out = make(step); }
   return out;
 }
+const FC_TAB = 'fc';
+const ROLE_TXT = k => k === 'other' ? '' : t('meda.fc.rol.' + k);
 const LEVEL_TXT = new Proxy({}, {get: (_, k) => t('meda.d.' + String(k))});
 
 export class MedaPanel {
@@ -155,35 +212,46 @@ export class MedaPanel {
     const q = s => root.querySelector(s);
     if (!d) { q('.meda-body').innerHTML = `<p class="meda-empty">${t('meda.yok')}</p>`; return this; }
     q('#medaSols').innerHTML = solKeys(d).map(k => `<button data-sol="${k}">${k === COMPOSITE ? t('meda.birlesik') : 'SOL ' + k}</button>`).join('');
-    q('#medaVars').innerHTML = Object.entries(VARS).map(([k, v]) => `<button data-var="${k}">${v.tab}</button>`).join('');
+    q('#medaVars').innerHTML = this.varButtons();
     q('#medaSols').addEventListener('click', e => { const b = e.target.closest('[data-sol]'); if (b) this.setSol(b.dataset.sol); });
     q('#medaVars').addEventListener('click', e => { const b = e.target.closest('[data-var]'); if (b) this.setVar(b.dataset.var); });
     this.slider = q('#medaTime'); this.slider.addEventListener('input', () => this.setMinute(Number(this.slider.value)));
     q('#medaPlay').addEventListener('click', () => this.togglePlay());
     q('#medaSpeed').addEventListener('click', () => { this.speed = (this.speed + 1) % SPEEDS.length; this.render(); });
     this.canvas = q('#medaChart');
-    const pick = e => { const r = this.canvas.getBoundingClientRect(), L = 36, Rm = 8; const f = (e.clientX - r.left - L) / (r.width - L - Rm); this.setMinute(Math.round(Math.min(1, Math.max(0, f)) * 1439)); };
+    const pick = e => { if (this.var === FC_TAB) return; const r = this.canvas.getBoundingClientRect(), L = 36, Rm = 8; const f = (e.clientX - r.left - L) / (r.width - L - Rm); this.setMinute(Math.round(Math.min(1, Math.max(0, f)) * 1439)); };
     this.canvas.addEventListener('pointerdown', e => { this._drag = true; this.canvas.setPointerCapture(e.pointerId); pick(e); });
     this.canvas.addEventListener('pointermove', e => { if (this._drag) pick(e); });
     this.canvas.addEventListener('pointerup', () => this._drag = false);
     this.canvas.addEventListener('pointercancel', () => this._drag = false);
     const files = d.files || [];
-    q('#medaSrc').textContent = t('meda.kaynak', {n: files.length});
+    this.srcText = t('meda.kaynak', {n: files.length}); q('#medaSrc').textContent = this.srcText;
     q('#medaSrc').title = files.join('\n');
     this.render(); return this;
   }
+  varButtons() { return Object.entries(VARS).map(([k, v]) => `<button data-var="${k}">${v.tab}</button>`).join('') + `<button data-var="${FC_TAB}" class="fc-tab" title="${t('meda.fc.ipucu')}"${this.F ? '' : ' hidden'}>${t('meda.fc.sekme')}</button>`; }
   /** Dil değiştiğinde düğme ve kaynak metinlerini yeniler. */
   relabel() {
     if (!this.root || !this.data) return;
     const q = s => this.root.querySelector(s);
     q('#medaSols').innerHTML = solKeys(this.data).map(k => `<button data-sol="${k}">${k === COMPOSITE ? t('meda.birlesik') : 'SOL ' + k}</button>`).join('');
-    q('#medaVars').innerHTML = Object.entries(VARS).map(([k, v]) => `<button data-var="${k}">${v.tab}</button>`).join('');
-    q('#medaSrc').textContent = t('meda.kaynak', {n: (this.data.files || []).length});
+    q('#medaVars').innerHTML = this.varButtons();
+    this.srcText = t('meda.kaynak', {n: (this.data.files || []).length});
     this.status = flightStatus(this.cur); this.render();
   }
   update() { const prev = this.status?.level; this.cur = sample(this.data, this.sol, this.minute); this.status = flightStatus(this.cur); this.onChange(this.cur, this.status, prev); }
   setSol(k) { if (!binsFor(this.data, k)) return; this.sol = k; this.update(); this.render(); }
-  setVar(v) { if (!VARS[v]) return; this.var = v; this.render(); }
+  setVar(v) { if (!VARS[v] && v !== FC_TAB) return; this.var = v; this.render(); }
+  setForecast(F) { this.F = F; this._fcKey = null; const b = this.root?.querySelector(`[data-var="${FC_TAB}"]`); if (b) b.hidden = !F; if (!F && this.var === FC_TAB) this.var = 't'; this.render(); }
+  /** Seçili sol ve saate göre tahmin. BİRLEŞİK'te o saati ölçen sol (105/106/107) kullanılır; ölçüm yoksa en yakın blok. */
+  forecast() {
+    const F = this.F; if (!F) return null;
+    const key = `${this.sol}|${this.minute}`; if (this._fcKey === key) return this._fc;
+    const sols = this.sol === COMPOSITE ? (this.data.composite?.sols || []).map(String) : [this.sol];
+    let best = null;
+    for (const s of sols) { const m = nearestForecastMinute(F, s, this.minute); if (m != null && (!best || Math.abs(m - this.minute) < Math.abs(best.m - this.minute))) best = {s, m}; }
+    this._fcKey = key; this._fc = best ? forecastAt(F, best.s, best.m) : null; return this._fc;
+  }
   setMinute(m) { this.minute = ((Math.round(m) % 1440) + 1440) % 1440; this.update(); this.render(); }
   togglePlay(force) { this.playing = force ?? !this.playing; this.render(); }
   /** Oyun döngüsünden çağrılır: oynatılıyorsa gerçek 1 sn = SPEEDS[speed] Mars dakikası. */
@@ -201,6 +269,25 @@ export class MedaPanel {
     q('#medaMeta').textContent = `${this.sol === COMPOSITE ? 'SOL ' + (this.data.composite.sols || []).join('+') : 'SOL ' + this.sol} · Ls ${ls?.toFixed(1)}°`;
     const approx = k => c.fromComposite.includes(k) ? `<i title="${t('meda.bosluk')}">*</i>` : '';
     const [wx, wz] = windVector(1, c.wd), ang = Math.atan2(wx, -wz) * 180 / Math.PI;
+    const fcMode = this.var === FC_TAB && this.F, fc = fcMode ? this.forecast() : null;
+    this.root.classList.toggle('fc-mode', !!fcMode);
+    if (fcMode) {
+      const M = this.F.metrics.test, mt = k => meanOf(M[k].t), mp = k => meanOf(M[k].p), H = this.F.config.horizon;
+      const gainT = (1 - mt('gru') / mt('diurnal')) * 100, gainP = (1 - mp('gru') / mp('diurnal')) * 100;
+      const aT = fc?.actualT[H - 1], aP = fc?.actualP[H - 1], fark = g => `<em title="${t('meda.fc.farkIpucu')}">${g >= 0 ? '−' : '+'}${Math.abs(g).toFixed(0)}%</em>`;
+      q('#medaRead').innerHTML = (fc ? [
+        [t('meda.fc.hava', {h: H}), `${fc.t[H - 1].toFixed(1)}<em>°C</em>`],
+        [t('meda.fc.olculen'), aT == null ? '—' : `${aT.toFixed(1)}<em>°C</em>`],
+        [t('meda.fc.basinc', {h: H}), `${fc.p[H - 1].toFixed(1)}<em>Pa</em>`],
+        [t('meda.fc.olculen'), aP == null ? '—' : `${aP.toFixed(1)}<em>Pa</em>`],
+      ] : [[t('meda.fc.tahmin'), t('meda.fc.olcumYok')], ['', ''], ['', ''], ['', '']]).concat([
+        [t('meda.fc.hataHava'), `${mt('gru').toFixed(2)}<em>°C</em> ${fark(gainT)}`],
+        [t('meda.fc.hataBasinc'), `${mp('gru').toFixed(2)}<em>Pa</em> ${fark(gainP)}`],
+      ]).map(([l, v]) => `<div><small>${l}</small><b>${v}</b></div>`).join('');
+      const W = this.F.windows, S = this.F.config.split;
+      q('#medaSrc').textContent = t('meda.fc.kaynak', {l: this.F.config.look, h: H, e: S.train.join(', '), d: S.val.join(', '), s: S.test.join(', '), we: W.train, wd: W.val, ws: W.test, n: this.F.models.length, pt: mt('persistence').toFixed(2), pp: mp('persistence').toFixed(2)});
+    } else {
+      q('#medaSrc').textContent = this.srcText;
     q('#medaRead').innerHTML = [
       [t('meda.o.p'), `${c.p.toFixed(1)}<em>Pa</em>${approx('p')}`],
       [t('meda.o.t'), `${c.t.toFixed(0)}<em>°C</em>${approx('t')}`],
@@ -209,12 +296,14 @@ export class MedaPanel {
       [`${t('meda.o.ws')}${c.wd == null ? '' : ' ' + t('meda.den', {y: compass(c.wd)})}`, `${c.ws.toFixed(1)}<em>m/s</em> <span class="warrow" style="transform:rotate(${ang.toFixed(0)}deg)" title="${t('meda.akis')}">↑</span>${approx('ws')}`],
       [t('meda.o.rho'), `${c.rho.toFixed(4)}<em>kg/m³</em>${approx('rho')}`],
     ].map(([l, v]) => `<div><small>${l}</small><b>${v}</b></div>`).join('');
+    }
     const fl = q('#medaFlight'); fl.className = `meda-flight ${st.level}`;
     fl.innerHTML = `<b>${LEVEL_TXT[st.level]}</b><span>${st.reasons.length ? st.reasons.join(' · ') : t('meda.sinirIci')}</span><span class="meda-energy">${t('meda.aski', {w: Math.round(hoverPowerW(c.rho))})}</span>`;
     this.drawChart(); this._dirty = false;
   }
   drawChart() {
     const cv = this.canvas; if (!cv) return;
+    if (this.var === FC_TAB && this.F) return this.drawForecast();
     const dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.max(200, Math.round(cv.clientWidth * dpr)), H = Math.max(80, Math.round(cv.clientHeight * dpr));
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -251,5 +340,44 @@ export class MedaPanel {
     ctx.textAlign = 'left'; ctx.textBaseline = 'top'; let lx = L + 4;
     for (const s of V.series) { ctx.fillStyle = s.c; ctx.fillRect(lx, T + 4, 9, 2); ctx.fillStyle = '#c9d6dc'; ctx.fillText(`${s.l} (${V.unit})`, lx + 12, T); lx += ctx.measureText(`${s.l} (${V.unit})`).width + 24; }
     if (this.sol !== COMPOSITE && comp) { ctx.fillStyle = '#7f97a5'; ctx.fillText(t('meda.birlesikCizgi'), lx, T); }
+  }
+  drawForecast() {
+    const cv = this.canvas, fc = this.forecast();
+    const dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.max(200, Math.round(cv.clientWidth * dpr)), Hh = Math.max(80, Math.round(cv.clientHeight * dpr));
+    if (cv.width !== W || cv.height !== Hh) { cv.width = W; cv.height = Hh; }
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = W / dpr, h = Hh / dpr, L = 40, R = 8, T = 14, B = 14, pw = w - L - R, gap = 8, ph = (h - T - B - gap) / 2;
+    ctx.clearRect(0, 0, w, h); ctx.font = '9px Consolas,monospace';
+    if (!fc) { ctx.fillStyle = '#a3b3be'; ctx.textAlign = 'center'; ctx.fillText(t('meda.fc.blokYok'), w / 2, h / 2); return; }
+    const {L: LK, H, m0} = fc, n = LK + H, xOf = k => L + (k + .5) / n * pw;   // k: 0..LK-1 geçmiş, LK..n-1 gelecek
+    const nowX = L + LK / n * pw;
+    ctx.fillStyle = 'rgba(228,167,109,.06)'; ctx.fillRect(nowX, T, L + pw - nowX, h - T - B);
+    const pane = (top, hist, act, pred, diu, unit, col, label, fmt) => {
+      const all = [...hist, ...act.filter(v => v != null), ...pred, ...diu];
+      let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .15 || .5; lo -= pad; hi += pad;
+      const yOf = v => top + ph - (v - lo) / (hi - lo) * ph;
+      ctx.strokeStyle = '#223646'; ctx.lineWidth = 1; ctx.strokeRect(L, top, pw, ph);
+      ctx.fillStyle = '#7f97a5'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(fmt(hi - pad * .5), L - 4, top + 6); ctx.fillText(fmt(lo + pad * .5), L - 4, top + ph - 6);
+      const line = (pts, c, wd, dash) => { ctx.strokeStyle = c; ctx.lineWidth = wd; ctx.setLineDash(dash || []); ctx.beginPath(); let on = false; for (const [k, v] of pts) { if (v == null) { on = false; continue; } on ? ctx.lineTo(xOf(k), yOf(v)) : ctx.moveTo(xOf(k), yOf(v)); on = true; } ctx.stroke(); ctx.setLineDash([]); };
+      const last = hist[LK - 1];
+      line(hist.map((v, k) => [k, v]), col, 1.8);
+      line([[LK - 1, last], ...act.map((v, k) => [LK + k, v])], '#c9d6dc', 1.4);
+      line([[LK - 1, last], [n - 1, last]], '#7f97a5', 1, [1, 3]);
+      line([[LK - 1, last], ...diu.map((v, k) => [LK + k, v])], '#9fb2bd', 1.1, [4, 3]);
+      line([[LK - 1, last], ...pred.map((v, k) => [LK + k, v])], '#f2c14e', 2.2);
+      ctx.fillStyle = '#f2c14e'; ctx.beginPath(); ctx.arc(xOf(n - 1), yOf(pred[H - 1]), 3, 0, 7); ctx.fill();
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = col; ctx.fillText(`${label} (${unit})`, L + 4, top + 2);
+    };
+    pane(T, fc.histT, fc.actualT, fc.t, fc.tDiurnal, '°C', '#e4a76d', t('meda.fc.pHava'), v => v.toFixed(1));
+    pane(T + ph + gap, fc.histP, fc.actualP, fc.p, fc.pDiurnal, 'Pa', '#77d0bf', t('meda.fc.pBasinc'), v => v.toFixed(1));
+    ctx.strokeStyle = '#f2efe8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(nowX, T - 2); ctx.lineTo(nowX, h - B); ctx.stroke();
+    ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = '#c9d6dc';
+    const role = ROLE_TXT(fc.role); ctx.fillStyle = fc.role === 'test' ? '#77d0bf' : fc.role === 'val' ? '#e7b95f' : '#a3b3be'; ctx.fillText(`SOL ${fc.sol}${role ? ' · ' + role : ''}`, L, h - B + 3); ctx.fillStyle = '#c9d6dc'; ctx.textAlign = 'center'; ctx.fillText(t('meda.fc.simdi', {s: clockText(m0)}), nowX, h - B + 3);
+    ctx.textAlign = 'right'; ctx.fillText(t('meda.fc.ileri', {h: H, s: clockText(m0 + H)}), L + pw, h - B + 3);
+    // açıklama + veri rolü
+    ctx.textBaseline = 'top'; ctx.textAlign = 'left'; let lx = L; const item = (c, txt, dash) => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.setLineDash(dash || []); ctx.beginPath(); ctx.moveTo(lx, 5); ctx.lineTo(lx + 10, 5); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#a3b3be'; ctx.fillText(txt, lx + 13, 0); lx += ctx.measureText(txt).width + 24; };
+    item('#c9d6dc', t('meda.fc.l.olcum')); item('#f2c14e', t('meda.fc.l.gru')); item('#9fb2bd', t('meda.fc.l.gunluk'), [4, 3]); item('#7f97a5', t('meda.fc.l.kalicilik'), [1, 3]);
+    if (Math.abs(m0 - this.minute) > 2) { ctx.textAlign = 'center'; ctx.fillStyle = '#e7b95f'; ctx.fillText(t('meda.fc.enYakin'), L + pw * .5, T + ph + 0.5); }
   }
 }

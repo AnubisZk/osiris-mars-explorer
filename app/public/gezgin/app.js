@@ -17,7 +17,8 @@ import {SABIT,medaHava,basincPa,zeminRuzgari,havaSicakligiC,yogunluk,gunesGucu,g
   pilKapasitesiWh,GEZGIN,zeminSurusu,ISI,bolmeSicakligi,baglantiKalitesi,firtinaDurumu,tahminiKalanUcusS} from './sistemler.js';
 import {EnerjiModeli,siniflandiriciHazirla,spektrumUret,rastgele,SINIFLAR} from './yz.js';
 import {canliHavaAl} from './veri.js';
-import {loadMeda,MedaPanel,sample,flightStatus,windVector,clockText} from './meda.js';
+import {loadMeda,loadForecast,MedaPanel,sample,flightStatus,windVector,clockText,meanOf} from './meda.js';
+import {DLPanel} from './dlpanel.js';
 import {t,dilAyarla,baslangicDili,sayfayiCevir,aktifDil} from './dil.js';
 
 const SURUM='3.2';
@@ -84,7 +85,7 @@ let saatKayma=0;                     // MEDA panelindeki saat kaydırıcısıyla
 const lst=()=>((LST0+saatKayma+state.time*24/SABIT.SOL_S)%24+24)%24;
 /* v3.3: MEDA ölçümü (sol 105–110, 10 dk medyan). Canlı veri gelmediyse oyunun havası bu ölçümlerden okunur;
  * ölçüm dosyası yoksa sistemler.js'teki harmonik model (MEDA_MODEL) yedektir. */
-let medaPanel=null,olcumDk=-1,olcumSol=null,olcumDeger=null;
+let dlPanel=null,medaPanel=null,olcumDk=-1,olcumSol=null,olcumDeger=null;
 function olcum(){
   if(!medaPanel?.data||state.hava.kaynak==='canli')return null;
   const dk=Math.floor(lst()*60);
@@ -237,6 +238,7 @@ function collect(i,yontem){
   const v={label:hedefAdi(i),yontem:t('yontem.'+(yontem==='drone'?'drone':'gezgin')),sinif:t('sinif.'+g.sinif),guven:Math.round(g.guven*100)};
   gamepad.rumble(.25,.85,260);
   addLog(t('l.tarandi',v),g.dogru?'success':'warn');notify(t('m.tarandi',v));
+  dlPanel?.classifyTarget(i,hedefAdi(i));
 }
 function scan(){
   if(state.sonuc){notify(t('m.bitti'));return;}
@@ -749,6 +751,8 @@ function exportMissionReport(){
   const d=state.drone,r=state.rover;
   const rapor={proje:'OSIRISZK Mars Pathfinder 3D',surum:SURUM,olusturma:new Date().toISOString(),
     not:'Eğitim simülasyonu. Rotor gücü momentum teorisiyle (FM 0,27, Ingenuity ≈350 W kalibrasyonu); DL spektrumları TEMSİLÎdir (ölçülmüş değil).',
+    derinOgrenme:dlPanel?.summary()||null,
+    medaTahminGRU:medaPanel?.F?(()=>{const F=medaPanel.F,fc=medaPanel.forecast(),r=a=>a.map(v=>v==null?null:+v.toFixed(2));return{gorev:F.task,bolme:F.config.split,testMAE:Object.fromEntries(Object.entries(F.metrics.test).map(([k,v])=>[k,{sicaklikC:+meanOf(v.t).toFixed(4),basincPa:+meanOf(v.p).toFixed(4)}])),simdi:fc?{sol:fc.sol,lmst:clockText(fc.m0),rol:fc.role,sicaklikTahminC:r(fc.t),sicaklikOlculenC:r(fc.actualT),basincTahminPa:r(fc.p),basincOlculenPa:r(fc.actualP)}:null};})():null,
     atmosfer:{...state.hava,lst:saatYaz(lst()),sicaklikC:+ortamC().toFixed(1),yogunluk:+rho().toFixed(5),medaOlcum:olcum()?{sol:medaPanel.sol,basincPa:+olcum().p.toFixed(1),ruzgarMs:+(olcum().ws??0).toFixed(1),ucus:ucusDurumu().level,nedenler:ucusDurumu().reasons,kaynak:medaPanel.data.source}:null},
     gorevSuresiS:+state.time.toFixed(1),sonuc:state.sonuc??'suruyor',
     drone:{enerjiWh:+d.enerjiWh.toFixed(2),kapasiteWh:+droneKap().toFixed(2),dayaniklilik:d.dayaniklilik,durum:d.docked?'kenetli':d.landed?'yerde':d.dustu?'dustu':'ucus'},
@@ -790,7 +794,7 @@ async function canliVeri(){
   else{addLog(t('l.veriYok'),'warn');console.info('MEDA:',h.hata);}
 }
 function dilDegistir(d){
-  dilAyarla(d);sayfayiCevir();medaPanel?.relabel();
+  dilAyarla(d);sayfayiCevir();medaPanel?.relabel();dlPanel?.relabel();
   document.querySelectorAll('[data-dil]').forEach(b=>b.classList.toggle('active',b.dataset.dil===d));
   $('pauseBtn').textContent=t(state.running?'dugme.duraklat':'dugme.devam');$('warpBtn').textContent=t('dugme.hizlandir',{x:state.warp});
   kaliteDugmesi();setCamera(state.cameraMode);selectVehicle(state.selected,true);updateUI();
@@ -810,7 +814,7 @@ function bindControls(){
   on('reportBtn',exportMissionReport);on('saveBtn',saveGame);on('loadBtn',()=>$('loadInput').click());on('csvBtn',exportCSV);on('dataBtn',canliVeri);
   $('qualitySeg').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)kaliteAyarla(b.dataset.q);});
   $('resSeg').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(b)cozunurlukAyarla(b.dataset.r);});
-  let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>medaPanel?.render(),120);});
+  let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{medaPanel?.render();dlPanel?.render();},120);});
   $('loadInput').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)loadGame(f);e.target.value='';});
   document.querySelectorAll('[data-dil]').forEach(b=>b.addEventListener('click',()=>dilDegistir(b.dataset.dil)));
   document.querySelectorAll('[data-camera]').forEach(b=>b.addEventListener('click',()=>setCamera(b.dataset.camera)));
@@ -947,13 +951,16 @@ async function init(){
   const json=await yapilandirmaOku();
   try{const k=JSON.parse(localStorage.getItem(ML_ANAHTAR)||'null');if(k)model.yukle(k);}catch{}
   roverEgim();const p=padPos();Object.assign(state.drone,{x:p[0],y:p[1],z:p[2]});
-  medaPanel=new MedaPanel(await loadMeda(),{onChange:medaDegisti,minute:Math.round(lst()*60)}).mount($('medaPanel'));medaPanel.status=flightStatus(medaPanel.cur);
+  const medaVeri=await loadMeda();medaPanel=new MedaPanel(medaVeri,{onChange:medaDegisti,minute:Math.round(lst()*60)}).mount($('medaPanel'));medaPanel.status=flightStatus(medaPanel.cur);
+  const tahmin=medaVeri?await loadForecast():null;if(medaVeri)medaPanel.setForecast(tahmin);
+  if(tahmin){const M=tahmin.metrics.test;addLog(t('l.medaGru',{s:tahmin.config.split.test.join(','),g:meanOf(M.gru.t).toFixed(2),d:meanOf(M.diurnal.t).toFixed(2)}),'success');}
+  dlPanel=new DLPanel($('dlPanel'),{onLog:addLog});dlPanel.setTab('rock');
   bindControls();kaliteDugmesi();setWarp(1);setCamera('cinematic');selectVehicle('drone',true);
   addLog(t('l.basla1'));addLog(t('l.basla2')+(json?' · modeller.json v1.0':''),'success');
   updateUI();$('loading').hidden=true;
-  window.__OSIRISZK_TEST__={kaliteDegistir,kaliteAyarla,cozunurlukAyarla,get cozKey(){return cozKey;},get medaPanel(){return medaPanel;},olcum,ucusDurumu,get kalite(){return kalite;},dunya,ENGELLER,get state(){return state;},renderer,assets,model,get clf(){return clf;},CFG,adim,updatePhysics,takeoff,dock,scan,startMission,reset,swapBattery,toggleUplink,setWarp,selectVehicle,setCamera,saveGame,exportCSV,photo,canliVeri,dilDegistir,padPos,lst,rho,firtina:()=>firtina(),keys};
+  window.__OSIRISZK_TEST__={kaliteDegistir,kaliteAyarla,cozunurlukAyarla,get cozKey(){return cozKey;},get medaPanel(){return medaPanel;},get dlPanel(){return dlPanel;},olcum,ucusDurumu,get kalite(){return kalite;},dunya,ENGELLER,get state(){return state;},renderer,assets,model,get clf(){return clf;},CFG,adim,updatePhysics,takeoff,dock,scan,startMission,reset,swapBattery,toggleUplink,setWarp,selectVehicle,setCamera,saveGame,exportCSV,photo,canliVeri,dilDegistir,padPos,lst,rho,firtina:()=>firtina(),keys};
   requestAnimationFrame(frame);
-  setTimeout(()=>{siniflandiriciyiHazirla();canliVeri();},400);
+  setTimeout(()=>{siniflandiriciyiHazirla();canliVeri();dlPanel.train(2025);},400);
 }
 function dilDegistirSessiz(d){dilAyarla(d);sayfayiCevir();document.querySelectorAll('[data-dil]').forEach(b=>b.classList.toggle('active',b.dataset.dil===d));$('pauseBtn').textContent=t('dugme.duraklat');}
 init();

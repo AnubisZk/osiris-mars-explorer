@@ -81,6 +81,23 @@
             <div class="meda-flight" id="medaFlight"></div>
             <div class="meda-src" id="medaSrc"></div>
           </div>
+        </div>
+        <div class="module-pad dl-pad" id="dlPanel">
+          <div class="module-head"><span>◬</span> <span data-t="dl.baslik"></span> <small id="dlMeta">—</small></div>
+          <div class="seg dl-tabs" id="dlTabs"><button data-tab="rock" class="on" data-t="dl.sekme.mlp"></button><button data-tab="quantum" class="q-tab" data-t="dl.sekme.q"></button></div>
+          <div class="dl-body" id="dlRock">
+            <div class="dl-col">
+              <div class="dl-kpis"><div><small id="dlK1"></small><strong id="dlAcc">…</strong></div><div><small id="dlK2"></small><strong id="dlF1">…</strong></div><div><small id="dlK3"></small><strong id="dlEpoch">0/40</strong></div></div>
+              <canvas id="dlLoss" aria-label="loss / accuracy"></canvas>
+              <div class="dl-cm" id="dlCm"></div>
+            </div>
+            <div class="dl-col">
+              <div class="dl-arch"><span id="dlArchText"><b data-t="dl.bant"></b><i>→</i>16<i>→</i>16<i>→</i><b data-t="dl.sinif"></b> <em data-t="dl.mimari"></em></span><canvas id="dlCircuit" hidden aria-label="VQC"></canvas><small id="dlCounts"></small></div>
+              <canvas id="dlSpec" aria-label="spectrum"></canvas>
+              <div class="dl-live" id="dlLive"></div>
+            </div>
+          </div>
+          <div class="dl-foot"><span id="dlNote"></span><button class="seg-btn" id="dlRetrain" data-t="dl.yeniden" data-t-title="dl.yenidenIpucu"></button></div>
         </div></div>
       </section>
       <aside class="sidebar">
